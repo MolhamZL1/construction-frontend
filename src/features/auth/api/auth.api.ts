@@ -9,3 +9,7 @@ export async function loginCompany(payload: LoginFormValues): Promise<AuthSessio
 
   return mapCompanyLoginResponse(data)
 }
+
+export async function signOut(): Promise<void> {
+  await api.post('/sign-out')
+}

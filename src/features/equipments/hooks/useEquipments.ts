@@ -11,7 +11,7 @@ import type {
   CloseMaintenanceInput,
   CreateEquipmentInput,
   CreateMaintenanceInput,
-  EquipmentStatus,
+  EquipmentStatusFilter,
 } from '../models/equipment.model'
 
 const EQUIPMENTS_QUERY_KEY = ['equipments'] as const
@@ -46,7 +46,7 @@ export function getEquipmentsErrorMessage(error: unknown) {
   return axiosError.response?.data?.message ?? 'تعذر تنفيذ العملية. حاول مرة أخرى.'
 }
 
-export function useEquipments(status: EquipmentStatus) {
+export function useEquipments(status: EquipmentStatusFilter) {
   return useQuery({
     queryKey: [...EQUIPMENTS_QUERY_KEY, status],
     queryFn: () => getEquipmentsByStatus(status),

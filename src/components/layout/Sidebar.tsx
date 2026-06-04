@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/utils/cn'
 import { useAuthStore } from '@/stores/authStore'
+import { useUIStore } from '@/stores/uiStore'
 
 interface SidebarLink {
   label: string
@@ -15,6 +16,11 @@ const links: SidebarLink[] = [
     icon: 'grid',
   },
   {
+    label: 'المشاريع',
+    to: '/projects',
+    icon: 'projects',
+  },
+  {
     label: 'المستخدمون',
     to: '/users',
     icon: 'users',
@@ -26,18 +32,54 @@ const links: SidebarLink[] = [
   },
 ]
 
+const roleLabels: Record<string, string> = {
+  company_admin: 'مدير الشركة',
+  project_manager: 'مدير مشروع',
+  assistant: 'مساعد',
+  project_owner: 'مالك مشروع',
+}
+
 export function Sidebar() {
   const user = useAuthStore((state) => state.user)
-  const displayName = user?.name ?? 'حسام زينة'
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen)
+    const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+  const displayName = user?.name?.trim() || 'مستخدم النظام'
+  const roleLabel = user?.role ? roleLabels[user.role] ?? user.role : 'غير محدد'
   const initials = displayName
-    .split(' ')
+    .split(/\s+/)
     .map((part) => part[0])
     .join('')
     .slice(0, 2)
+    .toUpperCase()
 
   return (
-    <aside className="flex w-full flex-col border-b border-slate-200 bg-white px-4 py-4 lg:h-screen lg:w-72 lg:border-b-0 lg:border-l lg:border-slate-200" dir="rtl">
-      <nav className="flex gap-2 overflow-x-auto pb-2 lg:flex-1 lg:flex-col lg:gap-1.5 lg:overflow-visible lg:pb-0">
+    <aside
+      className={cn(
+        'flex w-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-[0_1px_4px_rgba(15,23,42,0.04)] transition-[width,padding] duration-200 lg:h-screen lg:border-b-0 lg:border-l lg:border-slate-200 lg:py-5',
+        sidebarOpen ? 'lg:w-72 lg:px-5' : 'lg:w-20 lg:px-3'
+      )}
+      dir="rtl"
+    >
+      <div className={cn('mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 lg:mb-6', !sidebarOpen && 'lg:justify-center lg:px-2')}>
+      
+        <div className={cn('min-w-0 flex-1 text-right transition-opacity', !sidebarOpen && 'lg:hidden')}>
+          <p className="truncate text-sm font-semibold text-slate-950">{displayName}</p>
+          <p className="mt-0.5 truncate text-xs font-medium text-[#50683f]">{roleLabel}</p>
+        </div><button
+              type="button"
+              onClick={toggleSidebar}
+              className="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-[#50683f] lg:flex"
+              aria-label={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
+              title={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+                <path d="M4 5h16M4 12h16M4 19h16" strokeLinecap="round" />
+              </svg>
+            </button>
+      </div>
+
+
+      <nav className="flex gap-2 overflow-x-auto pb-2 lg:flex-1 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0" aria-label="القائمة الرئيسية">
         {links.map((link) => (
           <NavLink
             key={link.label}
@@ -45,28 +87,19 @@ export function Sidebar() {
             end
             className={({ isActive }) =>
               cn(
-                'flex h-10 shrink-0 items-center justify-start gap-3 rounded-lg px-4 text-sm font-medium text-slate-500 transition lg:h-11',
+                'group flex h-10 shrink-0 items-center justify-start gap-3 rounded-lg px-4 text-sm font-medium transition lg:h-11 lg:w-full',
+                !sidebarOpen && 'lg:justify-center lg:px-0',
                 isActive
                   ? 'bg-[#50683f] text-white shadow-sm'
-                  : 'hover:bg-slate-50 hover:text-[#50683f]'
+                  : 'text-slate-500 hover:bg-[#eef4eb] hover:text-[#50683f]'
               )
             }
           >
             <MenuIcon name={link.icon} />
-            {link.label}
+            <span className={cn('truncate', !sidebarOpen && 'lg:hidden')}>{link.label}</span>
           </NavLink>
         ))}
       </nav>
-
-      <div className="mt-4 hidden rounded-xl bg-slate-50 p-3 lg:flex lg:items-center lg:gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#50683f] text-sm font-semibold text-white">
-          {initials}
-        </div>
-        <div className="min-w-0 text-right">
-          <p className="truncate text-sm font-semibold text-slate-900">{displayName}</p>
-          <p className="truncate text-xs text-slate-500">مدير المشاريع</p>
-        </div>
-      </div>
     </aside>
   )
 }

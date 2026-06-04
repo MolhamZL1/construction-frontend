@@ -1,21 +1,23 @@
-export type InternalUserRole = 'project_manager' | 'assistant' | 'project_owner'
-export type InternalUserStatus = 'active' | 'inactive'
-
-export interface InternalUser {
-  id: string
-  name: string
-  email: string
-  internalId: string | null
-  role: InternalUserRole
-  status?: InternalUserStatus
-  permissions: string[]
-  createdAt?: string
-  updatedAt?: string
-}
-
-export interface CreateInternalUserInput {
-  name: string
-  email: string
-  password: string
-  role: InternalUserRole
-}
+export type {
+  ApiErrorResponse,
+  ApiResponse,
+  CreatableUserRole,
+  CreateUserPayload,
+  CreateUserPayload as CreateInternalUserInput,
+  ResetPasswordPayload,
+  SearchUser,
+  User,
+  User as InternalUser,
+  UserActivitiesStatistics,
+  UserActivity,
+  UserProject,
+  UserProjectsStatistics,
+  UserRole,
+  UserRole as InternalUserRole,
+  UserRoleFilter,
+  UserRoleFilter as InternalUserRoleFilter,
+  UserStatisticsData,
+  UserStatisticsType,
+  UserStatus,
+  UserStatus as InternalUserStatus,
+} from '../types/user.types'

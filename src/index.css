@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
-  font-family: system-ui, "Segoe UI", sans-serif;
+  font-family: 'Cairo', system-ui, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -15,4 +17,14 @@ body {
   margin: 0;
   direction: rtl;
   background: #f8fafc;
+}
+
+/* Leaflet RTL fixes */
+.leaflet-control-zoom {
+  direction: ltr;
+}
+
+.leaflet-popup-content-wrapper {
+  direction: rtl;
+  text-align: right;
 }

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { loginCompany } from '../api/auth.api'
+import { loginCompany, signOut } from '../api/auth.api'
 import type { LoginFormValues } from '../types/auth.types'
 
 interface ApiErrorResponse {
@@ -42,6 +42,12 @@ function resolveErrorMessage(error: AxiosError<ApiErrorResponse>) {
 export function useLoginCompany() {
   return useMutation({
     mutationFn: (payload: LoginFormValues) => loginCompany(payload),
+  })
+}
+
+export function useSignOut() {
+  return useMutation({
+    mutationFn: signOut,
   })
 }
 

@@ -1,36 +1,62 @@
-import { useState } from 'react'
-import { CreateUserForm } from '../components/CreateUserForm'
+import { useMemo, useState } from 'react'
+import { DeleteUserDialog } from '../components/DeleteUserDialog'
+import { ResetPasswordDialog } from '../components/ResetPasswordDialog'
+import { ToggleStatusDialog } from '../components/ToggleStatusDialog'
+import { UserFormDialog } from '../components/UserFormDialog'
+import { UsersEmptyState } from '../components/UsersEmptyState'
+import { UsersErrorState } from '../components/UsersErrorState'
+import { UsersHeader } from '../components/UsersHeader'
+import { UsersLoadingState } from '../components/UsersLoadingState'
 import { UsersTable } from '../components/UsersTable'
-import { useUsers } from '../hooks/useUsers'
+import { UsersToolbar } from '../components/UsersToolbar'
+import { getUsersErrorMessage, useDebouncedValue, useUsers } from '../hooks/useUsers'
+import type { User, UserRoleFilter } from '../types/user.types'
+
+type DialogState =
+  | { type: 'none' }
+  | { type: 'create' }
+  | { type: 'delete'; user: User }
+  | { type: 'reset-password'; user: User }
+  | { type: 'toggle-status'; user: User }
 
 export function UsersPage() {
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const usersQuery = useUsers()
+  const [role, setRole] = useState<UserRoleFilter>('all')
+  const [search, setSearch] = useState('')
+  const [dialog, setDialog] = useState<DialogState>({ type: 'none' })
+  const debouncedSearch = useDebouncedValue(search, 300)
+  const usersQuery = useUsers(role, debouncedSearch)
+  const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data])
 
   return (
-    <section className="space-y-6 px-6 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">إدارة المستخدمين</h1>
-          <p className="mt-2 text-sm text-slate-500">إضافة المستخدمين الداخليين وإدارة حالتهم.</p>
-        </div>
+    <section className="min-h-screen bg-white px-6 py-8" dir="rtl">
+      <UsersHeader onAddUser={() => setDialog({ type: 'create' })} />
 
-        <button
-          type="button"
-          onClick={() => setShowCreateForm((value) => !value)}
-          className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834]"
-        >
-          {showCreateForm ? 'إغلاق النموذج' : 'إضافة مستخدم'}
-        </button>
+      <div className="mt-7 space-y-6">
+        <UsersToolbar
+          role={role}
+          search={search}
+          totalCount={users.length}
+          onRoleChange={setRole}
+          onSearchChange={setSearch}
+        />
+
+        {usersQuery.isError ? <UsersErrorState message={getUsersErrorMessage(usersQuery.error)} /> : null}
+        {usersQuery.isLoading ? <UsersLoadingState /> : null}
+        {!usersQuery.isLoading && !usersQuery.isError && users.length === 0 ? <UsersEmptyState /> : null}
+        {!usersQuery.isLoading && users.length > 0 ? (
+          <UsersTable
+            users={users}
+            onToggleStatus={(user) => setDialog({ type: 'toggle-status', user })}
+            onResetPassword={(user) => setDialog({ type: 'reset-password', user })}
+            onDelete={(user) => setDialog({ type: 'delete', user })}
+          />
+        ) : null}
       </div>
 
-      {showCreateForm ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <CreateUserForm onCreated={() => setShowCreateForm(false)} />
-        </div>
-      ) : null}
-
-      <UsersTable users={usersQuery.data ?? []} />
+      <UserFormDialog open={dialog.type === 'create'} onClose={() => setDialog({ type: 'none' })} onSuccess={() => undefined} />
+      <ToggleStatusDialog user={dialog.type === 'toggle-status' ? dialog.user : null} onClose={() => setDialog({ type: 'none' })} onSuccess={() => undefined} />
+      <ResetPasswordDialog user={dialog.type === 'reset-password' ? dialog.user : null} onClose={() => setDialog({ type: 'none' })} onSuccess={() => undefined} />
+      <DeleteUserDialog user={dialog.type === 'delete' ? dialog.user : null} onClose={() => setDialog({ type: 'none' })} onSuccess={() => undefined} />
     </section>
   )
 }

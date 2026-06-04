@@ -1,14 +1,25 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
+import { useSignOut } from '@/features/auth/hooks/useLoginCompany'
+import { queryClient } from '@/lib/query-client'
 import { useAuthStore } from '@/stores/authStore'
 
 export function AppShell() {
   const navigate = useNavigate()
   const logout = useAuthStore((state) => state.logout)
 
-  function handleLogout() {
-    logout()
-    navigate('/login', { replace: true })
+  const signOutMutation = useSignOut()
+
+  async function handleLogout() {
+    try {
+      await signOutMutation.mutateAsync()
+    } catch {
+      // Local logout is still required if the server session is already expired.
+    } finally {
+      logout()
+      queryClient.clear()
+      navigate('/login', { replace: true })
+    }
   }
 
   return (
@@ -18,16 +29,19 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-[0_1px_4px_rgba(15,23,42,0.08)] sm:px-6" dir="ltr">
           <div className="flex items-center gap-3">
+            
             <button
               type="button"
               onClick={handleLogout}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eef4eb] text-[#50683f] transition hover:bg-[#e1ebdc]"
+              disabled={signOutMutation.isPending}
+              className="flex h-10 items-center gap-2 rounded-xl bg-[#eef4eb] px-3 text-sm font-medium text-[#50683f] transition hover:bg-[#e1ebdc] disabled:cursor-not-allowed disabled:opacity-60"
               aria-label="تسجيل الخروج"
               title="تسجيل الخروج"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20a7.5 7.5 0 0 1 15 0" strokeLinecap="round" />
+                <path d="M15 17l5-5-5-5M20 12H9M11 20H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
+              <span>{signOutMutation.isPending ? 'جاري الخروج...' : 'تسجيل الخروج'}</span>
             </button>
 
             <button
@@ -55,17 +69,7 @@ export function AppShell() {
             </button>
           </div>
 
-          <div className="mx-3 flex max-w-[580px] flex-1 items-center rounded-xl bg-slate-100 px-4 text-slate-500 sm:mx-6" dir="rtl">
-            <input
-              type="search"
-              className="h-10 min-w-0 flex-1 bg-transparent text-right text-sm outline-none placeholder:text-slate-400"
-              placeholder="ابحث في المشاريع، البنود، الورش..."
-            />
-            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-            </svg>
-          </div>
+          
         </header>
 
         <main className="min-h-0 flex-1 bg-slate-50">

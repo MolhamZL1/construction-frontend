@@ -6,12 +6,13 @@ import { CreateEquipmentForm } from '../components/CreateEquipmentForm'
 import { CreateMaintenanceForm } from '../components/CreateMaintenanceForm'
 import { EquipmentsTable } from '../components/EquipmentsTable'
 import { getEquipmentsErrorMessage, useCloseMaintenance, useEquipments } from '../hooks/useEquipments'
-import type { EquipmentStatus } from '../models/equipment.model'
+import type { Equipment, EquipmentStatusFilter } from '../models/equipment.model'
 
-const equipmentStatuses: Array<{ value: EquipmentStatus; label: string }> = [
-  { value: 'Available', label: 'Available' },
-  { value: 'Maintenance', label: 'Maintenance' },
-  { value: 'Booked', label: 'Booked' },
+const equipmentStatuses: Array<{ value: EquipmentStatusFilter; label: string }> = [
+  { value: 'all', label: 'كل المعدات' },
+  { value: 'Available', label: 'متاحة' },
+  { value: 'Maintenance', label: 'قيد الصيانة' },
+  { value: 'Booked', label: 'محجوزة' },
 ]
 
 const closeMaintenanceSchema = z.object({
@@ -21,16 +22,28 @@ const closeMaintenanceSchema = z.object({
 
 type CloseMaintenanceFormValues = z.infer<typeof closeMaintenanceSchema>
 
+function getTodayDateInputValue() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 export function EquipmentsPage() {
-  const [status, setStatus] = useState<EquipmentStatus>('Available')
+  const [status, setStatus] = useState<EquipmentStatusFilter>('all')
   const [showCreateEquipment, setShowCreateEquipment] = useState(false)
-  const [showCreateMaintenance, setShowCreateMaintenance] = useState(false)
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | undefined>()
+  const [maintenanceEquipment, setMaintenanceEquipment] = useState<Equipment | null>(null)
+  const [closingMaintenanceEquipment, setClosingMaintenanceEquipment] = useState<Equipment | null>(null)
   const equipmentsQuery = useEquipments(status)
 
-  function openMaintenanceForm(equipmentId?: string) {
-    setSelectedEquipmentId(equipmentId)
-    setShowCreateMaintenance(true)
+  function openMaintenanceDialog(equipment: Equipment) {
+    setMaintenanceEquipment(equipment)
+  }
+
+  function openCloseMaintenanceDialog(equipment: Equipment) {
+    setClosingMaintenanceEquipment(equipment)
   }
 
   return (
@@ -48,13 +61,6 @@ export function EquipmentsPage() {
             className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834]"
           >
             {showCreateEquipment ? 'إغلاق إضافة المعدة' : 'إضافة معدة'}
-          </button>
-          <button
-            type="button"
-            onClick={() => openMaintenanceForm()}
-            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[#50683f] hover:text-[#50683f]"
-          >
-            إضافة صيانة
           </button>
         </div>
       </div>
@@ -82,13 +88,19 @@ export function EquipmentsPage() {
         </div>
       ) : null}
 
-      {showCreateMaintenance ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <CreateMaintenanceForm equipmentId={selectedEquipmentId} onCreated={() => setShowCreateMaintenance(false)} />
-        </div>
+      {maintenanceEquipment ? (
+        <MaintenanceDialog
+          equipment={maintenanceEquipment}
+          onClose={() => setMaintenanceEquipment(null)}
+        />
       ) : null}
 
-      <CloseMaintenancePanel />
+      {closingMaintenanceEquipment ? (
+        <CloseMaintenanceDialog
+          equipment={closingMaintenanceEquipment}
+          onClose={() => setClosingMaintenanceEquipment(null)}
+        />
+      ) : null}
 
       {equipmentsQuery.error ? (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -99,13 +111,48 @@ export function EquipmentsPage() {
       <EquipmentsTable
         equipments={equipmentsQuery.data ?? []}
         isLoading={equipmentsQuery.isLoading}
-        onCreateMaintenance={openMaintenanceForm}
+        onCreateMaintenance={openMaintenanceDialog}
+        onCloseMaintenance={openCloseMaintenanceDialog}
       />
     </section>
   )
 }
 
-function CloseMaintenancePanel() {
+interface MaintenanceDialogProps {
+  equipment: Equipment
+  onClose: () => void
+}
+
+function MaintenanceDialog({ equipment, onClose }: MaintenanceDialogProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
+      <div className="w-full max-w-2xl rounded-2xl bg-white p-5 text-right shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">صيانة</h2>
+            <p className="mt-1 text-sm text-slate-500">أدخل معلومات الصيانة للمعدة المحددة.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+          >
+            إغلاق
+          </button>
+        </div>
+
+        <CreateMaintenanceForm equipmentId={equipment.id} equipmentName={equipment.name} onCreated={onClose} />
+      </div>
+    </div>
+  )
+}
+
+interface CloseMaintenanceDialogProps {
+  equipment: Equipment
+  onClose: () => void
+}
+
+function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogProps) {
   const closeMaintenanceMutation = useCloseMaintenance()
   const {
     register,
@@ -115,15 +162,19 @@ function CloseMaintenancePanel() {
   } = useForm<CloseMaintenanceFormValues>({
     resolver: zodResolver(closeMaintenanceSchema),
     defaultValues: {
-      maintenanceId: '',
-      endDate: '',
+      maintenanceId: equipment.id,
+      endDate: getTodayDateInputValue(),
     },
   })
 
   async function onSubmit(values: CloseMaintenanceFormValues) {
     try {
-      await closeMaintenanceMutation.mutateAsync(values)
+      await closeMaintenanceMutation.mutateAsync({
+        maintenanceId: equipment.id,
+        endDate: values.endDate,
+      })
       reset()
+      onClose()
     } catch {
       return
     }
@@ -132,35 +183,53 @@ function CloseMaintenancePanel() {
   const errorMessage = closeMaintenanceMutation.error ? getEquipmentsErrorMessage(closeMaintenanceMutation.error) : null
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-base font-semibold text-slate-900">إغلاق صيانة</h2>
-      <p className="mt-1 text-sm text-slate-500">لا يوجد endpoint لعرض الصيانات حالياً، لذلك أدخل معرف الصيانة يدوياً.</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
+      <div className="w-full max-w-xl rounded-2xl bg-white p-5 text-right shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">إغلاق الصيانة</h2>
+            <p className="mt-1 text-sm text-slate-500">سيتم تغيير حالة المعدة <span className="font-semibold">{equipment.name}</span> بعد تحديد تاريخ الإغلاق.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+          >
+            إغلاق
+          </button>
+        </div>
 
-      <form className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_auto]" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">معرف الصيانة</span>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="text" dir="ltr" {...register('maintenanceId')} />
-          {errors.maintenanceId ? <span className="block text-sm text-rose-600">{errors.maintenanceId.message}</span> : null}
-        </label>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <input type="hidden" {...register('maintenanceId')} />
 
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">تاريخ الإغلاق</span>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('endDate')} />
-          {errors.endDate ? <span className="block text-sm text-rose-600">{errors.endDate.message}</span> : null}
-        </label>
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-slate-700">تاريخ الإغلاق</span>
+            <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('endDate')} />
+            {errors.endDate ? <span className="block text-sm text-rose-600">{errors.endDate.message}</span> : null}
+          </label>
 
-        <button
-          type="submit"
-          disabled={closeMaintenanceMutation.isPending}
-          className="h-11 self-end rounded-lg bg-[#50683f] px-5 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
-        >
-          {closeMaintenanceMutation.isPending ? 'جاري الإغلاق...' : 'إغلاق'}
-        </button>
-      </form>
+          {errorMessage ? (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{errorMessage}</div>
+          ) : null}
 
-      {errorMessage ? (
-        <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{errorMessage}</div>
-      ) : null}
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            >
+              إلغاء
+            </button>
+            <button
+              type="submit"
+              disabled={closeMaintenanceMutation.isPending}
+              className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              {closeMaintenanceMutation.isPending ? 'جاري الإغلاق...' : 'إغلاق الصيانة'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

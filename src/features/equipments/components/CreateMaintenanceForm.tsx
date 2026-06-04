@@ -20,12 +20,22 @@ const createMaintenanceSchema = z.object({
 
 type CreateMaintenanceFormValues = z.infer<typeof createMaintenanceSchema>
 
+function getTodayDateInputValue() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 interface CreateMaintenanceFormProps {
   equipmentId?: string
+  equipmentName?: string
   onCreated?: () => void
 }
 
-export function CreateMaintenanceForm({ equipmentId, onCreated }: CreateMaintenanceFormProps) {
+export function CreateMaintenanceForm({ equipmentId, equipmentName, onCreated }: CreateMaintenanceFormProps) {
   const createMaintenanceMutation = useCreateMaintenance()
   const {
     register,
@@ -37,8 +47,8 @@ export function CreateMaintenanceForm({ equipmentId, onCreated }: CreateMaintena
     resolver: zodResolver(createMaintenanceSchema),
     defaultValues: {
       equipmentId: equipmentId ?? '',
-      startDate: '',
-      type: 'Preventive',
+      startDate: getTodayDateInputValue(),
+      type: 'Breakdown',
       description: '',
     },
   })
@@ -54,8 +64,8 @@ export function CreateMaintenanceForm({ equipmentId, onCreated }: CreateMaintena
       await createMaintenanceMutation.mutateAsync(values)
       reset({
         equipmentId: equipmentId ?? '',
-        startDate: '',
-        type: 'Preventive',
+        startDate: getTodayDateInputValue(),
+        type: 'Breakdown',
         description: '',
       })
       onCreated?.()
@@ -68,15 +78,15 @@ export function CreateMaintenanceForm({ equipmentId, onCreated }: CreateMaintena
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <input type="hidden" {...register('equipmentId')} />
+
+      {equipmentName ? (
+        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          سيتم تحويل المعدة <span className="font-semibold">{equipmentName}</span> إلى قيد الصيانة بعد حفظ معلومات الصيانة.
+        </div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="معرف المعدة" error={errors.equipmentId?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="text" dir="ltr" {...register('equipmentId')} />
-        </Field>
-
-        <Field label="تاريخ البداية" error={errors.startDate?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('startDate')} />
-        </Field>
-
         <Field label="نوع الصيانة" error={errors.type?.message}>
           <select className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" {...register('type')}>
             {maintenanceTypes.map((type) => (
@@ -85,6 +95,10 @@ export function CreateMaintenanceForm({ equipmentId, onCreated }: CreateMaintena
               </option>
             ))}
           </select>
+        </Field>
+
+        <Field label="تاريخ البداية" error={errors.startDate?.message}>
+          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('startDate')} />
         </Field>
 
         <Field label="الوصف" error={errors.description?.message}>

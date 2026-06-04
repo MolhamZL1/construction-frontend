@@ -1,10 +1,12 @@
+import { LoadingState } from '@/components/ui'
 import { getEquipmentsErrorMessage, useDeleteEquipment } from '../hooks/useEquipments'
 import type { Equipment, EquipmentStatus } from '../models/equipment.model'
 
 interface EquipmentsTableProps {
   equipments: Equipment[]
   isLoading?: boolean
-  onCreateMaintenance: (equipmentId: string) => void
+  onCreateMaintenance: (equipment: Equipment) => void
+  onCloseMaintenance: (equipment: Equipment) => void
 }
 
 const statusLabels: Record<EquipmentStatus, string> = {
@@ -13,7 +15,7 @@ const statusLabels: Record<EquipmentStatus, string> = {
   Booked: 'محجوزة',
 }
 
-export function EquipmentsTable({ equipments, isLoading = false, onCreateMaintenance }: EquipmentsTableProps) {
+export function EquipmentsTable({ equipments, isLoading = false, onCreateMaintenance, onCloseMaintenance }: EquipmentsTableProps) {
   const deleteEquipmentMutation = useDeleteEquipment()
   const errorMessage = deleteEquipmentMutation.error ? getEquipmentsErrorMessage(deleteEquipmentMutation.error) : null
 
@@ -35,14 +37,14 @@ export function EquipmentsTable({ equipments, isLoading = false, onCreateMainten
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
-                  جاري تحميل المعدات...
+                <td colSpan={5} className="px-4 py-4">
+                  <LoadingState label="جاري تحميل المعدات..." compact className="border-0 shadow-none" />
                 </td>
               </tr>
             ) : equipments.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
-                  لا توجد معدات ضمن الحالة المحددة.
+                  لا توجد معدات للعرض.
                 </td>
               </tr>
             ) : (
@@ -56,13 +58,23 @@ export function EquipmentsTable({ equipments, isLoading = false, onCreateMainten
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button
+                     {equipment.status !== 'Maintenance'?( <button
                         type="button"
-                        onClick={() => onCreateMaintenance(equipment.id)}
-                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-[#50683f] hover:text-[#50683f]"
+                        onClick={() => onCreateMaintenance(equipment)}
+
+                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-[#50683f] hover:text-[#50683f] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
                       >
-                        إضافة صيانة
-                      </button>
+                        {'صيانة'}
+                      </button>):null}
+                      {equipment.status === 'Maintenance' ? (
+                        <button
+                          type="button"
+                          onClick={() => onCloseMaintenance(equipment)}
+                          className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-50"
+                        >
+                          إغلاق الصيانة
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => deleteEquipmentMutation.mutate(equipment.id)}

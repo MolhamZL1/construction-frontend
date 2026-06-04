@@ -1,4 +1,5 @@
 export type EquipmentStatus = 'Available' | 'Maintenance' | 'Booked'
+export type EquipmentStatusFilter = EquipmentStatus | 'all'
 export type MaintenanceType = 'Breakdown' | 'Preventive'
 
 export interface Equipment {

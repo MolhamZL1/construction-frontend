@@ -4,6 +4,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { EquipmentsPage } from '@/features/equipments/pages/EquipmentsPage'
+import { UserDetailsPage } from '@/features/users/pages/UserDetailsPage'
 import { UsersPage } from '@/features/users/pages/UsersPage'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
           {
             path: '/users',
             element: <UsersPage />,
+          },
+          {
+            path: '/users/:userId',
+            element: <UserDetailsPage />,
           },
           {
             path: '/equipments',

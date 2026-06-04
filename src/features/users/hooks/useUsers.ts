@@ -1,18 +1,26 @@
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { createInternalUser, deleteInternalUser, toggleInternalUserStatus } from '../api/users.api'
-import type { CreateInternalUserInput, InternalUser } from '../models/user.model'
+import { createInternalUser, deleteUser, getUsersByRole, resetUserPassword, searchUsers, toggleUserStatus } from '../api/users.api'
+import type { ApiErrorResponse, CreateUserPayload, ResetPasswordPayload, User, UserRoleFilter } from '../types/user.types'
 
-const USERS_QUERY_KEY = ['internal-users'] as const
+export const USERS_QUERY_KEY = ['users'] as const
 
-interface ApiErrorResponse {
-  message?: string
-  errors?: Record<string, string[]>
+export function useDebouncedValue<T>(value: T, delay = 300) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delay)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [delay, value])
+
+  return debouncedValue
 }
 
 export function getUsersErrorMessage(error: unknown) {
   if (!(error instanceof AxiosError)) {
-    return 'حدث خطأ غير متوقع. حاول مرة أخرى.'
+    return 'حدث خطأ أثناء جلب البيانات'
   }
 
   const axiosError = error as AxiosError<ApiErrorResponse>
@@ -24,23 +32,39 @@ export function getUsersErrorMessage(error: unknown) {
     return validationMessage
   }
 
-  if (axiosError.response?.status === 422) {
-    return axiosError.response.data?.message ?? 'البيانات المدخلة غير صالحة. تحقق منها ثم أعد المحاولة.'
-  }
-
   if (axiosError.response?.status === 404) {
-    return 'مسار إنشاء المستخدمين غير متاح حالياً. تحقق من endpoint المستخدم.'
+    return 'المستخدم غير موجود'
   }
 
-  return axiosError.response?.data?.message ?? 'تعذر تنفيذ العملية. حاول مرة أخرى.'
+  if (axiosError.response?.status === 422) {
+    return axiosError.response.data?.message ?? 'البيانات المدخلة غير صالحة'
+  }
+
+  return axiosError.response?.data?.message ?? 'حدث خطأ أثناء جلب البيانات'
 }
 
-export function useUsers() {
+export function getValidationErrors(error: unknown) {
+  if (!(error instanceof AxiosError)) {
+    return undefined
+  }
+
+  return (error as AxiosError<ApiErrorResponse>).response?.data?.errors
+}
+
+export function useUsers(role: UserRoleFilter, keyword = '') {
+  const trimmedKeyword = keyword.trim()
+
   return useQuery({
-    queryKey: USERS_QUERY_KEY,
-    // لا يوجد list endpoint للمستخدمين حالياً، لذلك يتم عرض المستخدمين المنشأين داخل الواجهة مؤقتاً.
-    queryFn: async (): Promise<InternalUser[]> => [],
-    staleTime: Infinity,
+    queryKey: [...USERS_QUERY_KEY, { role, keyword: trimmedKeyword }],
+    queryFn: async (): Promise<User[]> => {
+      if (trimmedKeyword) {
+        const response = await searchUsers(trimmedKeyword)
+        return response.data.users ?? []
+      }
+
+      const response = await getUsersByRole(role)
+      return response.data ?? []
+    },
   })
 }
 
@@ -48,35 +72,37 @@ export function useCreateInternalUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: CreateInternalUserInput) => createInternalUser(input),
-    onSuccess: (createdUser) => {
-      queryClient.setQueryData<InternalUser[]>(USERS_QUERY_KEY, (currentUsers = []) => [createdUser, ...currentUsers])
+    mutationFn: (payload: CreateUserPayload) => createInternalUser(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY })
     },
   })
 }
 
-export function useToggleInternalUserStatus() {
+export function useToggleUserStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => toggleInternalUserStatus(id),
-    onSuccess: (updatedUser) => {
-      queryClient.setQueryData<InternalUser[]>(USERS_QUERY_KEY, (currentUsers = []) =>
-        currentUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      )
+    mutationFn: (userId: string | number) => toggleUserStatus(userId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY })
     },
   })
 }
 
-export function useDeleteInternalUser() {
+export function useDeleteUser() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteInternalUser(id),
-    onSuccess: (_response, deletedUserId) => {
-      queryClient.setQueryData<InternalUser[]>(USERS_QUERY_KEY, (currentUsers = []) =>
-        currentUsers.filter((user) => user.id !== deletedUserId)
-      )
+    mutationFn: (userId: string | number) => deleteUser(userId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY })
     },
+  })
+}
+
+export function useResetUserPassword() {
+  return useMutation({
+    mutationFn: ({ userId, payload }: { userId: string | number; payload: ResetPasswordPayload }) => resetUserPassword(userId, payload),
   })
 }

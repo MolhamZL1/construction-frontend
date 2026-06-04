@@ -5,6 +5,7 @@ import type {
   CreateMaintenanceInput,
   Equipment,
   EquipmentMaintenance,
+  EquipmentStatusFilter,
   EquipmentStatus,
   MaintenanceType,
 } from '../models/equipment.model'
@@ -101,7 +102,13 @@ export async function createMaintenance(input: CreateMaintenanceInput): Promise<
   return mapMaintenance(data.data)
 }
 
-export async function getEquipmentsByStatus(status: EquipmentStatus): Promise<Equipment[]> {
+export async function getEquipments(): Promise<Equipment[]> {
+  const { data } = await api.get<EquipmentsResponse>('/equipment')
+
+  return data.data.map(mapEquipment)
+}
+
+export async function getEquipmentsByStatus(status: EquipmentStatusFilter): Promise<Equipment[]> {
   const { data } = await api.get<EquipmentsResponse>('/equipment/by-status', {
     params: { status },
   })
