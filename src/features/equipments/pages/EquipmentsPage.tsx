@@ -1,18 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { CreateEquipmentForm } from '../components/CreateEquipmentForm'
 import { CreateMaintenanceForm } from '../components/CreateMaintenanceForm'
-import { EquipmentsTable } from '../components/EquipmentsTable'
+import { EquipmentPageHeader } from '../components/EquipmentPageHeader'
+import { EquipmentToolbar } from '../components/EquipmentToolbar'
+import { EquipmentsGrid } from '../components/EquipmentsGrid'
 import { getEquipmentsErrorMessage, useCloseMaintenance, useEquipments } from '../hooks/useEquipments'
 import type { Equipment, EquipmentStatusFilter } from '../models/equipment.model'
 
 const equipmentStatuses: Array<{ value: EquipmentStatusFilter; label: string }> = [
-  { value: 'all', label: 'كل المعدات' },
+  { value: 'all', label: 'الكل' },
   { value: 'Available', label: 'متاحة' },
-  { value: 'Maintenance', label: 'قيد الصيانة' },
-  { value: 'Booked', label: 'محجوزة' },
+  { value: 'Booked', label: 'قيد الاستخدام' },
+  { value: 'Maintenance', label: 'تحت الصيانة' },
 ]
 
 const closeMaintenanceSchema = z.object({
@@ -33,10 +35,25 @@ function getTodayDateInputValue() {
 
 export function EquipmentsPage() {
   const [status, setStatus] = useState<EquipmentStatusFilter>('all')
+  const [search, setSearch] = useState('')
   const [showCreateEquipment, setShowCreateEquipment] = useState(false)
   const [maintenanceEquipment, setMaintenanceEquipment] = useState<Equipment | null>(null)
   const [closingMaintenanceEquipment, setClosingMaintenanceEquipment] = useState<Equipment | null>(null)
   const equipmentsQuery = useEquipments(status)
+  const equipments = equipmentsQuery.data ?? []
+  const filteredEquipments = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
+
+    if (!normalizedSearch) {
+      return equipments
+    }
+
+    return equipments.filter((equipment) => {
+      return [equipment.name, equipment.type, equipment.identifierNo]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(normalizedSearch))
+    })
+  }, [equipments, search])
 
   function openMaintenanceDialog(equipment: Equipment) {
     setMaintenanceEquipment(equipment)
@@ -47,40 +64,20 @@ export function EquipmentsPage() {
   }
 
   return (
-    <section className="space-y-6 px-6 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">إدارة المعدات</h1>
-          <p className="mt-2 text-sm text-slate-500">متابعة المعدات حسب الحالة وإدارة الصيانة.</p>
-        </div>
+    <section className="min-h-screen space-y-6 bg-white px-6 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
+      <EquipmentPageHeader
+        isCreateOpen={showCreateEquipment}
+        onToggleCreate={() => setShowCreateEquipment((value) => !value)}
+      />
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setShowCreateEquipment((value) => !value)}
-            className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834]"
-          >
-            {showCreateEquipment ? 'إغلاق إضافة المعدة' : 'إضافة معدة'}
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {equipmentStatuses.map((item) => (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => setStatus(item.value)}
-            className={
-              status === item.value
-                ? 'rounded-lg bg-[#50683f] px-4 py-2 text-sm font-semibold text-white'
-                : 'rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-[#50683f] hover:text-[#50683f]'
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <EquipmentToolbar
+        statuses={equipmentStatuses}
+        selectedStatus={status}
+        search={search}
+        onSearchChange={setSearch}
+        onClearSearch={() => setSearch('')}
+        onStatusChange={setStatus}
+      />
 
       {showCreateEquipment ? (
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -108,8 +105,8 @@ export function EquipmentsPage() {
         </div>
       ) : null}
 
-      <EquipmentsTable
-        equipments={equipmentsQuery.data ?? []}
+      <EquipmentsGrid
+        equipments={filteredEquipments}
         isLoading={equipmentsQuery.isLoading}
         onCreateMaintenance={openMaintenanceDialog}
         onCloseMaintenance={openCloseMaintenanceDialog}

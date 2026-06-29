@@ -1,13 +1,31 @@
 import { api } from '@/lib/axios'
-import { mapCompanyLoginResponse } from '../mappers/auth.mapper'
-import type { AuthSession, CompanyLoginResponse, LoginFormValues } from '../types/auth.types'
+import { mapLoginResponse } from '../mappers/auth.mapper'
+import type { AuthSession, CompanyLoginFormValues, InternalLoginFormValues, LoginFormValues, LoginResponse } from '../types/auth.types'
 
-export async function loginCompany(payload: LoginFormValues): Promise<AuthSession> {
-  const { data } = await api.post<CompanyLoginResponse>('/auth/company/login', null, {
-    params: payload,
+export async function loginCompany(payload: CompanyLoginFormValues): Promise<AuthSession> {
+  const { data } = await api.post<LoginResponse>('/auth/company/login', null, {
+    params: {
+      email: payload.email,
+      password: payload.password,
+    },
   })
 
-  return mapCompanyLoginResponse(data)
+  return mapLoginResponse(data)
+}
+
+export async function loginInternal(payload: InternalLoginFormValues): Promise<AuthSession> {
+  const { data } = await api.post<LoginResponse>('/auth/internal/login', null, {
+    params: {
+      internal_id: payload.internal_id,
+      password: payload.password,
+    },
+  })
+
+  return mapLoginResponse(data)
+}
+
+export async function login(payload: LoginFormValues): Promise<AuthSession> {
+  return payload.accountType === 'internal' ? loginInternal(payload) : loginCompany(payload)
 }
 
 export async function signOut(): Promise<void> {

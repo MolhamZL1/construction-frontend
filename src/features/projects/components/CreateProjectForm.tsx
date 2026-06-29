@@ -4,6 +4,7 @@ import { useForm, type Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { LocationPickerMap } from './LocationPickerMap'
 import { getProjectsErrorMessage, useCreateProject } from '../hooks/useProjects'
+import type { Project } from '../models/project.model'
 
 const schema = z.object({
   name: z.string().min(2, 'اسم المشروع مطلوب'),
@@ -20,7 +21,7 @@ const inputClass =
   'h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10'
 
 interface CreateProjectFormProps {
-  onCreated?: () => void
+  onCreated?: (project: Project) => void
 }
 
 export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
@@ -58,10 +59,10 @@ export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
 
   async function onSubmit(values: FormValues) {
     try {
-      await mutation.mutateAsync(values)
+      const project = await mutation.mutateAsync(values)
       reset()
       setMapCoords({ lat: 0, lng: 0 })
-      onCreated?.()
+      onCreated?.(project)
     } catch {
       return
     }
@@ -83,7 +84,6 @@ export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
         </Field>
       </div>
 
-      {/* Map Picker */}
       <div className="space-y-2">
         <div>
           <p className="text-sm font-semibold text-slate-700">موقع المشروع على الخريطة</p>
@@ -110,7 +110,7 @@ export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
         disabled={mutation.isPending}
         className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#50683f] px-6 text-sm font-semibold text-white transition hover:bg-[#435834] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-400"
       >
-        {mutation.isPending ? 'جاري الحفظ...' : 'حفظ المشروع'}
+        {mutation.isPending ? 'جاري الحفظ...' : 'حفظ المشروع والمتابعة'}
       </button>
     </form>
   )

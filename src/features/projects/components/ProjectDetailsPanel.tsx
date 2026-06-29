@@ -74,12 +74,8 @@ function isShedSpace(type: string) {
   return type === 'shed'
 }
 
-function allowsCeilingCeramic(type: string) {
-  return type === 'kitchen' || type === 'bathroom' || type === 'toilet' || type === 'shed'
-}
-
-function ceilingFinishOptions(type: string) {
-  return Object.entries(finishLabels).filter(([value]) => value !== 'ceramic' || allowsCeilingCeramic(type))
+function ceilingFinishOptions() {
+  return Object.entries(finishLabels)
 }
 
 function formatDate(dateStr?: string) {
@@ -288,7 +284,7 @@ function SpacesSection({ projectId, spaces, isLoading }: { projectId: string; sp
         wallArea: Number(formData.get('wallArea')),
         wallFinishType: String(formData.get('wallFinishType')) as FinishType,
         ceilingArea: Number(formData.get('ceilingArea')),
-        ceilingFinishType: ceilingFinishType === 'ceramic' && !allowsCeilingCeramic(type) ? 'none' : ceilingFinishType,
+        ceilingFinishType,
         toiletType: (isToiletSpace(type) ? String(formData.get('toiletType') ?? 'none') : 'none') as ToiletType,
         isBalconyFloorTiled: isShedSpace(type) && formData.get('isBalconyFloorTiled') === 'on',
       })
@@ -312,9 +308,6 @@ function SpacesSection({ projectId, spaces, isLoading }: { projectId: string; sp
             onChange={(event) => {
               const nextType = event.target.value as SpaceType
               setSelectedSpaceType(nextType)
-              if (selectedCeilingFinish === 'ceramic' && !allowsCeilingCeramic(nextType)) {
-                setSelectedCeilingFinish('none')
-              }
             }}
             required
           >
@@ -339,7 +332,7 @@ function SpacesSection({ projectId, spaces, isLoading }: { projectId: string; sp
             value={selectedCeilingFinish}
             onChange={(event) => setSelectedCeilingFinish(event.target.value as FinishType)}
           >
-            {ceilingFinishOptions(selectedSpaceType).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            {ceilingFinishOptions().map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </FormField>
         {isToiletSpace(selectedSpaceType) ? (

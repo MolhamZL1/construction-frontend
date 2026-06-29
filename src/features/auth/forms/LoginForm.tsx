@@ -20,22 +20,41 @@ export function LoginForm() {
   const loginMutation = useLoginCompany()
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
+      accountType: 'company',
       email: '',
+      internal_id: '',
       password: '',
     },
   })
+  const accountType = watch('accountType')
 
   async function onSubmit(values: LoginSchema) {
     try {
-      const session = await loginMutation.mutateAsync(values)
+      const session = await loginMutation.mutateAsync(
+        values.accountType === 'internal'
+          ? {
+              accountType: 'internal',
+              internal_id: values.internal_id?.trim() ?? '',
+              password: values.password,
+            }
+          : {
+              accountType: 'company',
+              email: values.email?.trim() ?? '',
+              password: values.password,
+            }
+      )
       setAuth(session.user, session.token)
 
-      const nextPath = (location.state as RouterState | null)?.from?.pathname ?? '/dashboard'
+      const nextPath =
+        values.accountType === 'internal'
+          ? '/projects'
+          : ((location.state as RouterState | null)?.from?.pathname ?? '/dashboard')
       navigate(nextPath, { replace: true })
     } catch {
       return
@@ -52,20 +71,61 @@ export function LoginForm() {
       </div>
 
       <form className="mt-10 space-y-5 sm:mt-12 sm:space-y-6 lg:mt-14" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="space-y-2 sm:space-y-3">
-          <label htmlFor="email" className="block text-right text-base font-medium text-slate-800 sm:text-lg lg:text-xl">
-            البريد الإلكتروني
+        <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-1.5">
+          <label
+            className={`flex h-12 cursor-pointer items-center justify-center rounded-xl text-base font-semibold transition sm:h-14 sm:text-lg ${
+              accountType === 'company'
+                ? 'bg-white text-[#50683f] shadow-sm ring-1 ring-[#5e7247]/15'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <input type="radio" value="company" className="sr-only" {...register('accountType')} />
+            مدير الشركة
           </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="admin@example.com"
-            dir="ltr"
-            className="h-14 w-full rounded-2xl border border-transparent bg-slate-50 px-5 text-right text-base text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5e7247]/30 focus:bg-white focus:ring-4 focus:ring-[#5e7247]/10 sm:h-16 sm:px-6 sm:text-lg lg:text-xl"
-            {...register('email')}
-          />
-          {errors.email ? <p className="text-right text-sm text-rose-600">{errors.email.message}</p> : null}
+
+          <label
+            className={`flex h-12 cursor-pointer items-center justify-center rounded-xl text-base font-semibold transition sm:h-14 sm:text-lg ${
+              accountType === 'internal'
+                ? 'bg-white text-[#50683f] shadow-sm ring-1 ring-[#5e7247]/15'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <input type="radio" value="internal" className="sr-only" {...register('accountType')} />
+            مهندس
+          </label>
+        </div>
+
+        <div className="space-y-2 sm:space-y-3">
+          <label htmlFor={accountType === 'internal' ? 'internal_id' : 'email'} className="block text-right text-base font-medium text-slate-800 sm:text-lg lg:text-xl">
+            {accountType === 'internal' ? 'المعرّف الداخلي' : 'البريد الإلكتروني'}
+          </label>
+          {accountType === 'internal' ? (
+            <>
+              <input
+                id="internal_id"
+                type="text"
+                autoComplete="username"
+                placeholder="pm.ahmad@alfanar"
+                dir="ltr"
+                className="h-14 w-full rounded-2xl border border-transparent bg-slate-50 px-5 text-right text-base text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5e7247]/30 focus:bg-white focus:ring-4 focus:ring-[#5e7247]/10 sm:h-16 sm:px-6 sm:text-lg lg:text-xl"
+                {...register('internal_id')}
+              />
+              {errors.internal_id ? <p className="text-right text-sm text-rose-600">{errors.internal_id.message}</p> : null}
+            </>
+          ) : (
+            <>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="admin@example.com"
+                dir="ltr"
+                className="h-14 w-full rounded-2xl border border-transparent bg-slate-50 px-5 text-right text-base text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5e7247]/30 focus:bg-white focus:ring-4 focus:ring-[#5e7247]/10 sm:h-16 sm:px-6 sm:text-lg lg:text-xl"
+                {...register('email')}
+              />
+              {errors.email ? <p className="text-right text-sm text-rose-600">{errors.email.message}</p> : null}
+            </>
+          )}
         </div>
 
         <div className="space-y-2 sm:space-y-3">
@@ -108,20 +168,6 @@ export function LoginForm() {
             {errorMessage}
           </div>
         ) : null}
-
-        <div className="flex items-center justify-between gap-4 text-base sm:text-lg">
-          <label className="flex items-center gap-3 text-slate-700">
-            <input
-              type="checkbox"
-              className="h-5 w-5 rounded-lg border border-slate-300 accent-[#5e7247] focus:ring-2 focus:ring-[#5e7247]/20 sm:h-6 sm:w-6"
-            />
-            <span>تذكرني</span>
-          </label>
-
-          <button type="button" className="text-[#5e7247] transition hover:text-[#465737]">
-            نسيت كلمة المرور؟
-          </button>
-        </div>
 
         <button
           type="submit"

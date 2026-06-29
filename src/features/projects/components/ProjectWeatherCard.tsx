@@ -9,7 +9,7 @@ interface ProjectWeatherCardProps {
 
 function getHeatSummary(temperature?: number | null) {
   if (temperature == null) return { label: 'الحرارة غير متوفرة', tone: 'bg-slate-100 text-slate-600' }
-  if (temperature >= 30) return { label: 'الجو حار', tone: 'bg-rose-50 text-rose-700' }
+  if (temperature >= 30) return { label: 'الجو حار', tone: 'bg-rose-50 text-  rose-700' }
   if (temperature >= 24) return { label: 'الجو دافئ', tone: 'bg-amber-50 text-amber-700' }
   if (temperature >= 16) return { label: 'الجو معتدل', tone: 'bg-emerald-50 text-emerald-700' }
   return { label: 'الجو بارد', tone: 'bg-sky-50 text-sky-700' }

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { isInternalUser } from '@/features/auth/utils/auth-navigation'
 import { cn } from '@/utils/cn'
 import { useAuthStore } from '@/stores/authStore'
 import { useUIStore } from '@/stores/uiStore'
@@ -30,6 +31,11 @@ const links: SidebarLink[] = [
     to: '/equipments',
     icon: 'equipment',
   },
+  {
+    label: 'المواد',
+    to: '/materials',
+    icon: 'box',
+  },
 ]
 
 const roleLabels: Record<string, string> = {
@@ -42,9 +48,10 @@ const roleLabels: Record<string, string> = {
 export function Sidebar() {
   const user = useAuthStore((state) => state.user)
   const sidebarOpen = useUIStore((state) => state.sidebarOpen)
-    const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
   const displayName = user?.name?.trim() || 'مستخدم النظام'
   const roleLabel = user?.role ? roleLabels[user.role] ?? user.role : 'غير محدد'
+  const visibleLinks = isInternalUser(user) ? links.filter((link) => link.to === '/projects') : links
   const initials = displayName
     .split(/\s+/)
     .map((part) => part[0])
@@ -80,7 +87,7 @@ export function Sidebar() {
 
 
       <nav className="flex gap-2 overflow-x-auto pb-2 lg:flex-1 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0" aria-label="القائمة الرئيسية">
-        {links.map((link) => (
+        {visibleLinks.map((link) => (
           <NavLink
             key={link.label}
             to={link.to}
@@ -127,6 +134,14 @@ function MenuIcon({ name }: { name: string }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM3.5 20a5.5 5.5 0 0 1 11 0M17 9a3 3 0 1 0 0-6M16 14a4.5 4.5 0 0 1 4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'materials') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
@@ -185,6 +200,15 @@ function MenuIcon({ name }: { name: string }) {
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <circle cx="12" cy="12" r="8" />
         <path d="M12 7v6M12 16.5v.1" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'tools') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 5h16M6 9h12M8 13h8M10 17h4" strokeLinecap="round" />
+        <path d="M5 5l1.5-2h11L19 5M8 21h8l1-4H7z" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }

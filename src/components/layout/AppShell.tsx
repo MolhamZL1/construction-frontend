@@ -1,14 +1,22 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
+import { AiInspectionFloatingWidget } from '@/features/tools'
 import { useSignOut } from '@/features/auth/hooks/useLoginCompany'
+import { isInternalUser } from '@/features/auth/utils/auth-navigation'
+import { NotificationsMenu, NotificationToastViewport } from '@/features/notifications'
+import { useInAppNotificationCards } from '@/features/notifications/hooks/useNotifications'
 import { queryClient } from '@/lib/query-client'
 import { useAuthStore } from '@/stores/authStore'
 
 export function AppShell() {
   const navigate = useNavigate()
   const logout = useAuthStore((state) => state.logout)
+  const user = useAuthStore((state) => state.user)
 
   const signOutMutation = useSignOut()
+  const notificationCards = useInAppNotificationCards()
+  const hideSidebar = isInternalUser(user)
+
 
   async function handleLogout() {
     try {
@@ -24,12 +32,11 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 lg:flex-row" dir="rtl">
-      <Sidebar />
+      {hideSidebar ? null : <Sidebar />}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-[0_1px_4px_rgba(15,23,42,0.08)] sm:px-6" dir="ltr">
           <div className="flex items-center gap-3">
-            
             <button
               type="button"
               onClick={handleLogout}
@@ -56,25 +63,15 @@ export function AppShell() {
               </svg>
             </button>
 
-            <button
-              type="button"
-              className="relative hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 sm:flex"
-              aria-label="الإشعارات"
-              title="الإشعارات"
-            >
-              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white" />
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            <NotificationsMenu />
           </div>
-
-          
         </header>
 
         <main className="min-h-0 flex-1 bg-slate-50">
           <Outlet />
         </main>
+        <AiInspectionFloatingWidget />
+        <NotificationToastViewport toasts={notificationCards.toasts} onDismiss={notificationCards.dismissToast} />
       </div>
     </div>
   )

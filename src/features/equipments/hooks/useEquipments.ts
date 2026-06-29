@@ -5,6 +5,7 @@ import {
   createEquipment,
   createMaintenance,
   deleteEquipment,
+  getEquipmentDetails,
   getEquipmentsByStatus,
 } from '../api/equipments.api'
 import type {
@@ -50,6 +51,14 @@ export function useEquipments(status: EquipmentStatusFilter) {
   return useQuery({
     queryKey: [...EQUIPMENTS_QUERY_KEY, status],
     queryFn: () => getEquipmentsByStatus(status),
+  })
+}
+
+export function useEquipmentDetails(id?: string) {
+  return useQuery({
+    queryKey: [...EQUIPMENTS_QUERY_KEY, 'details', id],
+    queryFn: () => getEquipmentDetails(id!),
+    enabled: Boolean(id),
   })
 }
 

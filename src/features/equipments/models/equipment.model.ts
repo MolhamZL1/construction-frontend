@@ -13,6 +13,46 @@ export interface Equipment {
   updatedAt?: string
 }
 
+export interface EquipmentBookingParty {
+  id: string
+  name: string
+}
+
+export interface CurrentEquipmentBooking {
+  id: string
+  startDate: string
+  endDate: string | null
+  durationDays: number | null
+  workItem: EquipmentBookingParty
+  project: EquipmentBookingParty
+  bookedBy: EquipmentBookingParty
+}
+
+export interface EquipmentBookingHistoryItem {
+  id: string
+  status: 'active' | 'completed' | string
+  startDate: string
+  endDate: string | null
+  workItem: string
+  project: string
+}
+
+export interface EquipmentMaintenanceHistoryItem {
+  id: string
+  type: MaintenanceType
+  description: string
+  startDate: string
+  endDate: string | null
+  status: 'active' | 'completed' | string
+}
+
+export interface EquipmentDetails extends Equipment {
+  currentBooking: CurrentEquipmentBooking | null
+  currentMaintenance: EquipmentMaintenanceHistoryItem | null
+  bookingHistory: EquipmentBookingHistoryItem[]
+  maintenanceHistory: EquipmentMaintenanceHistoryItem[]
+}
+
 export interface EquipmentMaintenance {
   id: string
   equipmentId: string

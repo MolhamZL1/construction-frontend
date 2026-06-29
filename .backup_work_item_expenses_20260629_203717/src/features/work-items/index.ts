@@ -1,0 +1,8 @@
+export { ProjectWorkItemsPage } from './pages/ProjectWorkItemsPage'
+export { CreateWorkItemPage } from './pages/CreateWorkItemPage'
+export { EditWorkItemPage } from './pages/EditWorkItemPage'
+export { WorkItemDetailsPage } from './pages/WorkItemDetailsPage'
+export { WorkItemProgressPage } from './pages/WorkItemProgressPage'
+export { WorkItemEquipmentPage } from './pages/WorkItemEquipmentPage'
+export { InactiveWorkItemsPage } from './pages/InactiveWorkItemsPage'
+export { PendingWorkItemUpdatesPage } from './pages/PendingWorkItemUpdatesPage'

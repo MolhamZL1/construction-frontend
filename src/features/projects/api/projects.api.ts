@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { api } from '@/lib/axios'
 import type {
   AssignEngineerInput,
@@ -12,6 +13,7 @@ import type {
   ProjectStatus,
   ProjectSummary,
   ProjectWeather,
+  ProjectWeatherByDate,
   QualityLevel,
   ReorderWorkItemsInput,
   SpaceType,
@@ -38,6 +40,9 @@ interface ProjectDto {
   owner_id: number | string | null
   created_by: number | string | null
   updated_by: number | string | null
+  started_at?: string | null
+  completed_at?: string | null
+  progress_percent?: number | string | null
   created_at?: string
   updated_at?: string
 }
@@ -50,6 +55,10 @@ interface WorkItemDto {
   quality_level: QualityLevel
   duration_days: number | null
   sort_order: number
+  status?: string | null
+  progress_percent?: number | string | null
+  started_at?: string | null
+  completed_at?: string | null
   is_default: boolean
   is_active: boolean
   is_custom: boolean
@@ -69,7 +78,8 @@ interface SpaceDto {
   ceiling_finish_type: FinishType
   toilet_type: ToiletType
   ceiling_ceramic_area: number | string | null
-  is_balcony_floor_tiled: boolean
+  is_shed_floor_tiled?: boolean | number | string | null
+  is_balcony_floor_tiled?: boolean | number | string | null
   created_at?: string
   updated_at?: string
 }
@@ -127,8 +137,27 @@ interface ProjectWeatherDto {
   }
 }
 
+interface ProjectWeatherByDateDto {
+  project: Pick<ProjectDto, 'id' | 'name' | 'location' | 'latitude' | 'longitude'>
+  weather: {
+    date: string | null
+    temperature_max: number | null
+    temperature_min: number | null
+    precipitation_sum: number | null
+    wind_speed_max: number | null
+    weather_code: number | null
+    weather_description: string
+  }
+}
+
 function toNullableString(value: number | string | null | undefined) {
   return value == null ? null : String(value)
+}
+
+function toProgressPercent(value: number | string | null | undefined) {
+  const numericValue = Number(value ?? 0)
+
+  return Number.isFinite(numericValue) ? numericValue : 0
 }
 
 function mapProject(dto: ProjectDto): Project {
@@ -146,6 +175,9 @@ function mapProject(dto: ProjectDto): Project {
     ownerId: toNullableString(dto.owner_id),
     createdBy: toNullableString(dto.created_by),
     updatedBy: toNullableString(dto.updated_by),
+    startedAt: dto.started_at ?? null,
+    completedAt: dto.completed_at ?? null,
+    progressPercent: toProgressPercent(dto.progress_percent),
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   }
@@ -160,6 +192,10 @@ function mapWorkItem(dto: WorkItemDto): WorkItem {
     qualityLevel: dto.quality_level,
     durationDays: dto.duration_days,
     sortOrder: dto.sort_order,
+    status: dto.status ?? 'planned',
+    progressPercent: toProgressPercent(dto.progress_percent),
+    startedAt: dto.started_at ?? null,
+    completedAt: dto.completed_at ?? null,
     isDefault: dto.is_default,
     isActive: dto.is_active,
     isCustom: dto.is_custom,
@@ -169,7 +205,20 @@ function mapWorkItem(dto: WorkItemDto): WorkItem {
   }
 }
 
+function toApiBoolean(value: unknown): boolean {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value === 1
+
+  if (typeof value === 'string') {
+    return ['1', 'true', 'yes'].includes(value.trim().toLowerCase())
+  }
+
+  return false
+}
+
 function mapSpace(dto: SpaceDto): ProjectSpace {
+  const isShedFloorTiled = toApiBoolean(dto.is_shed_floor_tiled ?? dto.is_balcony_floor_tiled ?? false)
+
   return {
     id: String(dto.id),
     projectId: String(dto.project_id),
@@ -177,11 +226,12 @@ function mapSpace(dto: SpaceDto): ProjectSpace {
     wallArea: String(dto.wall_area),
     floorArea: dto.floor_area == null ? '0' : String(dto.floor_area),
     wallFinishType: dto.wall_finish_type,
-    ceilingArea: String(dto.ceiling_area),
+    ceilingArea: dto.ceiling_area == null ? '0' : String(dto.ceiling_area),
     ceilingFinishType: dto.ceiling_finish_type,
     toiletType: dto.toilet_type,
     ceilingCeramicArea: dto.ceiling_ceramic_area == null ? null : String(dto.ceiling_ceramic_area),
-    isBalconyFloorTiled: dto.is_balcony_floor_tiled,
+    isShedFloorTiled,
+    isBalconyFloorTiled: isShedFloorTiled,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   }
@@ -228,6 +278,27 @@ function mapProjectWeather(dto: ProjectWeatherDto): ProjectWeather {
       temperatureMin: dto.today_forecast.temperature_min,
       precipitationSum: dto.today_forecast.precipitation_sum,
       date: dto.today_forecast.date,
+    },
+  }
+}
+
+function mapProjectWeatherByDate(dto: ProjectWeatherByDateDto): ProjectWeatherByDate {
+  return {
+    project: {
+      id: String(dto.project.id),
+      name: dto.project.name,
+      location: dto.project.location,
+      latitude: String(dto.project.latitude),
+      longitude: String(dto.project.longitude),
+    },
+    weather: {
+      date: dto.weather.date,
+      temperatureMax: dto.weather.temperature_max,
+      temperatureMin: dto.weather.temperature_min,
+      precipitationSum: dto.weather.precipitation_sum,
+      windSpeedMax: dto.weather.wind_speed_max,
+      weatherCode: dto.weather.weather_code,
+      weatherDescription: dto.weather.weather_description,
     },
   }
 }
@@ -280,6 +351,14 @@ export async function getProjectWeather(projectId: string): Promise<ProjectWeath
   return mapProjectWeather(data.data)
 }
 
+export async function getProjectWeatherByDate(projectId: string, date: string): Promise<ProjectWeatherByDate> {
+  const { data } = await api.get<ApiSingleResponse<ProjectWeatherByDateDto>>(`/projects/${projectId}/weather/by-date`, {
+    params: { date },
+  })
+
+  return mapProjectWeatherByDate(data.data)
+}
+
 export async function listProjectEngineers(projectId: string): Promise<ProjectEngineer[]> {
   const { data } = await api.get<ApiListResponse<EngineerDto>>(`/projects/${projectId}/engineers`)
 
@@ -313,7 +392,7 @@ export async function createProjectSpace(input: CreateSpaceInput): Promise<Proje
     ceiling_area: input.ceilingArea,
     ceiling_finish_type: input.ceilingFinishType,
     toilet_type: input.toiletType,
-    is_balcony_floor_tiled: input.isBalconyFloorTiled,
+    is_shed_floor_tiled: input.isShedFloorTiled ?? input.isBalconyFloorTiled ?? false,
   })
 
   return mapSpace(data.data)
@@ -327,7 +406,7 @@ export async function updateProjectSpace(input: UpdateSpaceInput): Promise<Proje
     ceiling_area: input.ceilingArea,
     ceiling_finish_type: input.ceilingFinishType,
     toilet_type: input.toiletType,
-    is_balcony_floor_tiled: input.isBalconyFloorTiled,
+    is_shed_floor_tiled: input.isShedFloorTiled ?? input.isBalconyFloorTiled ?? false,
   })
 
   return mapSpace(data.data)
@@ -357,13 +436,40 @@ export async function createProjectWorkItem(input: CreateWorkItemInput): Promise
   return mapWorkItem(data.data)
 }
 
-export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): Promise<WorkItem> {
-  const { data } = await api.put<ApiSingleResponse<WorkItemDto>>(
-    `/projects/${input.projectId}/work-items/${input.workItemId}/details`,
-    { details: input.details }
-  )
+function isNotFoundError(error: unknown) {
+  return error instanceof AxiosError && error.response?.status === 404
+}
 
-  return mapWorkItem(data.data)
+export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): Promise<WorkItem> {
+  const payload: Record<string, unknown> = {}
+
+  if (input.woodDoorsCount !== undefined) payload.wood_doors_count = input.woodDoorsCount
+  if (input.aluminumDoorsCount !== undefined) payload.aluminum_doors_count = input.aluminumDoorsCount
+  if (input.windowsCount !== undefined) payload.windows_count = input.windowsCount
+
+  if (input.details?.length) {
+    input.details.forEach((detail) => {
+      payload[detail.key] = detail.value
+    })
+  }
+
+  try {
+    const { data } = await api.put<ApiSingleResponse<WorkItemDto>>(
+      `/projects/${input.projectId}/work-items/${input.workItemId}/details`,
+      payload
+    )
+
+    return mapWorkItem(data.data)
+  } catch (error) {
+    if (!isNotFoundError(error)) throw error
+
+    const { data } = await api.put<ApiSingleResponse<WorkItemDto>>(
+      `/work-items/${input.workItemId}/details`,
+      payload
+    )
+
+    return mapWorkItem(data.data)
+  }
 }
 
 export async function updateProjectWorkItem(input: UpdateWorkItemInput): Promise<WorkItem> {
@@ -386,9 +492,21 @@ export async function deleteProjectWorkItem(workItemId: string): Promise<void> {
 }
 
 export async function reorderProjectWorkItems(input: ReorderWorkItemsInput): Promise<WorkItem[]> {
-  const { data } = await api.put<ApiListResponse<WorkItemDto>>(`/projects/${input.projectId}/work-items/re/order`, {
+  const { data } = await api.put<ApiListResponse<WorkItemDto>>(`/projects/${input.projectId}/work-items/reorder`, {
     items: input.items.map((item) => ({ id: Number(item.id), sort_order: item.sortOrder })),
   })
 
   return data.data.map(mapWorkItem)
+}
+
+export async function startProject(projectId: string): Promise<Project> {
+  const { data } = await api.post<ApiSingleResponse<ProjectDto>>(`/projects/${projectId}/start`)
+
+  return mapProject(data.data)
+}
+
+export async function completeProject(projectId: string): Promise<Project> {
+  const { data } = await api.post<ApiSingleResponse<ProjectDto>>(`/projects/${projectId}/complete`)
+
+  return mapProject(data.data)
 }

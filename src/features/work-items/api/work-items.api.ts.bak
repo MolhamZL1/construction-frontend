@@ -1,0 +1,120 @@
+import { apiClient } from '@/lib/api-client'
+import type {
+  EquipmentBookingPayload,
+  FinishEquipmentBookingPayload,
+  PendingWorkItemUpdate,
+  ReorderWorkItemPayload,
+  UpdateWorkItemInlinePayload,
+  UpsertWorkItemPayload,
+  WorkItem,
+  WorkItemApiResponse,
+} from '../models/work-item.model'
+import { mapWorkItem } from '../utils/work-items-formatters'
+
+interface ApiEnvelope<T> {
+  status?: number
+  message?: string
+  data: T
+}
+
+function normalizeListPayload(payload: unknown): WorkItemApiResponse[] {
+  if (Array.isArray(payload)) return payload as WorkItemApiResponse[]
+
+  if (payload && typeof payload === 'object') {
+    const data = payload as { work_items?: WorkItemApiResponse[]; items?: WorkItemApiResponse[]; data?: WorkItemApiResponse[] }
+    return data.work_items ?? data.items ?? data.data ?? []
+  }
+
+  return []
+}
+
+export async function listWorkItems(projectId: string): Promise<WorkItem[]> {
+  const response = await apiClient.get<ApiEnvelope<unknown>>(`/projects/${projectId}/work-items`)
+  return normalizeListPayload(response.data.data).map(mapWorkItem)
+}
+
+export async function createWorkItem(projectId: string, payload: UpsertWorkItemPayload): Promise<WorkItem> {
+  const response = await apiClient.post<ApiEnvelope<WorkItemApiResponse>>(`/projects/${projectId}/work-items`, payload)
+  return mapWorkItem(response.data.data)
+}
+
+export async function updateWorkItemInline(projectId: string, workItemId: string, payload: UpdateWorkItemInlinePayload): Promise<WorkItem> {
+  const response = await apiClient.post<ApiEnvelope<WorkItemApiResponse>>(`/projects/${projectId}/work-items/${workItemId}`, payload)
+  return mapWorkItem(response.data.data)
+}
+
+export async function deactivateWorkItem(projectId: string, workItemId: string): Promise<WorkItem> {
+  return updateWorkItemInline(projectId, workItemId, { is_active: 0 })
+}
+
+export async function activateWorkItem(projectId: string, workItemId: string): Promise<WorkItem> {
+  return updateWorkItemInline(projectId, workItemId, { is_active: 1 })
+}
+
+export async function deleteWorkItem(workItemId: string): Promise<void> {
+  await apiClient.delete(`/work-items/${workItemId}`)
+}
+
+export async function reorderWorkItems(projectId: string, payload: ReorderWorkItemPayload): Promise<WorkItem[]> {
+  const response = await apiClient.put<ApiEnvelope<unknown>>(`/projects/${projectId}/work-items/reorder`, payload)
+  return normalizeListPayload(response.data.data).map(mapWorkItem)
+}
+
+export async function startWorkItem(projectId: string, workItemId: string): Promise<WorkItem> {
+  const response = await apiClient.post<ApiEnvelope<WorkItemApiResponse>>(`/projects/${projectId}/work-items/${workItemId}/start`)
+  return mapWorkItem(response.data.data)
+}
+
+export async function completeWorkItem(projectId: string, workItemId: string, delayReason?: string): Promise<WorkItem> {
+  const payload = delayReason?.trim() ? { delay_reason: delayReason.trim() } : undefined
+  const response = await apiClient.post<ApiEnvelope<WorkItemApiResponse>>(`/projects/${projectId}/work-items/${workItemId}/complete`, payload)
+  return mapWorkItem(response.data.data)
+}
+
+export async function listPendingWorkItemUpdates(): Promise<PendingWorkItemUpdate[]> {
+  const response = await apiClient.get<ApiEnvelope<Array<Record<string, unknown>>>>('/work-item-details/pending')
+  return (response.data.data ?? []).map((item) => ({
+    workItemId: String(item.work_item_id),
+    workItemName: String(item.work_item_name ?? 'بند غير معروف'),
+    project: item.project && typeof item.project === 'object'
+      ? {
+          id: String((item.project as { id?: unknown }).id ?? ''),
+          name: String((item.project as { name?: unknown }).name ?? ''),
+        }
+      : undefined,
+    requestedAt: item.requested_at ? String(item.requested_at) : undefined,
+    updates: Array.isArray(item.updates)
+      ? item.updates.map((update) => ({
+          detailId: String((update as { detail_id?: unknown }).detail_id ?? ''),
+          field: String((update as { field?: unknown }).field ?? ''),
+          currentValue: ((update as { current_value?: string | number | null }).current_value ?? null),
+          requestedValue: ((update as { requested_value?: string | number | null }).requested_value ?? null),
+        }))
+      : [],
+  }))
+}
+
+export async function approveWorkItemUpdates(workItemId: string): Promise<void> {
+  await apiClient.post(`/work-items/${workItemId}/approve`)
+}
+
+export async function rejectWorkItemUpdates(workItemId: string, reason: string): Promise<void> {
+  await apiClient.post(`/work-items/${workItemId}/reject`, { reason })
+}
+
+export async function bookEquipment(payload: EquipmentBookingPayload): Promise<void> {
+  const formData = new FormData()
+  formData.append('equipment_id', payload.equipmentId)
+  formData.append('work_item_id', payload.workItemId)
+  formData.append('start_date', payload.startDate)
+  if (payload.notes?.trim()) formData.append('notes', payload.notes.trim())
+
+  await apiClient.post('/equipment-bookings', formData)
+}
+
+export async function finishEquipmentBooking(payload: FinishEquipmentBookingPayload): Promise<void> {
+  const formData = new FormData()
+  formData.append('end_date', payload.endDate)
+
+  await apiClient.post(`/equipment-bookings/${payload.bookingId}/finish`, formData)
+}

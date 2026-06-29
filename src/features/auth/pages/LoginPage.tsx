@@ -2,10 +2,12 @@ import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { AuthHeroPanel } from '../components/AuthHeroPanel'
 import { LoginForm } from '../forms/LoginForm'
+import { getAuthenticatedHomePath } from '../utils/auth-navigation'
 
 export function LoginPage() {
   const hydrated = useAuthStore((state) => state.hydrated)
   const token = useAuthStore((state) => state.token)
+  const user = useAuthStore((state) => state.user)
 
   if (!hydrated) {
     return (
@@ -16,7 +18,7 @@ export function LoginPage() {
   }
 
   if (hydrated && token) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={getAuthenticatedHomePath(user)} replace />
   }
 
   return (
