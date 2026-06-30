@@ -7,7 +7,6 @@ import {
   listAiVisualizationComments,
   listAiVisualizations,
   type AiVisualization,
-  type AiVisualizationComment,
   type CreateAiVisualizationInput,
 } from '../api/ai-visualizations.api'
 import { listProjectImages, type ProjectImage } from '../api/project-images.api'
@@ -96,16 +95,10 @@ export function useAddAiVisualizationComment(visualizationId?: string) {
 
   return useMutation({
     mutationFn: (comment: string) => addAiVisualizationComment(visualizationId ?? '', comment),
-    onSuccess: (createdComment) => {
-      if (!visualizationId) return
-
-      queryClient.setQueryData<AiVisualizationComment[]>(aiVisualizationKeys.comments(visualizationId), (current) => {
-        const existing = current ?? []
-        if (existing.some((item) => item.id === createdComment.id)) return existing
-        return [createdComment, ...existing]
-      })
-
-      void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.comments(visualizationId) })
+    onSuccess: () => {
+      if (visualizationId) {
+        void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.comments(visualizationId) })
+      }
     },
   })
 }
@@ -115,14 +108,10 @@ export function useDeleteAiVisualizationComment(visualizationId?: string) {
 
   return useMutation({
     mutationFn: (commentId: string) => deleteAiVisualizationComment(commentId),
-    onSuccess: (_data, commentId) => {
-      if (!visualizationId) return
-
-      queryClient.setQueryData<AiVisualizationComment[]>(aiVisualizationKeys.comments(visualizationId), (current) =>
-        (current ?? []).filter((item) => item.id !== commentId)
-      )
-
-      void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.comments(visualizationId) })
+    onSuccess: () => {
+      if (visualizationId) {
+        void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.comments(visualizationId) })
+      }
     },
   })
 }

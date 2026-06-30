@@ -21,8 +21,7 @@ import {
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [lifecycleAction, setLifecycleAction] = useState<ProjectLifecycleAction | null>(null)
-
-  const summaryQuery = useProjectSummary(id)
+const summaryQuery = useProjectSummary(id)
   const engineersQuery = useProjectEngineers(id)
   const weatherQuery = useProjectWeather(id)
   const documentsQuery = useProjectDocuments(id)
@@ -173,8 +172,7 @@ export function ProjectDetailPage() {
             />
           }
         />
-
-        <ProjectDetailStats items={tools} />
+<ProjectDetailStats items={tools} />
 
         <ProjectDetailSectionsPanel
           projectId={id}

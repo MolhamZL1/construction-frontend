@@ -53,7 +53,6 @@ export function ProjectDetailHeaderCard({
 
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 <ProjectStatusBadge status={project.status} />
-
                 {canEditProject ? (
                   <Link
                     to={editTo}

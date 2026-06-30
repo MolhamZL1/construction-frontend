@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios'
 import { api } from '@/lib/axios'
 import type {
   AssignEngineerInput,
@@ -436,16 +435,13 @@ export async function createProjectWorkItem(input: CreateWorkItemInput): Promise
   return mapWorkItem(data.data)
 }
 
-function isNotFoundError(error: unknown) {
-  return error instanceof AxiosError && error.response?.status === 404
-}
 
-export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): Promise<WorkItem> {
+export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): Promise<void> {
   const payload: Record<string, unknown> = {}
 
-  if (input.woodDoorsCount !== undefined) payload.wood_doors_count = input.woodDoorsCount
-  if (input.aluminumDoorsCount !== undefined) payload.aluminum_doors_count = input.aluminumDoorsCount
-  if (input.windowsCount !== undefined) payload.windows_count = input.windowsCount
+  if (input.woodDoorsCount !== undefined) payload.total_wood_doors = input.woodDoorsCount
+  if (input.aluminumDoorsCount !== undefined) payload.total_aluminum_doors = input.aluminumDoorsCount
+  if (input.windowsCount !== undefined) payload.total_windows = input.windowsCount
 
   if (input.details?.length) {
     input.details.forEach((detail) => {
@@ -453,23 +449,10 @@ export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): 
     })
   }
 
-  try {
-    const { data } = await api.put<ApiSingleResponse<WorkItemDto>>(
-      `/projects/${input.projectId}/work-items/${input.workItemId}/details`,
-      payload
-    )
-
-    return mapWorkItem(data.data)
-  } catch (error) {
-    if (!isNotFoundError(error)) throw error
-
-    const { data } = await api.put<ApiSingleResponse<WorkItemDto>>(
-      `/work-items/${input.workItemId}/details`,
-      payload
-    )
-
-    return mapWorkItem(data.data)
-  }
+  await api.post(
+    `/projects/${input.projectId}/work-items/${input.workItemId}/details`,
+    payload
+  )
 }
 
 export async function updateProjectWorkItem(input: UpdateWorkItemInput): Promise<WorkItem> {

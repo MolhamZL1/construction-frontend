@@ -36,7 +36,7 @@ const crewOptions: Array<{ value: CrewType; label: string; description: string; 
     endpoint: 'plaster',
     fields: [
       { name: 'price_per_meter', label: 'سعر المتر', helper: 'مثال: 22', defaultValue: '' },
-      { name: 'beams_count', label: 'عدد الجسور', helper: 'مثال: 4', defaultValue: '' },
+      { name: 'beams_count', label: 'عدد الاعمدة (العضاضات)', helper: 'مثال: 4', defaultValue: '' },
     ],
   },
   {
@@ -46,7 +46,7 @@ const crewOptions: Array<{ value: CrewType; label: string; description: string; 
     endpoint: 'paint',
     fields: [
       { name: 'price_per_meter', label: 'سعر المتر', helper: 'مثال: 22', defaultValue: '' },
-      { name: 'beams_count', label: 'عدد الجسور', helper: 'مثال: 4', defaultValue: '' },
+      { name: 'beams_count', label:  'عدد الاعمدة (العضاضات)', helper: 'مثال: 4', defaultValue: '' },
     ],
   },
   {
@@ -56,7 +56,7 @@ const crewOptions: Array<{ value: CrewType; label: string; description: string; 
     endpoint: 'tile',
     fields: [
       { name: 'price_per_meter', label: 'سعر المتر', helper: 'مثال: 22', defaultValue: '' },
-      { name: 'skirting_factor', label: 'عامل الوزرة', helper: 'مثال: 2', defaultValue: '' },
+      { name: 'skirting_factor', label: 'عاملي النعلات', helper: 'مثال: 0.5', defaultValue: '0.5' },
       { name: 'sink_installation_cost', label: 'تكلفة تركيب المغاسل', helper: 'مثال: 22', defaultValue: '' },
     ],
   },
@@ -65,15 +65,15 @@ const crewOptions: Array<{ value: CrewType; label: string; description: string; 
 const formulaLabels: Record<string, string> = {
   apartment_area: 'مساحة الشقة',
   wall_area: 'مساحة الجدران',
-  shed_tiled_area: 'مساحة أرضية السطح / الملحق',
+  shed_tiled_area: 'مساحة أرضية السقيفة',
   ceramic_wall_area: 'مساحة سيراميك الجدران',
   ceramic_ceiling_area_x2: 'مساحة سيراميك الأسقف × 2',
-  beams_count: 'عدد الجسور',
-  beams_area: 'مساحة الجسور',
+  beams_count:  'عدد الاعمدة (العضاضات)',
+  beams_area:  'مساحة الاعمدة (العضاضات)',
   apartment_ceiling_area_x2: 'مساحة أسقف الشقة × 2',
-  shed_ceiling_area_x2: 'مساحة أسقف الملحق × 2',
-  skirting_factor: 'عامل الوزرة',
-  skirting_area: 'مساحة الوزرة',
+  shed_ceiling_area_x2: 'مساحة أسقف السقيفة × 2',
+  skirting_factor: 'عاملي النعلات',
+  skirting_area: 'مساحة النعلات',
   total_area: 'المساحة الإجمالية',
 }
 
@@ -177,8 +177,8 @@ export function ProjectCrewCostPage() {
           <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-6">
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-extrabold text-slate-900">بيانات الحساب</h2>
-                <p className="mt-1 text-sm font-medium text-slate-500">الحقول بتتغير حسب نوع الورشة.</p>
+                <h2 className="text-lg font-extrabold text-slate-900">نوع الورشة</h2>
+             
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
@@ -206,9 +206,7 @@ export function ProjectCrewCostPage() {
                 })}
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-600">
-                {selectedCrew.description}
-              </div>
+              
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {selectedCrew.fields.map((field) => (
@@ -224,7 +222,6 @@ export function ProjectCrewCostPage() {
                       placeholder={field.helper}
                       className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-sm font-bold text-slate-900 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
                     />
-                    {field.helper ? <span className="block text-xs font-medium text-slate-400">{field.helper}</span> : null}
                   </label>
                 ))}
               </div>

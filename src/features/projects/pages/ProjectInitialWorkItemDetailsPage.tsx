@@ -3,14 +3,43 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { getProjectsErrorMessage, useProjectSummary, useUpdateWorkItemDetails } from '../hooks/useProjects'
 
-function toNumber(value: string) {
+function toInteger(value: string) {
   const numericValue = Number(value)
   return Number.isFinite(numericValue) ? numericValue : 0
 }
 
 function isValidCount(value: string) {
+  if (!value.trim()) return false
+
   const numericValue = Number(value)
-  return Number.isFinite(numericValue) && numericValue >= 0
+  return Number.isFinite(numericValue) && Number.isInteger(numericValue) && numericValue >= 0
+}
+
+function CountField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+}) {
+  return (
+    <label className="block rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition focus-within:border-[#50683f] focus-within:ring-4 focus-within:ring-[#50683f]/10">
+      <span className="mb-3 block text-sm font-black text-slate-800">{label}</span>
+      <input
+        type="number"
+        min="0"
+        step="1"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="h-12 w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 text-right text-lg font-black text-slate-900 outline-none placeholder:text-sm placeholder:font-bold placeholder:text-slate-400"
+      />
+    </label>
+  )
 }
 
 export function ProjectInitialWorkItemDetailsPage() {
@@ -31,7 +60,7 @@ export function ProjectInitialWorkItemDetailsPage() {
   }, [workItems])
 
   if (!projectId) {
-    return <section className="min-h-screen bg-white p-8 text-right" dir="rtl">رابط المشروع غير صحيح.</section>
+    return <section className="min-h-screen bg-slate-50 p-8 text-right" dir="rtl">رابط المشروع غير صحيح.</section>
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -44,7 +73,7 @@ export function ProjectInitialWorkItemDetailsPage() {
     }
 
     if (!isValidCount(woodDoorsCount) || !isValidCount(aluminumDoorsCount) || !isValidCount(windowsCount)) {
-      setFormError('أدخل أرقاماً صحيحة أكبر أو تساوي صفر.')
+      setFormError('أدخل أعداداً صحيحة أكبر أو تساوي صفر.')
       return
     }
 
@@ -52,9 +81,9 @@ export function ProjectInitialWorkItemDetailsPage() {
       await updateMutation.mutateAsync({
         projectId,
         workItemId: targetWorkItem.id,
-        woodDoorsCount: toNumber(woodDoorsCount),
-        aluminumDoorsCount: toNumber(aluminumDoorsCount),
-        windowsCount: toNumber(windowsCount),
+        woodDoorsCount: toInteger(woodDoorsCount),
+        aluminumDoorsCount: toInteger(aluminumDoorsCount),
+        windowsCount: toInteger(windowsCount),
       })
       navigate(`/projects/${projectId}`)
     } catch {
@@ -63,95 +92,86 @@ export function ProjectInitialWorkItemDetailsPage() {
   }
 
   const errorMessage = updateMutation.error ? getProjectsErrorMessage(updateMutation.error) : formError
+  const projectName = projectQuery.data?.project.name
 
   return (
-    <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.07)]">
-          <div className="space-y-2">
-            <p className="text-xs font-black text-[#50683f]">خطوة مطلوبة بعد إنشاء المشروع</p>
-            <h1 className="text-3xl font-black text-slate-950">أعداد الأبواب والنوافذ</h1>
-            <p className="max-w-2xl text-sm font-semibold leading-7 text-slate-500">
-              هذه التفاصيل هي عدد أبواب الخشب، وعدد أبواب الألمنيوم، وعدد النوافذ المطلوبة لبند ملابن الأبواب. يجب إدخالها الآن قبل متابعة إدارة المشروع.
-            </p>
+    <section className="min-h-screen bg-slate-50 px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <span className="inline-flex rounded-full bg-[#50683f]/10 px-3 py-1 text-xs font-black text-[#50683f]">
+                خطوة إعداد أولية
+              </span>
+              <h1 className="text-3xl font-black text-slate-950">تحديد كميات الملابن</h1>
+              <p className="max-w-2xl text-sm font-semibold leading-7 text-slate-500">
+                أدخل الأعداد الكلية لبند ملابن الأبواب والنوافذ قبل متابعة إدارة المشروع.
+              </p>
+            </div>
+
+            {projectName ? (
+              <div className="rounded-3xl border border-slate-100 bg-slate-50 px-5 py-4 text-right">
+                <p className="text-xs font-black text-slate-400">المشروع</p>
+                <p className="mt-1 text-base font-black text-slate-900">{projectName}</p>
+              </div>
+            ) : null}
           </div>
-        </div>
+        </header>
 
         {projectQuery.isLoading ? <LoadingState label="جاري تحميل بنود المشروع..." /> : null}
 
         {projectQuery.isError ? (
-          <div className="rounded-2xl border border-rose-100 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
-            تعذر تحميل بنود المشروع. أعد المحاولة بعد التأكد من أن المشروع تم إنشاؤه بنجاح.
+          <div className="rounded-3xl border border-rose-100 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
+            تعذر تحميل بنود المشروع. تأكد من إنشاء المشروع ثم أعد المحاولة.
           </div>
         ) : null}
 
         {!projectQuery.isLoading && !projectQuery.isError ? (
-          <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.07)]">
-            <div className="mb-6 border-b border-slate-100 pb-5">
-              <h2 className="text-xl font-black text-slate-950">تفاصيل بند ملابن الأبواب</h2>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
-                أدخل الأعداد الكلية المطلوبة بالمشروع، وسيتم حفظها مباشرة على بند ملابن الأبواب.
-              </p>
-              {targetWorkItem ? <p className="mt-3 text-sm font-bold text-[#50683f]">البند المحدد: {targetWorkItem.name}</p> : null}
+          <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+            <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-xl font-black text-slate-950">بيانات بند ملابن الأبواب</h2>
+                {targetWorkItem ? <p className="mt-2 text-sm font-bold text-[#50683f]">سيتم الحفظ على: {targetWorkItem.name}</p> : null}
+              </div>
             </div>
 
             {!targetWorkItem ? (
               <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
-                لم يتم العثور على بند ملابن الأبواب ضمن بنود المشروع، لذلك لا يمكن حفظ هذه التفاصيل حالياً.
+                لم يتم العثور على بند ملابن الأبواب ضمن بنود المشروع.
               </div>
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-3">
-              <label className="space-y-2 text-right">
-                <span className="text-sm font-extrabold text-slate-700">عدد أبواب الخشب *</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={woodDoorsCount}
-                  onChange={(event) => setWoodDoorsCount(event.target.value)}
-                  placeholder="مثال: 5"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
-                />
-              </label>
-
-              <label className="space-y-2 text-right">
-                <span className="text-sm font-extrabold text-slate-700">عدد أبواب الألمنيوم *</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={aluminumDoorsCount}
-                  onChange={(event) => setAluminumDoorsCount(event.target.value)}
-                  placeholder="مثال: 1"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
-                />
-              </label>
-
-              <label className="space-y-2 text-right">
-                <span className="text-sm font-extrabold text-slate-700">عدد النوافذ *</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={windowsCount}
-                  onChange={(event) => setWindowsCount(event.target.value)}
-                  placeholder="مثال: 10"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
-                />
-              </label>
+              <CountField
+                label="إجمالي ملابن أبواب الخشب"
+                value={woodDoorsCount}
+                onChange={setWoodDoorsCount}
+                placeholder="مثال: 5"
+              />
+              <CountField
+                label="إجمالي ملابن أبواب الألمنيوم"
+                value={aluminumDoorsCount}
+                onChange={setAluminumDoorsCount}
+                placeholder="مثال: 1"
+              />
+              <CountField
+                label="إجمالي ملابن النوافذ"
+                value={windowsCount}
+                onChange={setWindowsCount}
+                placeholder="مثال: 10"
+              />
             </div>
 
             {errorMessage ? <div className="mt-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{errorMessage}</div> : null}
-            {updateMutation.isSuccess ? <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">تم حفظ التفاصيل بنجاح.</div> : null}
+            {updateMutation.isSuccess ? <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">تم حفظ الكميات بنجاح.</div> : null}
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="submit"
                 disabled={updateMutation.isPending || !targetWorkItem}
-                className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-6 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-7 text-sm font-black text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                {updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ التفاصيل والمتابعة'}
+                {updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ ومتابعة'}
               </button>
             </div>
           </form>

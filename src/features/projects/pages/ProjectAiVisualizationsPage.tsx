@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { type ProjectImage } from '../api/project-images.api'
@@ -78,11 +78,7 @@ export function ProjectAiVisualizationsPage() {
     setPendingGeneration({ id: `${Date.now()}`, sourceImage: selectedImage })
 
     try {
-      const created = await createMutation.mutateAsync({
-        projectImageId: values.projectImageId,
-        prompt: values.prompt,
-        referenceImages: values.referenceImages,
-      })
+      const created = await createMutation.mutateAsync(values)
 
       setLocalGenerated((current) => [
         { ...created, sourceImage: selectedImage },
@@ -187,7 +183,7 @@ export function ProjectAiVisualizationsPage() {
                 key={visualization.id}
                 visualization={visualization}
                 commentsOpen={openCommentsId === visualization.id}
-                isDeleting={deleteVisualizationMutation.isPending && deleteVisualizationMutation.variables === visualization.id}
+                isDeleting={deleteVisualizationMutation.isPending}
                 onPreview={() => setPreview({ url: visualization.generatedImageUrl, title: 'تصميم ذكي' })}
                 onToggleComments={() => setOpenCommentsId((current) => (current === visualization.id ? null : visualization.id))}
                 onDelete={() => void handleDeleteVisualization(visualization)}
@@ -399,7 +395,7 @@ function CommentsPanel({ visualizationId }: { visualizationId: string }) {
                 <button
                   type="button"
                   onClick={() => void deleteCommentMutation.mutateAsync(item.id)}
-                  disabled={deleteCommentMutation.isPending && deleteCommentMutation.variables === item.id}
+                  disabled={deleteCommentMutation.isPending}
                   className="shrink-0 rounded-xl p-1 text-rose-500 transition hover:bg-rose-50 disabled:opacity-50"
                   title="حذف التعليق"
                 >
@@ -436,36 +432,55 @@ function CreateVisualizationDialog({
   const [selectedImageId, setSelectedImageId] = useState('')
   const [prompt, setPrompt] = useState('')
   const [referenceImages, setReferenceImages] = useState<File[]>([])
-  const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
   const [formError, setFormError] = useState<string | null>(null)
+  const wasOpenRef = useRef(false)
+  const filePreviews = useFilePreviews(referenceImages)
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) {
+      wasOpenRef.current = false
+      return
+    }
 
-    setSelectedImageId(projectImages[0]?.id ?? '')
-    setPrompt('')
-    setReferenceImages([])
-    setFormError(null)
-  }, [isOpen, projectImages])
+    if (!wasOpenRef.current) {
+      setSelectedImageId(projectImages[0]?.id ?? '')
+      setPrompt('')
+      setReferenceImages([])
+      setFormError(null)
+      wasOpenRef.current = true
+      return
+    }
 
-  useEffect(() => {
-    const previews = referenceImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }))
-    setFilePreviews(previews)
-
-    return () => previews.forEach((preview) => URL.revokeObjectURL(preview.url))
-  }, [referenceImages])
+    if (!selectedImageId && projectImages.length > 0) {
+      setSelectedImageId(projectImages[0].id)
+    }
+  }, [isOpen, projectImages, selectedImageId])
 
   if (!isOpen) return null
 
   const selectedImage = projectImages.find((image) => image.id === selectedImageId)
+  const canSubmit = Boolean(selectedImageId && prompt.trim() && referenceImages.length > 0 && !isSubmitting)
 
   function handleFilesChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/'))
-    if (files.length > 0) {
-      setReferenceImages((current) => [...current, ...files])
-      setFormError(null)
+    const input = event.currentTarget
+    const selectedFiles = Array.from(input.files ?? [])
+    const imageFiles = selectedFiles.filter((file) => isImageLikeFile(file))
+
+    if (selectedFiles.length === 0) {
+      input.value = ''
+      return
     }
-    event.target.value = ''
+
+    if (imageFiles.length === 0) {
+      setReferenceImages([])
+      setFormError('الملف المختار ليس صورة.')
+      input.value = ''
+      return
+    }
+
+    setReferenceImages(imageFiles)
+    setFormError(null)
+    input.value = ''
   }
 
   function removeReferenceImage(index: number) {
@@ -502,7 +517,7 @@ function CreateVisualizationDialog({
             </span>
             <div>
               <h2 className="text-base font-black text-slate-900">توليد تصميم</h2>
-              <p className="mt-1 text-xs font-bold text-slate-500">اختر صورة واكتب المطلوب.</p>
+              <p className="mt-1 text-xs font-bold text-slate-500">اختر صورة، أضف مراجع، واكتب المطلوب.</p>
             </div>
           </div>
           <button type="button" onClick={onClose} className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-200">
@@ -517,7 +532,7 @@ function CreateVisualizationDialog({
                 <label className="text-xs font-black text-slate-800">صورة قبل الإكساء</label>
                 {selectedImage ? (
                   <button type="button" onClick={() => onPreview(selectedImage)} className="text-[11px] font-black text-[#50683f] hover:underline">
-                    عرض الصورة
+                    عرض
                   </button>
                 ) : null}
               </div>
@@ -529,7 +544,10 @@ function CreateVisualizationDialog({
                     <button
                       key={image.id}
                       type="button"
-                      onClick={() => setSelectedImageId(image.id)}
+                      onClick={() => {
+                        setSelectedImageId(image.id)
+                        setFormError(null)
+                      }}
                       className={`group relative h-24 w-28 shrink-0 overflow-hidden rounded-2xl border bg-slate-100 text-right transition ${
                         selected ? 'border-[#50683f] shadow-[0_0_0_3px_rgba(80,104,63,0.12)]' : 'border-slate-200 hover:border-[#50683f]/40'
                       }`}
@@ -559,34 +577,35 @@ function CreateVisualizationDialog({
               />
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[1fr_12rem]">
-              <div className="min-h-24 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                {filePreviews.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {filePreviews.map((preview, index) => (
-                      <div key={`${preview.name}-${index}`} className="group relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                        <img src={preview.url} alt={preview.name} className="h-full w-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeReferenceImage(index)}
-                          className="absolute left-1 top-1 hidden rounded-full bg-white/90 p-1 text-rose-500 shadow-sm group-hover:block"
-                          title="إزالة"
-                        >
-                          <CloseIcon className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex h-full min-h-20 items-center justify-center text-xs font-black text-slate-400">أضف صورة مرجعية واحدة على الأقل</div>
-                )}
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className="text-xs font-black text-slate-800">الصور المرجعية</label>
+                {referenceImages.length > 0 ? <span className="text-[11px] font-black text-[#50683f]">{referenceImages.length} صورة مختارة</span> : null}
               </div>
 
-              <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#50683f]/35 bg-[#50683f]/5 px-4 text-center text-[#50683f] transition hover:bg-[#50683f]/10">
-                <UploadIcon className="h-5 w-5" />
-                <span className="mt-2 text-xs font-black">صور مرجعية</span>
-                <input type="file" name="reference_images[]" accept="image/*" multiple className="hidden" onChange={handleFilesChange} />
-              </label>
+              <div className="grid gap-3 md:grid-cols-[12rem_minmax(0,1fr)]">
+                <div>
+                  <input
+                    id="ai-reference-images-input"
+                    type="file"
+                    name="reference_images[]"
+                    accept="image/*,.jpg,.jpeg,.png,.webp"
+                    multiple
+                    className="sr-only"
+                    onChange={handleFilesChange}
+                  />
+                  <label
+                    htmlFor="ai-reference-images-input"
+                    className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#50683f]/35 bg-[#50683f]/5 px-4 text-center text-[#50683f] transition hover:bg-[#50683f]/10"
+                  >
+                    <UploadIcon className="h-5 w-5" />
+                    <span className="mt-2 text-xs font-black">اختيار صور</span>
+                    <span className="mt-1 text-[10px] font-bold text-[#50683f]/70">بلاط، دهان، إضاءة...</span>
+                  </label>
+                </div>
+
+                <ReferencePreviewStrip previews={filePreviews} onRemove={removeReferenceImage} onClear={() => setReferenceImages([])} />
+              </div>
             </div>
 
             {formError || errorMessage ? <div className="rounded-2xl bg-rose-50 px-4 py-3 text-xs font-bold text-rose-600">{formError ?? errorMessage}</div> : null}
@@ -600,13 +619,52 @@ function CreateVisualizationDialog({
           <button
             type="submit"
             form="ai-create-visualization-form"
-            disabled={!selectedImageId || !prompt.trim() || referenceImages.length === 0 || isSubmitting}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!canSubmit}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
           >
             <SparkleIcon className="h-4 w-4" />
-            {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء'}
+            {isSubmitting ? 'جاري الإنشاء...' : referenceImages.length === 0 ? 'اختر صور مرجعية' : 'إنشاء'}
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function ReferencePreviewStrip({ previews, onRemove, onClear }: { previews: FilePreview[]; onRemove: (index: number) => void; onClear: () => void }) {
+  if (previews.length === 0) {
+    return (
+      <div className="flex min-h-28 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 text-center text-xs font-black text-slate-400">
+        ستظهر الصور المرجعية هنا بعد الاختيار
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-28 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-[11px] font-black text-slate-500">الصور المختارة</span>
+        <button type="button" onClick={onClear} className="text-[11px] font-black text-rose-500 transition hover:text-rose-600">
+          مسح الكل
+        </button>
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {previews.map((preview, index) => (
+          <div key={`${preview.name}-${preview.url}`} className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <img src={preview.url} alt={preview.name} className="h-full w-full object-cover" />
+            <button
+              type="button"
+              onClick={() => onRemove(index)}
+              className="absolute left-1 top-1 hidden rounded-full bg-white/95 p-1 text-rose-500 shadow-sm group-hover:block"
+              title="إزالة"
+            >
+              <CloseIcon className="h-3.5 w-3.5" />
+            </button>
+            <span className="absolute inset-x-0 bottom-0 truncate bg-white/85 px-1.5 py-0.5 text-[9px] font-black text-slate-600 backdrop-blur">
+              {preview.name}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -658,6 +716,26 @@ function DesignGridSkeleton() {
       ))}
     </div>
   )
+}
+
+function useFilePreviews(files: File[]) {
+  const [previews, setPreviews] = useState<FilePreview[]>([])
+
+  useEffect(() => {
+    const nextPreviews = files.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }))
+    setPreviews(nextPreviews)
+
+    return () => {
+      nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
+    }
+  }, [files])
+
+  return previews
+}
+
+function isImageLikeFile(file: File) {
+  if (file.type.startsWith('image/')) return true
+  return /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(file.name)
 }
 
 function IconButton({
