@@ -5,7 +5,6 @@ import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemEquipmentSection } from '../components/WorkItemEquipmentSection'
 import { WorkItemIcon } from '../components/WorkItemIcon'
 import { getWorkItemsErrorMessage, useWorkItems } from '../hooks/useWorkItems'
-import { normalizeStatus } from '../utils/work-items-formatters'
 
 export function WorkItemEquipmentPage() {
   const { id, workItemId } = useParams<{ id: string; workItemId: string }>()
@@ -68,14 +67,5 @@ export function WorkItemEquipmentPage() {
         <WorkItemEquipmentSection projectId={projectId} item={item} canManage={canManage} disabledReason={disabledReason} />
       </div>
     </section>
-  )
-}
-
-function HeaderStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
-      <p className="text-xs font-black text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
-    </div>
   )
 }
