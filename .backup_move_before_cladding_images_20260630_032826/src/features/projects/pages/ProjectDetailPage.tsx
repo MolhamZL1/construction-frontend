@@ -160,6 +160,13 @@ export function ProjectDetailPage() {
             العودة إلى المشاريع
           </Link>
 
+          <Link
+            to={`/projects/${id}/images`}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 shadow-sm transition hover:border-[#50683f]/30 hover:bg-[#50683f]/5 hover:text-[#50683f]"
+          >
+            <ProjectDetailIcon name="home" className="h-4 w-4" />
+            صور قبل الإكساء
+          </Link>
         </div>
 
         <ProjectDetailHeaderCard

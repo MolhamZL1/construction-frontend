@@ -6,6 +6,7 @@ import { ProjectDetailErrorState } from '../components/project-detail/ProjectDet
 import { ProjectDetailHeaderCard } from '../components/project-detail/ProjectDetailHeaderCard'
 import { ProjectDetailIcon } from '../components/project-detail/ProjectDetailIcons'
 import { ProjectDetailSectionsPanel } from '../components/project-detail/ProjectDetailSectionsPanel'
+import { ProjectScheduleCharts } from '../components/project-detail/ProjectScheduleCharts'
 import { ProjectDetailStats, type ProjectDetailStatItem } from '../components/project-detail/ProjectDetailStats'
 import { ProjectLifecycleActions } from '../components/project-detail/ProjectLifecycleActions'
 import { ProjectLifecycleConfirmDialog, type ProjectLifecycleAction } from '../components/project-detail/ProjectLifecycleConfirmDialog'
@@ -45,58 +46,68 @@ export function ProjectDetailPage() {
   const tools = useMemo<ProjectDetailStatItem[]>(
     () => {
       const temperature = weatherQuery.isLoading
-        ? 'جاري التحميل'
+        ? 'جاري تحميل الطقس...'
         : weatherQuery.isError
-          ? 'غير متاح'
+          ? 'تعذر تحميل الطقس'
           : weatherQuery.data?.currentWeather?.temperature == null
-            ? 'تفاصيل الطقس'
+            ? 'عرض تفاصيل الطقس'
             : `${Number(weatherQuery.data.currentWeather.temperature).toFixed(1)} °C`
 
       return [
+
         {
           key: 'weather',
-          label: 'طقس المشروع',
-          description: 'حالة الطقس وتأثيرها على العمل.',
+          label: 'الطقس',
+          description: 'حالة الطقس الحالية والبحث عن التوقعات بتاريخ محدد للمشروع.',
           to: `/projects/${id}/weather`,
           icon: 'cloud',
           accent: 'cyan',
           meta: temperature,
         },
         {
-          key: 'timeline-analysis',
-          label: 'التحليل الزمني',
-          description: 'مخططات التنفيذ والتأخير المتوقع.',
-          to: `/projects/${id}/timeline-analysis`,
-          icon: 'timeline',
-          accent: 'blue',
-          meta: 'مخططات',
+          key: 'work-item-expenses',
+          label: 'مصاريف الورشات',
+          description: 'عرض مصاريف كل بند عمل وإضافة مصاريف جديدة من صفحة مستقلة.',
+          to: `/projects/${id}/expenses`,
+          icon: 'invoice',
+          accent: 'emerald',
+          meta: 'متابعة مالية',
         },
         {
           key: 'crew-cost',
-          label: 'تقدير أجور الورش',
-          description: 'حساب أجور اللياسة والدهان والبلاط.',
+          label: 'حساب أجرة الورش',
+          description: 'حساب ذكي لتكلفة ورش اللياسة، الدهان والبلاط بناءً على مساحات المشروع.',
           to: `/projects/${id}/crew-cost`,
           icon: 'calculator',
           accent: 'green',
-          meta: 'حساب',
+          meta: 'جاهز',
         },
         {
-          key: 'material-estimate',
-          label: 'تقدير المواد',
-          description: 'كميات تقريبية حسب مساحة المشروع.',
-          to: `/projects/${id}/material-estimate`,
-          icon: 'materials',
-          accent: 'orange',
-          meta: 'كميات',
+          key: 'before-cladding-images',
+          label: 'صور قبل الإكساء',
+          description: 'رفع وعرض صور الشقة قبل الإكساء ضمن معرض مستقل للمشروع.',
+          to: `/projects/${id}/images`,
+          icon: 'home',
+          accent: 'pink',
+          meta: 'معرض الصور',
         },
         {
           key: 'ai-visualizations',
           label: 'التصاميم الذكية',
-          description: 'توليد وتعديل تصاميم الإكساء.',
+          description: 'توليد وتعديل تصاميم الإكساء بالذكاء الاصطناعي.',
           to: `/projects/${id}/ai-visualizations`,
           icon: 'home',
           accent: 'purple',
           meta: 'AI',
+        },
+        {
+          key: 'material-estimate',
+          label: 'حساب كمية المواد التقديرية',
+          description: 'أداة لتقدير كميات المواد المطلوبة بناءً على مساحات المشروع.',
+          to: `/projects/${id}/material-estimate`,
+          icon: 'materials',
+          accent: 'orange',
+          meta: 'قريباً',
         },
       ]
     },
@@ -154,13 +165,10 @@ export function ProjectDetailPage() {
   return (
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Link to="/projects" className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
-            <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
-            العودة إلى المشاريع
-          </Link>
-
-        </div>
+        <Link to="/projects" className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+          <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
+          العودة إلى المشاريع
+        </Link>
 
         <ProjectDetailHeaderCard
           project={project}
@@ -183,6 +191,8 @@ export function ProjectDetailPage() {
           workItemsCount={workItems.length}
           documentsCount={documents.length}
         />
+
+        <ProjectScheduleCharts project={project} workItems={workItems} />
       </div>
 
       <ProjectLifecycleConfirmDialog

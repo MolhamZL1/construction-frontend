@@ -38,13 +38,6 @@ export function ProjectDetailSectionsPanel({
           to={`/projects/${projectId}/spaces`}
         />
         <ProjectDetailSectionCard
-          title="صور قبل الإكساء"
-          description="معرض صور الشقة قبل بدء التنفيذ"
-          icon="home"
-          accent="cyan"
-          to={`/projects/${projectId}/images`}
-        />
-        <ProjectDetailSectionCard
           title="بنود العمل"
           description={`${workItemsCount} بند`}
           icon="checklist"

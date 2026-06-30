@@ -3,7 +3,6 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { type ProjectImage } from '../api/project-images.api'
 import { ProjectDetailErrorState } from '../components/project-detail/ProjectDetailErrorState'
-import { ProjectDetailIcon } from '../components/project-detail/ProjectDetailIcons'
 import { getProjectsErrorMessage, useProjectSummary } from '../hooks/useProjects'
 import {
   useAddAiVisualizationComment,
@@ -24,14 +23,12 @@ interface PreviewState {
 interface PendingGeneration {
   id: string
   sourceImage: ProjectImage
-  mode: 'create' | 'edit'
 }
 
 interface CreateDialogValues {
   projectImageId: string
   prompt: string
   referenceImages: File[]
-  editTarget?: ProjectAiVisualization | null
 }
 
 interface FilePreview {
@@ -45,8 +42,6 @@ export function ProjectAiVisualizationsPage() {
   const projectId = id ?? ''
   const shouldOpenDialog = Boolean((location.state as { openCreateDialog?: boolean } | null)?.openCreateDialog)
 
-  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
-  const [editTarget, setEditTarget] = useState<ProjectAiVisualization | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(shouldOpenDialog)
   const [preview, setPreview] = useState<PreviewState | null>(null)
   const [openCommentsId, setOpenCommentsId] = useState<string | null>(null)
@@ -70,17 +65,7 @@ export function ProjectAiVisualizationsPage() {
   )
 
   function openCreateDialog() {
-    setDialogMode('create')
-    setEditTarget(null)
     setCreateError(null)
-    setIsDialogOpen(true)
-  }
-
-  function openEditDialog(visualization: ProjectAiVisualization) {
-    setDialogMode('edit')
-    setEditTarget(visualization)
-    setCreateError(null)
-    setOpenCommentsId(null)
     setIsDialogOpen(true)
   }
 
@@ -90,30 +75,21 @@ export function ProjectAiVisualizationsPage() {
 
     setCreateError(null)
     setIsDialogOpen(false)
-    setPendingGeneration({ id: `${Date.now()}`, sourceImage: selectedImage, mode: values.editTarget ? 'edit' : 'create' })
+    setPendingGeneration({ id: `${Date.now()}`, sourceImage: selectedImage })
 
     try {
       const created = await createMutation.mutateAsync({
         projectImageId: values.projectImageId,
         prompt: values.prompt,
         referenceImages: values.referenceImages,
-        editSource: values.editTarget
-          ? {
-              id: values.editTarget.id,
-              imageUrl: values.editTarget.generatedImageUrl,
-              imagePath: values.editTarget.generatedImage,
-            }
-          : null,
       })
 
       setLocalGenerated((current) => [
         { ...created, sourceImage: selectedImage },
         ...current.filter((item) => item.id !== created.id),
       ])
-      setDialogMode('create')
-      setEditTarget(null)
     } catch (error) {
-      setCreateError(getProjectsErrorMessage(error))
+      setCreateError(getAiVisualizationErrorMessage(error))
       setIsDialogOpen(true)
     } finally {
       setPendingGeneration(null)
@@ -157,11 +133,11 @@ export function ProjectAiVisualizationsPage() {
     <section className="min-h-[calc(100vh-4rem)] bg-slate-50 px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-5">
         <header className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-[0_14px_35px_rgba(15,23,42,0.06)]">
-          <div className="border-b border-slate-100 bg-gradient-to-l from-[#50683f]/8 via-white to-white px-4 py-4 sm:px-5">
+          <div className="border-b border-slate-100 bg-gradient-to-l from-[#50683f]/10 via-white to-white px-4 py-4 sm:px-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0">
                 <Link to={`/projects/${projectId}`} className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 transition hover:text-[#50683f]">
-                  <ProjectDetailIcon name="arrow" className="h-4 w-4 rtl:rotate-180" />
+                  <ArrowIcon className="h-4 w-4 rtl:rotate-180" />
                   تفاصيل المشروع
                 </Link>
 
@@ -172,7 +148,7 @@ export function ProjectAiVisualizationsPage() {
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#50683f]">AI Studio</p>
                     <h1 className="text-xl font-black text-slate-900 sm:text-2xl">التصاميم الذكية</h1>
-                    <p className="mt-1 text-xs font-bold text-slate-500">توليد وتعديل تصاميم الإكساء من صور المشروع.</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500">توليد تصاميم إكساء اعتماداً على صور المشروع.</p>
                   </div>
                 </div>
               </div>
@@ -191,7 +167,7 @@ export function ProjectAiVisualizationsPage() {
 
           <div className="grid gap-3 px-4 py-3 text-xs font-black text-slate-600 sm:grid-cols-3 sm:px-5">
             <MiniStat label="صور قبل الإكساء" value={projectImages.length} />
-            <MiniStat label="تصاميم مولدة" value={displayedVisualizations.length + (pendingGeneration ? 1 : 0)} />
+            <MiniStat label="التصاميم" value={displayedVisualizations.length + (pendingGeneration ? 1 : 0)} />
             <MiniStat label="المشروع" value={project.name} />
           </div>
         </header>
@@ -204,7 +180,7 @@ export function ProjectAiVisualizationsPage() {
           <DesignGridSkeleton />
         ) : pendingGeneration || displayedVisualizations.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {pendingGeneration ? <GeneratingCard key={pendingGeneration.id} sourceImageName={pendingGeneration.sourceImage.name} mode={pendingGeneration.mode} /> : null}
+            {pendingGeneration ? <GeneratingCard key={pendingGeneration.id} sourceImageName={pendingGeneration.sourceImage.name} /> : null}
 
             {displayedVisualizations.map((visualization) => (
               <VisualizationCard
@@ -213,7 +189,6 @@ export function ProjectAiVisualizationsPage() {
                 commentsOpen={openCommentsId === visualization.id}
                 isDeleting={deleteVisualizationMutation.isPending && deleteVisualizationMutation.variables === visualization.id}
                 onPreview={() => setPreview({ url: visualization.generatedImageUrl, title: 'تصميم ذكي' })}
-                onEdit={() => openEditDialog(visualization)}
                 onToggleComments={() => setOpenCommentsId((current) => (current === visualization.id ? null : visualization.id))}
                 onDelete={() => void handleDeleteVisualization(visualization)}
               />
@@ -226,8 +201,6 @@ export function ProjectAiVisualizationsPage() {
 
       <CreateVisualizationDialog
         isOpen={isDialogOpen}
-        mode={dialogMode}
-        editTarget={editTarget}
         projectImages={projectImages}
         isSubmitting={createMutation.isPending}
         errorMessage={createError}
@@ -235,8 +208,6 @@ export function ProjectAiVisualizationsPage() {
           if (!createMutation.isPending) {
             setIsDialogOpen(false)
             setCreateError(null)
-            setEditTarget(null)
-            setDialogMode('create')
           }
         }}
         onSubmit={(values) => void handleCreate(values)}
@@ -265,8 +236,11 @@ function EmptyImagesState({ projectId }: { projectId: string }) {
       </div>
       <h2 className="mt-4 text-lg font-black text-slate-900">لا توجد صور قبل الإكساء</h2>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">أضف صور الشقة أولاً حتى تستطيع توليد التصاميم.</p>
-      <Link to={`/projects/${projectId}/images`} className="mt-5 inline-flex h-10 items-center justify-center rounded-2xl bg-[#50683f] px-4 text-xs font-black text-white transition hover:bg-[#435834]">
-        إضافة الصور
+      <Link
+        to={`/projects/${projectId}/images`}
+        className="mt-5 inline-flex h-10 items-center justify-center rounded-2xl bg-[#50683f] px-4 text-xs font-black text-white transition hover:bg-[#435834]"
+      >
+        رفع صور قبل الإكساء
       </Link>
     </div>
   )
@@ -276,53 +250,44 @@ function EmptyVisualizations({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="rounded-[1.4rem] border border-dashed border-slate-200 bg-white px-5 py-10 text-center shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
-        <SparkleIcon className="h-6 w-6" />
+        <RobotIcon className="h-6 w-6" />
       </div>
       <h2 className="mt-4 text-lg font-black text-slate-900">لا توجد تصاميم بعد</h2>
-      <button type="button" onClick={onCreate} className="mt-5 inline-flex h-10 items-center justify-center rounded-2xl bg-[#50683f] px-4 text-xs font-black text-white transition hover:bg-[#435834]">
+      <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">ابدأ بتوليد أول تصميم من صور المشروع.</p>
+      <button
+        type="button"
+        onClick={onCreate}
+        className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-4 text-xs font-black text-white transition hover:bg-[#435834]"
+      >
+        <SparkleIcon className="h-4 w-4" />
         توليد تصميم
       </button>
     </div>
   )
 }
 
-function DesignGridSkeleton() {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-2 shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
-          <div className="h-52 animate-pulse rounded-[1.1rem] bg-slate-100" />
-          <div className="mt-2 h-7 animate-pulse rounded-xl bg-slate-100" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function GeneratingCard({ sourceImageName, mode }: { sourceImageName: string; mode: 'create' | 'edit' }) {
-  const [iconIndex, setIconIndex] = useState(0)
+function GeneratingCard({ sourceImageName }: { sourceImageName: string }) {
+  const [icon, setIcon] = useState<'robot' | 'home'>('robot')
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      setIconIndex((current) => current + 1)
-    }, 850)
+      setIcon((current) => (current === 'robot' ? 'home' : 'robot'))
+    }, 900)
 
     return () => window.clearInterval(intervalId)
   }, [])
 
-  const Icon = iconIndex % 2 === 0 ? RobotIcon : HomeIcon
-
   return (
-    <article className="overflow-hidden rounded-[1.35rem] border border-[#50683f]/20 bg-white p-2 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
-      <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-[1.1rem] bg-slate-100">
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-l from-slate-100 via-white to-slate-100" />
-        <div className="relative flex flex-col items-center gap-3">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#50683f] shadow-sm ring-1 ring-slate-100">
-            <Icon className="h-7 w-7" />
+    <article className="overflow-hidden rounded-[1.35rem] border border-[#50683f]/15 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-l from-slate-100 via-white to-slate-200" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#50683f]">
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/90 shadow-sm ring-1 ring-[#50683f]/10">
+            {icon === 'robot' ? <RobotIcon className="h-8 w-8" /> : <HomeIcon className="h-8 w-8" />}
           </span>
           <div className="text-center">
-            <p className="text-sm font-black text-slate-800">{mode === 'edit' ? 'جاري تعديل التصميم' : 'جاري توليد التصميم'}</p>
-            <p className="mt-1 max-w-[13rem] truncate text-xs font-bold text-slate-500">{sourceImageName}</p>
+            <p className="text-sm font-black text-slate-800">جاري توليد التصميم</p>
+            <p className="mt-1 text-xs font-bold text-slate-500">{sourceImageName}</p>
           </div>
         </div>
       </div>
@@ -335,7 +300,6 @@ function VisualizationCard({
   commentsOpen,
   isDeleting,
   onPreview,
-  onEdit,
   onToggleComments,
   onDelete,
 }: {
@@ -343,25 +307,21 @@ function VisualizationCard({
   commentsOpen: boolean
   isDeleting: boolean
   onPreview: () => void
-  onEdit: () => void
   onToggleComments: () => void
   onDelete: () => void
 }) {
   return (
-    <article className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-2 shadow-[0_10px_25px_rgba(15,23,42,0.045)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.075)]">
-      <div className="relative overflow-hidden rounded-[1.1rem] bg-slate-100">
-        <button type="button" onClick={onPreview} className="block w-full">
-          <img src={visualization.generatedImageUrl} alt="تصميم ذكي" className="h-56 w-full object-cover" />
+    <article className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+        <button type="button" onClick={onPreview} className="block h-full w-full cursor-zoom-in">
+          <img src={visualization.generatedImageUrl} alt="تصميم ذكي" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" />
         </button>
 
-        <div className="absolute right-2 top-2 flex items-center gap-1.5 rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur">
-          <IconButton title="تعديل" onClick={onEdit}>
-            <EditIcon className="h-4 w-4" />
-          </IconButton>
-          <IconButton title="تحميل" asLink href={visualization.generatedImageUrl}>
+        <div className="absolute left-3 top-3 flex items-center gap-1 rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur">
+          <IconLink title="تحميل" href={visualization.generatedImageUrl} download>
             <DownloadIcon className="h-4 w-4" />
-          </IconButton>
-          <IconButton title="التعليقات" onClick={onToggleComments} isActive={commentsOpen}>
+          </IconLink>
+          <IconButton title="التعليقات" onClick={onToggleComments} active={commentsOpen}>
             <CommentIcon className="h-4 w-4" />
           </IconButton>
           <IconButton title="حذف" onClick={onDelete} disabled={isDeleting} danger>
@@ -370,9 +330,9 @@ function VisualizationCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 px-1 py-2">
-        <p className="truncate text-xs font-black text-slate-600">{visualization.sourceImage.name}</p>
-        <p className="shrink-0 text-[11px] font-bold text-slate-400">{formatDate(visualization.createdAt)}</p>
+      <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-3 py-2">
+        <span className="truncate text-xs font-black text-slate-700">{visualization.sourceImage.name}</span>
+        <span className="shrink-0 text-[11px] font-bold text-slate-400">{formatDate(visualization.createdAt)}</span>
       </div>
 
       {commentsOpen ? <CommentsPanel visualizationId={visualization.id} /> : null}
@@ -382,88 +342,82 @@ function VisualizationCard({
 
 function CommentsPanel({ visualizationId }: { visualizationId: string }) {
   const [comment, setComment] = useState('')
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const commentsQuery = useAiVisualizationComments(visualizationId)
   const addCommentMutation = useAddAiVisualizationComment(visualizationId)
   const deleteCommentMutation = useDeleteAiVisualizationComment(visualizationId)
-  const comments = commentsQuery.data ?? []
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const trimmedComment = comment.trim()
-    if (!trimmedComment || addCommentMutation.isPending) return
+    const trimmed = comment.trim()
+    if (!trimmed || addCommentMutation.isPending) return
 
-    setSubmitError(null)
+    setError(null)
 
     try {
-      await addCommentMutation.mutateAsync(trimmedComment)
+      await addCommentMutation.mutateAsync(trimmed)
       setComment('')
-      await commentsQuery.refetch()
-    } catch (error) {
-      setSubmitError(getProjectsErrorMessage(error))
+    } catch (submitError) {
+      setError(getProjectsErrorMessage(submitError))
     }
   }
 
   return (
-    <div className="mt-2 rounded-2xl border border-slate-100 bg-slate-50 p-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-black text-slate-700">التعليقات</p>
-        <span className="rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-500">{comments.length}</span>
-      </div>
-
-      <div className="mt-3 max-h-36 space-y-2 overflow-y-auto pr-1">
-        {commentsQuery.isLoading ? (
-          <p className="text-xs font-bold text-slate-400">جاري التحميل...</p>
-        ) : comments.length === 0 ? (
-          <p className="text-xs font-bold text-slate-400">لا توجد تعليقات.</p>
-        ) : (
-          comments.map((item) => (
-            <div key={item.id} className="rounded-xl bg-white px-3 py-2 text-xs shadow-sm">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-black text-slate-700">{item.user?.name ?? 'مستخدم'}</p>
-                  <p className="mt-1 whitespace-pre-line font-semibold leading-5 text-slate-500">{item.comment}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => void deleteCommentMutation.mutateAsync(item.id)}
-                  disabled={deleteCommentMutation.isPending && deleteCommentMutation.variables === item.id}
-                  className="shrink-0 rounded-lg p-1 text-slate-300 transition hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50"
-                  title="حذف التعليق"
-                >
-                  <TrashIcon className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+    <div className="border-t border-slate-100 bg-slate-50/70 p-3">
+      <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           value={comment}
-          onChange={(event) => setComment(event.target.value)}
+          onChange={(event) => {
+            setComment(event.target.value)
+            setError(null)
+          }}
           placeholder="اكتب تعليقاً..."
-          className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none transition focus:border-[#50683f]/40 focus:ring-4 focus:ring-[#50683f]/10"
+          className="h-10 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none transition focus:border-[#50683f]/40 focus:ring-2 focus:ring-[#50683f]/10"
         />
         <button
           type="submit"
-          disabled={addCommentMutation.isPending || !comment.trim()}
-          className="h-10 rounded-xl bg-[#50683f] px-3 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!comment.trim() || addCommentMutation.isPending}
+          className="inline-flex h-10 items-center justify-center rounded-2xl bg-[#50683f] px-4 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-50"
         >
           إضافة
         </button>
       </form>
 
-      {submitError ? <p className="mt-2 text-xs font-bold text-rose-500">{submitError}</p> : null}
+      {error ? <p className="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{error}</p> : null}
+
+      <div className="mt-3 space-y-2">
+        {commentsQuery.isLoading ? (
+          <p className="text-xs font-bold text-slate-500">جاري تحميل التعليقات...</p>
+        ) : commentsQuery.data && commentsQuery.data.length > 0 ? (
+          commentsQuery.data.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-slate-100 bg-white px-3 py-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-black text-slate-500">{item.user?.name ?? 'مستخدم'}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-xs font-bold leading-5 text-slate-800">{item.comment}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void deleteCommentMutation.mutateAsync(item.id)}
+                  disabled={deleteCommentMutation.isPending && deleteCommentMutation.variables === item.id}
+                  className="shrink-0 rounded-xl p-1 text-rose-500 transition hover:bg-rose-50 disabled:opacity-50"
+                  title="حذف التعليق"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-xs font-bold text-slate-500">لا توجد تعليقات.</p>
+        )}
+      </div>
     </div>
   )
 }
 
 function CreateVisualizationDialog({
   isOpen,
-  mode,
-  editTarget,
   projectImages,
   isSubmitting,
   errorMessage,
@@ -472,8 +426,6 @@ function CreateVisualizationDialog({
   onPreview,
 }: {
   isOpen: boolean
-  mode: 'create' | 'edit'
-  editTarget: ProjectAiVisualization | null
   projectImages: ProjectImage[]
   isSubmitting: boolean
   errorMessage: string | null
@@ -484,236 +436,179 @@ function CreateVisualizationDialog({
   const [selectedImageId, setSelectedImageId] = useState('')
   const [prompt, setPrompt] = useState('')
   const [referenceImages, setReferenceImages] = useState<File[]>([])
-  const referencePreviews = useFilePreviews(referenceImages)
+  const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
+  const [formError, setFormError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
 
-    setSelectedImageId(editTarget?.sourceImage.id ?? projectImages[0]?.id ?? '')
+    setSelectedImageId(projectImages[0]?.id ?? '')
     setPrompt('')
     setReferenceImages([])
-  }, [editTarget, isOpen, projectImages])
+    setFormError(null)
+  }, [isOpen, projectImages])
+
+  useEffect(() => {
+    const previews = referenceImages.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }))
+    setFilePreviews(previews)
+
+    return () => previews.forEach((preview) => URL.revokeObjectURL(preview.url))
+  }, [referenceImages])
 
   if (!isOpen) return null
 
-  function handleClose() {
-    if (isSubmitting) return
-    onClose()
-  }
+  const selectedImage = projectImages.find((image) => image.id === selectedImageId)
 
   function handleFilesChange(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/'))
     if (files.length > 0) {
       setReferenceImages((current) => [...current, ...files])
+      setFormError(null)
     }
     event.target.value = ''
   }
 
   function removeReferenceImage(index: number) {
-    setReferenceImages((current) => current.filter((_, currentIndex) => currentIndex !== index))
+    setReferenceImages((current) => current.filter((_file, fileIndex) => fileIndex !== index))
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmedPrompt = prompt.trim()
+
     if (!selectedImageId || !trimmedPrompt || isSubmitting) return
+
+    if (referenceImages.length === 0) {
+      setFormError('أضف صورة مرجعية واحدة على الأقل.')
+      return
+    }
+
+    setFormError(null)
 
     onSubmit({
       projectImageId: selectedImageId,
       prompt: trimmedPrompt,
       referenceImages,
-      editTarget: mode === 'edit' ? editTarget : null,
     })
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/35 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[1.4rem] bg-white shadow-2xl">
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
-                {mode === 'edit' ? <EditIcon className="h-5 w-5" /> : <SparkleIcon className="h-5 w-5" />}
-              </span>
-              <div>
-                <h2 className="text-base font-black text-slate-900">{mode === 'edit' ? 'تعديل التصميم' : 'توليد تصميم'}</h2>
-                <p className="mt-1 text-xs font-bold text-slate-500">{mode === 'edit' ? 'اكتب التعديل المطلوب وأضف مراجع عند الحاجة.' : 'اختر صورة واكتب المطلوب.'}</p>
-              </div>
-            </div>
-            <button type="button" onClick={handleClose} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-200">
-              إغلاق
-            </button>
-          </div>
-
-          <div className="max-h-[72vh] space-y-4 overflow-y-auto px-4 py-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm" dir="rtl">
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-2xl ring-1 ring-slate-200">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+              <SparkleIcon className="h-5 w-5" />
+            </span>
             <div>
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-black text-slate-700">صورة قبل الإكساء</p>
-                {editTarget ? <span className="rounded-full bg-[#50683f]/10 px-2 py-1 text-[11px] font-black text-[#50683f]">تعديل من تصميم موجود</span> : null}
+              <h2 className="text-base font-black text-slate-900">توليد تصميم</h2>
+              <p className="mt-1 text-xs font-bold text-slate-500">اختر صورة واكتب المطلوب.</p>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-200">
+            إغلاق
+          </button>
+        </div>
+
+        <form id="ai-create-visualization-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="space-y-5">
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className="text-xs font-black text-slate-800">صورة قبل الإكساء</label>
+                {selectedImage ? (
+                  <button type="button" onClick={() => onPreview(selectedImage)} className="text-[11px] font-black text-[#50683f] hover:underline">
+                    عرض الصورة
+                  </button>
+                ) : null}
               </div>
-              <div className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 p-2 pb-3">
-                {projectImages.map((image) => (
-                  <SourceImageThumb
-                    key={image.id}
-                    image={image}
-                    isSelected={selectedImageId === image.id}
-                    onSelect={() => setSelectedImageId(image.id)}
-                    onPreview={() => onPreview(image)}
-                  />
-                ))}
+
+              <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
+                {projectImages.map((image) => {
+                  const selected = image.id === selectedImageId
+                  return (
+                    <button
+                      key={image.id}
+                      type="button"
+                      onClick={() => setSelectedImageId(image.id)}
+                      className={`group relative h-24 w-28 shrink-0 overflow-hidden rounded-2xl border bg-slate-100 text-right transition ${
+                        selected ? 'border-[#50683f] shadow-[0_0_0_3px_rgba(80,104,63,0.12)]' : 'border-slate-200 hover:border-[#50683f]/40'
+                      }`}
+                    >
+                      <img src={image.imageUrl} alt={image.name} className="h-full w-full object-cover" />
+                      <span className="absolute inset-x-0 bottom-0 truncate bg-white/90 px-2 py-1 text-[10px] font-black text-slate-700 backdrop-blur">
+                        {image.name}
+                      </span>
+                      {selected ? <span className="absolute right-2 top-2 h-3 w-3 rounded-full bg-[#50683f] ring-2 ring-white" /> : null}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
-            {editTarget ? (
-              <div className="rounded-2xl border border-[#50683f]/15 bg-[#50683f]/5 p-3">
-                <div className="flex items-center gap-3">
-                  <img src={editTarget.generatedImageUrl} alt="التصميم الحالي" className="h-16 w-20 rounded-xl object-cover" />
-                  <div className="min-w-0">
-                    <p className="text-xs font-black text-slate-800">سيتم اعتماد التصميم الحالي كمرجع للتعديل.</p>
-                    <p className="mt-1 text-[11px] font-bold text-slate-500">يمكنك إضافة صور مرجعية إضافية مثل بلاط أو دهان.</p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-black text-slate-700">الوصف</span>
+            <div>
+              <label className="mb-2 block text-xs font-black text-slate-800">الوصف</label>
               <textarea
                 value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
+                onChange={(event) => {
+                  setPrompt(event.target.value)
+                  setFormError(null)
+                }}
                 rows={4}
-                placeholder={mode === 'edit' ? 'مثلاً: غيّر لون الجدران للبيج، واجعل الأرضية أهدأ.' : 'مثلاً: أضف بلاط أرضية، دهان هادئ، وإضاءة دافئة.'}
-                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-7 text-slate-700 outline-none transition focus:border-[#50683f]/40 focus:bg-white focus:ring-4 focus:ring-[#50683f]/10"
+                placeholder="مثلاً: أضف بلاط أرضية، دهان هادئ، وإضاءة دافئة."
+                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#50683f]/40 focus:bg-white focus:ring-2 focus:ring-[#50683f]/10"
               />
-            </label>
-
-            <div className="grid gap-3 md:grid-cols-[180px_minmax(0,1fr)]">
-              <label className="flex min-h-[98px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center transition hover:border-[#50683f]/40 hover:bg-[#50683f]/5">
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleFilesChange} />
-                <UploadIcon className="h-5 w-5 text-[#50683f]" />
-                <span className="mt-2 text-xs font-black text-slate-700">صور مرجعية</span>
-              </label>
-
-              <ReferenceImagesStrip previews={referencePreviews} onRemove={removeReferenceImage} onClear={() => setReferenceImages([])} />
             </div>
 
-            {errorMessage ? <div className="rounded-2xl bg-rose-50 p-3 text-xs font-bold text-rose-600">{errorMessage}</div> : null}
-          </div>
+            <div className="grid gap-3 md:grid-cols-[1fr_12rem]">
+              <div className="min-h-24 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                {filePreviews.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {filePreviews.map((preview, index) => (
+                      <div key={`${preview.name}-${index}`} className="group relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                        <img src={preview.url} alt={preview.name} className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeReferenceImage(index)}
+                          className="absolute left-1 top-1 hidden rounded-full bg-white/90 p-1 text-rose-500 shadow-sm group-hover:block"
+                          title="إزالة"
+                        >
+                          <CloseIcon className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-full min-h-20 items-center justify-center text-xs font-black text-slate-400">أضف صورة مرجعية واحدة على الأقل</div>
+                )}
+              </div>
 
-          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 px-4 py-4 sm:flex-row sm:justify-end">
-            <button type="button" onClick={handleClose} className="h-10 rounded-2xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-600 transition hover:border-slate-300">
-              إلغاء
-            </button>
-            <button
-              type="submit"
-              disabled={!selectedImageId || !prompt.trim() || isSubmitting}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {mode === 'edit' ? <EditIcon className="h-4 w-4" /> : <SparkleIcon className="h-4 w-4" />}
-              {mode === 'edit' ? 'تعديل' : 'إنشاء'}
-            </button>
+              <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#50683f]/35 bg-[#50683f]/5 px-4 text-center text-[#50683f] transition hover:bg-[#50683f]/10">
+                <UploadIcon className="h-5 w-5" />
+                <span className="mt-2 text-xs font-black">صور مرجعية</span>
+                <input type="file" name="reference_images[]" accept="image/*" multiple className="hidden" onChange={handleFilesChange} />
+              </label>
+            </div>
+
+            {formError || errorMessage ? <div className="rounded-2xl bg-rose-50 px-4 py-3 text-xs font-bold text-rose-600">{formError ?? errorMessage}</div> : null}
           </div>
         </form>
+
+        <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+          <button type="button" onClick={onClose} className="h-10 rounded-2xl border border-slate-200 px-4 text-xs font-black text-slate-600 transition hover:bg-slate-50">
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            form="ai-create-visualization-form"
+            disabled={!selectedImageId || !prompt.trim() || referenceImages.length === 0 || isSubmitting}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 text-xs font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <SparkleIcon className="h-4 w-4" />
+            {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء'}
+          </button>
+        </div>
       </div>
     </div>
-  )
-}
-
-function SourceImageThumb({ image, isSelected, onSelect, onPreview }: { image: ProjectImage; isSelected: boolean; onSelect: () => void; onPreview: () => void }) {
-  return (
-    <div className={`w-24 shrink-0 rounded-2xl border bg-white p-1.5 transition ${isSelected ? 'border-[#50683f] ring-4 ring-[#50683f]/10' : 'border-slate-200 hover:border-[#50683f]/30'}`}>
-      <button type="button" onClick={onSelect} className="block w-full overflow-hidden rounded-xl bg-slate-100">
-        <img src={image.imageUrl} alt={image.name} className="h-16 w-full object-cover" />
-      </button>
-      <div className="mt-1.5 flex items-center justify-between gap-1 px-0.5">
-        <p className="min-w-0 truncate text-[10px] font-black text-slate-600">{image.name}</p>
-        <button type="button" onClick={onPreview} className="shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-[#50683f]" title="عرض">
-          <EyeIcon className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function ReferenceImagesStrip({ previews, onRemove, onClear }: { previews: FilePreview[]; onRemove: (index: number) => void; onClear: () => void }) {
-  if (previews.length === 0) {
-    return <div className="flex min-h-[98px] items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-xs font-bold text-slate-400">تظهر الصور المختارة هنا</div>
-  }
-
-  return (
-    <div className="min-h-[98px] rounded-2xl border border-slate-200 bg-white p-2">
-      <div className="mb-2 flex items-center justify-between gap-2 px-1">
-        <span className="text-xs font-black text-slate-700">الصور المختارة</span>
-        <button type="button" onClick={onClear} className="text-[11px] font-black text-rose-400 transition hover:text-rose-600">مسح</button>
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {previews.map((item, index) => (
-          <div key={item.url} className="group relative w-20 shrink-0">
-            <img src={item.url} alt={item.name} className="h-16 w-20 rounded-xl object-cover" />
-            <button type="button" onClick={() => onRemove(index)} className="absolute right-1 top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-white text-rose-500 shadow-sm group-hover:flex" title="إزالة">
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function useFilePreviews(files: File[]) {
-  const [previews, setPreviews] = useState<FilePreview[]>([])
-
-  useEffect(() => {
-    const nextPreviews = files.map((file) => ({ name: file.name, url: URL.createObjectURL(file) }))
-    setPreviews(nextPreviews)
-
-    return () => {
-      nextPreviews.forEach((item) => URL.revokeObjectURL(item.url))
-    }
-  }, [files])
-
-  return previews
-}
-
-function IconButton({
-  children,
-  title,
-  asLink,
-  href,
-  onClick,
-  disabled,
-  danger,
-  isActive,
-}: {
-  children: ReactNode
-  title: string
-  asLink?: boolean
-  href?: string
-  onClick?: () => void
-  disabled?: boolean
-  danger?: boolean
-  isActive?: boolean
-}) {
-  const className = `inline-flex h-8 w-8 items-center justify-center rounded-xl transition disabled:cursor-not-allowed disabled:opacity-50 ${
-    danger
-      ? 'text-rose-500 hover:bg-rose-50'
-      : isActive
-        ? 'bg-[#50683f] text-white'
-        : 'text-slate-600 hover:bg-slate-100 hover:text-[#50683f]'
-  }`
-
-  if (asLink && href) {
-    return (
-      <a href={href} download target="_blank" rel="noreferrer" className={className} title={title} aria-label={title}>
-        {children}
-      </a>
-    )
-  }
-
-  return (
-    <button type="button" onClick={onClick} disabled={disabled} className={className} title={title} aria-label={title}>
-      {children}
-    </button>
   )
 }
 
@@ -721,109 +616,205 @@ function ImagePreviewDialog({ preview, onClose }: { preview: PreviewState | null
   if (!preview) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-700/40 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-4xl overflow-hidden rounded-[1.4rem] bg-white shadow-2xl">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm" dir="rtl">
+      <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[1.5rem] bg-white shadow-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
-          <h3 className="truncate text-sm font-black text-slate-900">{preview.title}</h3>
+          <p className="text-sm font-black text-slate-800">{preview.title}</p>
           <div className="flex items-center gap-2">
-            <a href={preview.url} download target="_blank" rel="noreferrer" className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]" title="تحميل">
+            <a
+              href={preview.url}
+              download
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-3 text-xs font-black text-slate-700 transition hover:bg-slate-200"
+            >
               <DownloadIcon className="h-4 w-4" />
+              تحميل
             </a>
-            <button type="button" onClick={onClose} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-200">
+            <button type="button" onClick={onClose} className="inline-flex h-9 items-center justify-center rounded-2xl bg-slate-100 px-3 text-xs font-black text-slate-700 transition hover:bg-slate-200">
               إغلاق
             </button>
           </div>
         </div>
-        <div className="bg-slate-50 p-3">
-          <img src={preview.url} alt={preview.title} className="max-h-[72vh] w-full rounded-2xl object-contain" />
+        <div className="max-h-[80vh] overflow-auto bg-slate-950/5 p-3">
+          <img src={preview.url} alt={preview.title} className="mx-auto max-h-[76vh] rounded-2xl object-contain" />
         </div>
       </div>
     </div>
   )
 }
 
+function DesignGridSkeleton() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: 6 }).map((_item, index) => (
+        <div key={index} className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-sm">
+          <div className="aspect-[4/3] animate-pulse bg-slate-100" />
+          <div className="space-y-2 p-3">
+            <div className="h-3 w-1/2 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-3 w-1/3 animate-pulse rounded-full bg-slate-100" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function IconButton({
+  title,
+  children,
+  onClick,
+  active,
+  danger,
+  disabled,
+}: {
+  title: string
+  children: ReactNode
+  onClick: () => void
+  active?: boolean
+  danger?: boolean
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        danger
+          ? 'text-rose-500 hover:bg-rose-50'
+          : active
+            ? 'bg-[#50683f]/10 text-[#50683f]'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-[#50683f]'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function IconLink({ title, href, download, children }: { title: string; href: string; download?: boolean; children: ReactNode }) {
+  return (
+    <a
+      title={title}
+      href={href}
+      download={download}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-[#50683f]"
+    >
+      {children}
+    </a>
+  )
+}
+
+function getAiVisualizationErrorMessage(error: unknown) {
+  const message = error instanceof Error && error.message === 'REFERENCE_IMAGE_REQUIRED' ? 'أضف صورة مرجعية واحدة على الأقل.' : getProjectsErrorMessage(error)
+
+  if (message.includes('reference_images') || message.includes('field is required')) {
+    return 'أضف صورة مرجعية واحدة على الأقل.'
+  }
+
+  return message
+}
+
 function formatDate(value?: string | null) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString('ar-SY', { year: 'numeric', month: 'short', day: 'numeric' })
+  if (!value) return '—'
+
+  try {
+    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium' }).format(new Date(value))
+  } catch {
+    return value
+  }
+}
+
+function SparkleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M12 3l1.7 4.4L18 9l-4.3 1.6L12 15l-1.7-4.4L6 9l4.3-1.6L12 3z" />
+      <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" />
+    </svg>
+  )
 }
 
 function RobotIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 4v3M8 4h8" strokeLinecap="round" />
-      <rect x="5" y="7" width="14" height="11" rx="3" />
-      <path d="M9 12h.01M15 12h.01M10 15h4M3 11v3M21 11v3" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <rect x="5" y="8" width="14" height="10" rx="3" />
+      <path d="M12 8V4" />
+      <path d="M9 4h6" />
+      <path d="M9 13h.01" />
+      <path d="M15 13h.01" />
+      <path d="M10 17h4" />
     </svg>
   )
 }
 
 function HomeIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="m4 11 8-7 8 7" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M6.5 10.5V20h11v-9.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 20v-5h4v5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function SparkleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" strokeLinejoin="round" />
-      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M3 11l9-8 9 8" />
+      <path d="M5 10v10h14V10" />
+      <path d="M9 20v-6h6v6" />
     </svg>
   )
 }
 
 function DownloadIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function TrashIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M5 7h14M10 11v6M14 11v6M8 7l1-3h6l1 3M7 7l1 13h8l1-13" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M12 3v12" />
+      <path d="M7 10l5 5 5-5" />
+      <path d="M5 21h14" />
     </svg>
   )
 }
 
 function CommentIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M5 5h14v10H8l-3 4V5Z" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
     </svg>
   )
 }
 
-function EyeIcon({ className }: { className?: string }) {
+function TrashIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M3 12s3.2-5.5 9-5.5S21 12 21 12s-3.2 5.5-9 5.5S3 12 3 12Z" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="12" r="2.5" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
     </svg>
   )
 }
 
 function UploadIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 15V4m0 0 4 4m-4-4-4 4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M12 16V4" />
+      <path d="M7 9l5-5 5 5" />
+      <path d="M5 20h14" />
     </svg>
   )
 }
 
-function EditIcon({ className }: { className?: string }) {
+function CloseIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M14 8l2 2" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  )
+}
+
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
     </svg>
   )
 }

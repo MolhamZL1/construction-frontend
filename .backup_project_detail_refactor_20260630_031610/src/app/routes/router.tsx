@@ -8,7 +8,6 @@ import { EditProjectPage } from '@/features/projects/pages/EditProjectPage'
 import { ProjectCrewCostPage } from '@/features/projects/pages/ProjectCrewCostPage'
 import { ProjectDetailPage } from '@/features/projects/pages/ProjectDetailPage'
 import { ProjectMaterialEstimatePage } from '@/features/projects/pages/ProjectMaterialEstimatePage'
-import { ProjectTimelineAnalysisPage } from '@/features/projects/pages/ProjectTimelineAnalysisPage'
 import { ProjectInitialWorkItemDetailsPage } from '@/features/projects/pages/ProjectInitialWorkItemDetailsPage'
 import { ProjectImagesPage } from '@/features/projects/pages/ProjectImagesPage'
 import { ProjectTeamPage } from '@/features/projects/pages/ProjectTeamPage'
@@ -194,10 +193,6 @@ export const router = createBrowserRouter([
           {
             path: '/projects/:id/crew-cost',
             element: <ProjectCrewCostPage />,
-          },
-          {
-            path: '/projects/:id/timeline-analysis',
-            element: <ProjectTimelineAnalysisPage />,
           },
           {
             path: '/projects/:id/material-estimate',

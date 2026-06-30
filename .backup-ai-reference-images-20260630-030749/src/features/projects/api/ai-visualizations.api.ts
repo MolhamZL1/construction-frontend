@@ -45,10 +45,17 @@ export interface AiVisualizationComment {
   }
 }
 
+export interface EditAiVisualizationSource {
+  id: string
+  imageUrl: string
+  imagePath?: string | null
+}
+
 export interface CreateAiVisualizationInput {
   projectImageId: string
   prompt: string
   referenceImages: File[]
+  editSource?: EditAiVisualizationSource | null
 }
 
 function mapVisualization(dto: AiVisualizationDto): AiVisualization {
@@ -82,17 +89,23 @@ function createVisualizationFormData(input: CreateAiVisualizationInput) {
   formData.append('prompt', input.prompt.trim())
 
   input.referenceImages.forEach((file) => {
-    formData.append('reference_images[]', file, file.name || 'reference-image.jpg')
+    formData.append('reference_images[]', file, file.name)
   })
+
+  // نفس الـ API لا يملك endpoint تعديل منفصل، لذلك نرسل معرّف التصميم الحالي
+  // كبيانات إضافية فقط، بينما الصور المرجعية تبقى مطلوبة من الواجهة.
+  if (input.editSource) {
+    formData.append('ai_visualization_id', input.editSource.id)
+    formData.append('source_ai_visualization_id', input.editSource.id)
+    if (input.editSource.imagePath) {
+      formData.append('generated_image', input.editSource.imagePath)
+    }
+  }
 
   return formData
 }
 
 export async function createAiVisualization(input: CreateAiVisualizationInput): Promise<AiVisualization> {
-  if (input.referenceImages.length === 0) {
-    throw new Error('REFERENCE_IMAGE_REQUIRED')
-  }
-
   const formData = createVisualizationFormData(input)
   const { data } = await api.post<ApiEnvelope<AiVisualizationDto>>('/ai-visualization', formData, {
     headers: { Accept: 'application/json' },
@@ -124,13 +137,18 @@ export async function listAiVisualizationComments(visualizationId: string): Prom
 }
 
 export async function addAiVisualizationComment(visualizationId: string, comment: string): Promise<AiVisualizationComment> {
-  const formData = new FormData()
-  formData.append('comment', comment.trim())
+  const payload = new URLSearchParams()
+  payload.set('comment', comment.trim())
 
   const { data } = await api.post<ApiEnvelope<AiVisualizationCommentDto>>(
     `/ai-visualizations/${visualizationId}/comments`,
-    formData,
-    { headers: { Accept: 'application/json' } }
+    payload,
+    {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
   )
 
   return mapComment(data.data)

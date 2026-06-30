@@ -45,10 +45,17 @@ export interface AiVisualizationComment {
   }
 }
 
+export interface EditAiVisualizationSource {
+  id: string
+  imageUrl: string
+  imagePath?: string | null
+}
+
 export interface CreateAiVisualizationInput {
   projectImageId: string
   prompt: string
   referenceImages: File[]
+  editSource?: EditAiVisualizationSource | null
 }
 
 function mapVisualization(dto: AiVisualizationDto): AiVisualization {
@@ -76,24 +83,47 @@ function mapComment(dto: AiVisualizationCommentDto): AiVisualizationComment {
   }
 }
 
-function createVisualizationFormData(input: CreateAiVisualizationInput) {
+async function appendRemoteReferenceImage(formData: FormData, source: EditAiVisualizationSource) {
+  formData.append('ai_visualization_id', source.id)
+  formData.append('source_ai_visualization_id', source.id)
+
+  if (source.imagePath) {
+    formData.append('generated_image', source.imagePath)
+  }
+
+  try {
+    const response = await fetch(source.imageUrl)
+    if (!response.ok) return
+
+    const blob = await response.blob()
+    if (!blob.type.startsWith('image/')) return
+
+    const extension = blob.type.split('/')[1] || 'png'
+    const file = new File([blob], `ai-visualization-${source.id}.${extension}`, { type: blob.type })
+    formData.append('reference_images[]', file, file.name)
+  } catch {
+    // الصورة الحالية تُرسل كمعرّف أيضاً، ولو منع المتصفح تحميلها كملف يكمل الطلب عادي.
+  }
+}
+
+async function createVisualizationFormData(input: CreateAiVisualizationInput) {
   const formData = new FormData()
   formData.append('project_image_id', input.projectImageId)
   formData.append('prompt', input.prompt.trim())
 
   input.referenceImages.forEach((file) => {
-    formData.append('reference_images[]', file, file.name || 'reference-image.jpg')
+    formData.append('reference_images[]', file, file.name)
   })
+
+  if (input.editSource) {
+    await appendRemoteReferenceImage(formData, input.editSource)
+  }
 
   return formData
 }
 
 export async function createAiVisualization(input: CreateAiVisualizationInput): Promise<AiVisualization> {
-  if (input.referenceImages.length === 0) {
-    throw new Error('REFERENCE_IMAGE_REQUIRED')
-  }
-
-  const formData = createVisualizationFormData(input)
+  const formData = await createVisualizationFormData(input)
   const { data } = await api.post<ApiEnvelope<AiVisualizationDto>>('/ai-visualization', formData, {
     headers: { Accept: 'application/json' },
   })

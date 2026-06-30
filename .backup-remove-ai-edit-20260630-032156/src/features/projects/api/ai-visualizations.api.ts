@@ -45,10 +45,17 @@ export interface AiVisualizationComment {
   }
 }
 
+export interface EditAiVisualizationSource {
+  id: string
+  imageUrl: string
+  imagePath?: string | null
+}
+
 export interface CreateAiVisualizationInput {
   projectImageId: string
   prompt: string
   referenceImages: File[]
+  editSource?: EditAiVisualizationSource | null
 }
 
 function mapVisualization(dto: AiVisualizationDto): AiVisualization {
@@ -81,9 +88,20 @@ function createVisualizationFormData(input: CreateAiVisualizationInput) {
   formData.append('project_image_id', input.projectImageId)
   formData.append('prompt', input.prompt.trim())
 
-  input.referenceImages.forEach((file) => {
-    formData.append('reference_images[]', file, file.name || 'reference-image.jpg')
+  input.referenceImages.forEach((file, index) => {
+    // Laravel validation errors use reference_images.0, so indexed keys are the safest form.
+    formData.append(`reference_images[${index}]`, file, file.name || `reference-${index + 1}.jpg`)
   })
+
+  // Same API is used for edit mode. These fields do not replace reference_images;
+  // the backend still requires at least one reference image file.
+  if (input.editSource) {
+    formData.append('ai_visualization_id', input.editSource.id)
+    formData.append('source_ai_visualization_id', input.editSource.id)
+    if (input.editSource.imagePath) {
+      formData.append('generated_image', input.editSource.imagePath)
+    }
+  }
 
   return formData
 }
@@ -95,7 +113,10 @@ export async function createAiVisualization(input: CreateAiVisualizationInput): 
 
   const formData = createVisualizationFormData(input)
   const { data } = await api.post<ApiEnvelope<AiVisualizationDto>>('/ai-visualization', formData, {
-    headers: { Accept: 'application/json' },
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'multipart/form-data',
+    },
   })
 
   return mapVisualization(data.data)
@@ -124,13 +145,18 @@ export async function listAiVisualizationComments(visualizationId: string): Prom
 }
 
 export async function addAiVisualizationComment(visualizationId: string, comment: string): Promise<AiVisualizationComment> {
-  const formData = new FormData()
-  formData.append('comment', comment.trim())
+  const payload = new FormData()
+  payload.append('comment', comment.trim())
 
   const { data } = await api.post<ApiEnvelope<AiVisualizationCommentDto>>(
     `/ai-visualizations/${visualizationId}/comments`,
-    formData,
-    { headers: { Accept: 'application/json' } }
+    payload,
+    {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    }
   )
 
   return mapComment(data.data)

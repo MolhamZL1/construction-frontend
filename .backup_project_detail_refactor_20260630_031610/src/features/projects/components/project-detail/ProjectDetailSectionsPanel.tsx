@@ -19,7 +19,7 @@ export function ProjectDetailSectionsPanel({
     <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-7">
       <div className="mb-6 flex flex-col gap-1">
         <h2 className="text-2xl font-extrabold text-slate-900">أقسام المشروع</h2>
-        <p className="text-sm font-medium text-slate-500">الأقسام التشغيلية الأساسية للمشروع</p>
+        <p className="text-sm font-medium text-slate-500">الوصول السريع للأقسام الأساسية داخل المشروع</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -38,25 +38,11 @@ export function ProjectDetailSectionsPanel({
           to={`/projects/${projectId}/spaces`}
         />
         <ProjectDetailSectionCard
-          title="صور قبل الإكساء"
-          description="معرض صور الشقة قبل بدء التنفيذ"
-          icon="home"
-          accent="cyan"
-          to={`/projects/${projectId}/images`}
-        />
-        <ProjectDetailSectionCard
           title="بنود العمل"
           description={`${workItemsCount} بند`}
           icon="checklist"
           accent="emerald"
           to={`/projects/${projectId}/work-items`}
-        />
-        <ProjectDetailSectionCard
-          title="مصاريف الورشات"
-          description="تسجيل ومتابعة المصاريف"
-          icon="invoice"
-          accent="green"
-          to={`/projects/${projectId}/expenses`}
         />
         <ProjectDetailSectionCard
           title="المستندات"
@@ -69,7 +55,7 @@ export function ProjectDetailSectionsPanel({
           title="الفواتير"
           description="فواتير بنود العمل"
           icon="invoice"
-          accent="pink"
+          accent="green"
           to={`/projects/${projectId}/invoices`}
         />
       </div>
