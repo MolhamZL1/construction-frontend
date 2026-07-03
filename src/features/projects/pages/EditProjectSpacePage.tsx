@@ -56,7 +56,7 @@ export function EditProjectSpacePage() {
 
   function handleSubmit(values: SpaceFormValues) {
     updateMutation.mutate(
-      { id: spaceId, ...values },
+      { id: spaceId ?? '', ...values },
       {
         onSuccess: () => navigate(`/projects/${projectId}/spaces`),
       }

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { WorkItemIcon } from './WorkItemIcon'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -39,19 +40,27 @@ export function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-extrabold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
           >
-            {cancelLabel}
+            <WorkItemIcon name="x" className="h-4 w-4" />
+            <span>{cancelLabel}</span>
           </button>
           <button
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-extrabold text-white transition disabled:opacity-60 ${
+            className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-extrabold text-white transition disabled:opacity-60 ${
               danger ? 'bg-rose-500 hover:bg-rose-600' : 'bg-[#50683f] hover:bg-[#405633]'
             }`}
           >
-            {isLoading ? 'جاري التنفيذ...' : confirmLabel}
+            {isLoading ? (
+              <span>جاري التنفيذ...</span>
+            ) : (
+              <>
+                <WorkItemIcon name={danger ? 'reject' : 'check'} className="h-4 w-4" />
+                <span>{confirmLabel}</span>
+              </>
+            )}
           </button>
         </div>
       </div>

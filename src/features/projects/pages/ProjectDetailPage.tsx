@@ -9,6 +9,7 @@ import { ProjectDetailSectionsPanel } from '../components/project-detail/Project
 import { ProjectDetailStats, type ProjectDetailStatItem } from '../components/project-detail/ProjectDetailStats'
 import { ProjectLifecycleActions } from '../components/project-detail/ProjectLifecycleActions'
 import { ProjectLifecycleConfirmDialog, type ProjectLifecycleAction } from '../components/project-detail/ProjectLifecycleConfirmDialog'
+import { getWorkItemDetailNumber } from '@/utils/work-item-details'
 import {
   getProjectsErrorMessage,
   useCompleteProject,
@@ -16,12 +17,60 @@ import {
   useProjectSummary,
   useProjectWeather,
   useStartProject,
+  useProjectWorkItems
 } from '../hooks/useProjects'
+
+const PROJECT_COUNT_KEYS = {
+  woodDoors: ['total_wood_doors', 'wood_doors_count', 'woodDoorsCount'],
+  aluminumDoors: ['total_aluminum_doors', 'aluminum_doors_count', 'aluminumDoorsCount'],
+  windows: ['total_windows', 'windows_count', 'windowsCount'],
+} as const
+
+interface ProjectConfiguredCounts {
+  woodDoors: number
+  aluminumDoors: number
+  windows: number
+}
+
+type ProjectCountsWorkItem = {
+  name?: string | null
+  sortOrder?: number | string | null
+  sort_order?: number | string | null
+  details?: readonly unknown[] | null
+}
+
+function hasProjectCountDetails(workItem: ProjectCountsWorkItem) {
+  return [PROJECT_COUNT_KEYS.woodDoors, PROJECT_COUNT_KEYS.aluminumDoors, PROJECT_COUNT_KEYS.windows].some((keys) =>
+    Number.isFinite(getWorkItemDetailNumber(workItem.details, keys, Number.NaN)),
+  )
+}
+
+function findProjectCountsWorkItem(workItems: ProjectCountsWorkItem[]) {
+  return (
+    workItems.find(hasProjectCountDetails) ??
+    workItems.find((workItem) => String(workItem.name ?? '').includes('ملابن')) ??
+    workItems.find((workItem) => Number(workItem.sortOrder ?? workItem.sort_order) === 1) ??
+    null
+  )
+}
+
+function getProjectConfiguredCounts(workItems: ProjectCountsWorkItem[]): ProjectConfiguredCounts {
+  const countsWorkItem = findProjectCountsWorkItem(workItems)
+
+  return {
+    woodDoors: getWorkItemDetailNumber(countsWorkItem?.details, PROJECT_COUNT_KEYS.woodDoors, 0),
+    aluminumDoors: getWorkItemDetailNumber(countsWorkItem?.details, PROJECT_COUNT_KEYS.aluminumDoors, 0),
+    windows: getWorkItemDetailNumber(countsWorkItem?.details, PROJECT_COUNT_KEYS.windows, 0),
+  }
+}
+
+
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [lifecycleAction, setLifecycleAction] = useState<ProjectLifecycleAction | null>(null)
 const summaryQuery = useProjectSummary(id)
+  const workItemsQuery = useProjectWorkItems(id)
   const engineersQuery = useProjectEngineers(id)
   const weatherQuery = useProjectWeather(id)
   const documentsQuery = useProjectDocuments(id)
@@ -30,9 +79,11 @@ const summaryQuery = useProjectSummary(id)
 
   const project = summaryQuery.data?.project
   const spaces = summaryQuery.data?.spaces ?? []
-  const workItems = summaryQuery.data?.workItems ?? []
+  const workItems = workItemsQuery.data ?? summaryQuery.data?.workItems ?? []
   const engineers = engineersQuery.data ?? []
   const documents = documentsQuery.data?.documents ?? []
+  const projectConfiguredCounts = useMemo(() => getProjectConfiguredCounts(workItems), [workItems])
+  void projectConfiguredCounts
 
   const isLifecyclePending = startProjectMutation.isPending || completeProjectMutation.isPending
   const lifecycleError = startProjectMutation.error
@@ -172,6 +223,7 @@ const summaryQuery = useProjectSummary(id)
             />
           }
         />
+
 <ProjectDetailStats items={tools} />
 
         <ProjectDetailSectionsPanel

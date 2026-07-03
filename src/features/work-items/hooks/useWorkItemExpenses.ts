@@ -1,35 +1,35 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  addWorkItemExpense,
-  getWorkItemExpenses,
-  type AddWorkItemExpenseInput,
-  type GetWorkItemExpensesInput,
-} from '../api/work-item-expenses.api'
+import { createWorkItemExpense, getWorkItemExpenses } from '../api/work-item-expenses.api'
+import type { CreateWorkItemExpenseInput, WorkItemExpensesFilter } from '../models/work-item-expense.model'
+
+const WORK_ITEM_EXPENSES_QUERY_KEY = ['work-item-expenses'] as const
 
 export const workItemExpensesKeys = {
-  all: ['work-item-expenses'] as const,
-  list: (projectId: string, workItemId: string, from?: string, to?: string) =>
-    [...workItemExpensesKeys.all, projectId, workItemId, from ?? '', to ?? ''] as const,
+  all: WORK_ITEM_EXPENSES_QUERY_KEY,
+  project: (projectId: string) => [...WORK_ITEM_EXPENSES_QUERY_KEY, projectId] as const,
+  list: (filter: WorkItemExpensesFilter) =>
+    [...WORK_ITEM_EXPENSES_QUERY_KEY, filter.projectId, filter.workItemId, filter.from, filter.to] as const,
 }
 
-export function useWorkItemExpenses(input: GetWorkItemExpensesInput | null) {
+interface UseWorkItemExpensesOptions {
+  enabled?: boolean
+}
+
+export function useWorkItemExpenses(filter: WorkItemExpensesFilter, options: UseWorkItemExpensesOptions = {}) {
   return useQuery({
-    queryKey: input
-      ? workItemExpensesKeys.list(input.projectId, input.workItemId, input.from, input.to)
-      : workItemExpensesKeys.list('', '', '', ''),
-    queryFn: () => getWorkItemExpenses(input as GetWorkItemExpensesInput),
-    enabled: Boolean(input?.projectId && input?.workItemId),
+    queryKey: workItemExpensesKeys.list(filter),
+    queryFn: () => getWorkItemExpenses(filter),
+    enabled: Boolean(filter.projectId && filter.workItemId && filter.from && filter.to) && (options.enabled ?? true),
   })
 }
 
-export function useAddWorkItemExpense() {
+export function useCreateWorkItemExpense() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: AddWorkItemExpenseInput) => addWorkItemExpense(input),
-    onSuccess: (_data, input) => {
-      void queryClient.invalidateQueries({ queryKey: workItemExpensesKeys.all })
-      void queryClient.invalidateQueries({ queryKey: ['work-items', 'list', input.projectId] })
+    mutationFn: (input: CreateWorkItemExpenseInput) => createWorkItemExpense(input),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: workItemExpensesKeys.project(variables.projectId) })
     },
   })
 }

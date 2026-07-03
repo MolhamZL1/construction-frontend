@@ -179,21 +179,7 @@ export function ProjectImagesPage() {
           </form>
 
           <div className="space-y-4">
-            <div className="flex flex-col gap-2 rounded-3xl border border-slate-200 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-900">المعرض</h2>
-                <p className="mt-1 text-sm font-semibold text-slate-500">{images.length} صورة مرفوعة قبل الإكساء</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void imagesQuery.refetch()}
-                disabled={imagesQuery.isFetching}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f] disabled:opacity-60"
-              >
-                {imagesQuery.isFetching ? 'تحديث...' : 'تحديث'}
-              </button>
-            </div>
-
+          
             {imagesQuery.isLoading ? (
               <LoadingState label="جاري تحميل الصور..." />
             ) : imagesQuery.isError ? (

@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import { spaceTypeLabels } from '@/features/projects/constants/project-spaces'
 import type { ProjectSpace } from '@/features/projects/models/project.model'
+import { useAuthStore } from '@/stores/authStore'
 import { getWorkItemsErrorMessage, useUpdateWorkItemProgress } from '../hooks/useWorkItems'
+import { useApproveProgressRequest, useRejectProgressRequest, useWorkItemProgressRequests } from '../hooks/useWorkItemProgressRequests'
+import { useWorkItemSpacesProgress } from '../hooks/useWorkItemSpacesProgress'
 import type { WorkItem } from '../models/work-item.model'
+import type { WorkItemProgressRequest } from '../models/work-item-progress-request.model'
+import type { WorkItemProgressSpace } from '../models/work-item-space-progress.model'
+import { getInitialProgressFieldValue, getRemainingCountForProgressField, getWorkItemProgressCounters } from '../utils/work-item-progress-counters'
+import { ProgressRequestReviewDialog } from './progress/ProgressRequestReviewDialog'
+import { ProgressRequestsPanel } from './progress/ProgressRequestsPanel'
+import { SpaceProgressSelector } from './progress/SpaceProgressSelector'
+import { WorkItemIcon } from './WorkItemIcon'
 
 interface WorkItemProgressSectionProps {
   projectId: string
@@ -36,8 +45,6 @@ type ProgressConfig = {
   validate?: (values: FieldValues) => string | null
 }
 
-const completedSpaceField = (label: string): ProgressField => ({ name: 'completed', label, type: 'checkbox', required: true })
-
 const numberValue = (value: string | boolean | undefined) => {
   if (typeof value !== 'string') return 0
   const parsed = Number(value)
@@ -55,12 +62,12 @@ const progressConfigs: ProgressConfig[] = [
     id: 'mellaben',
     match: ['ملابن'],
     title: 'تحديث إنجاز ملابن الأبواب',
-    helper: 'هذا البند يرسل فقط أعداد الملابن والنوافذ المنجزة مع صورة لكل عنصر منجز.',
+    helper: 'أدخل عدد العناصر المنجزة وارفع صورة لكل عنصر.',
     exactPhotos: true,
     fields: [
-      { name: 'completed_wood_doors', label: 'عدد ملابن الخشب المنجزة', type: 'number', min: 0, required: true },
-      { name: 'completed_aluminum_doors', label: 'عدد ملابن الألمنيوم المنجزة', type: 'number', min: 0, required: true },
-      { name: 'completed_windows', label: 'عدد النوافذ المنجزة', type: 'number', min: 0, required: true },
+      { name: 'completed_wood_doors', label: 'ملابن الخشب المنجزة', type: 'number', min: 0, required: true },
+      { name: 'completed_aluminum_doors', label: 'ملابن الألمنيوم المنجزة', type: 'number', min: 0, required: true },
+      { name: 'completed_windows', label: 'النوافذ المنجزة', type: 'number', min: 0, required: true },
     ],
     getRequiredPhotos: (values) =>
       numberValue(values.completed_wood_doors) +
@@ -71,61 +78,47 @@ const progressConfigs: ProgressConfig[] = [
     id: 'doors',
     match: ['أبواب ونجارة', 'نجارة'],
     title: 'تحديث إنجاز الأبواب والنجارة',
-    helper: 'هذا البند يرسل إجمالي الأبواب، الأبواب المنجزة، وحالة خزائن المطبخ فقط. ارفع صورة لكل باب منجز وصورة إضافية إذا خزائن المطبخ منجزة.',
+    helper: 'أدخل العدد المنجز، مع صورة لكل باب منجز.',
     exactPhotos: true,
     fields: [
-      { name: 'total_doors', label: 'إجمالي الأبواب', type: 'number', min: 0, required: true },
-      { name: 'completed_doors', label: 'عدد الأبواب المنجزة', type: 'number', min: 0, required: true },
+      { name: 'completed_doors', label: 'الأبواب المنجزة', type: 'number', min: 0, required: true },
       { name: 'kitchen_cabinet_done', label: 'خزائن المطبخ منجزة', type: 'checkbox' },
     ],
     getRequiredPhotos: (values) => numberValue(values.completed_doors) + (boolValue(values.kitchen_cabinet_done) ? 1 : 0),
-    validate: (values) => {
-      const total = numberValue(values.total_doors)
-      const completed = numberValue(values.completed_doors)
-      if (completed > total) return 'عدد الأبواب المنجزة لا يمكن أن يكون أكبر من إجمالي الأبواب.'
-      return null
-    },
   },
   {
     id: 'aluminum',
     match: ['ألمنيوم', 'المنيوم', 'أبجورات'],
     title: 'تحديث إنجاز الألمنيوم والأبجورات',
-    helper: 'هذا البند يرسل إجمالي قطع الألمنيوم والعدد المنجز فقط. ارفع صورة لكل قطعة منجزة.',
+    helper: 'أدخل عدد القطع المنجزة، مع صورة لكل قطعة.',
     exactPhotos: true,
     fields: [
-      { name: 'total_aluminum', label: 'إجمالي قطع الألمنيوم', type: 'number', min: 0, required: true },
-      { name: 'completed_aluminum', label: 'عدد قطع الألمنيوم المنجزة', type: 'number', min: 0, required: true },
+      { name: 'completed_aluminum', label: 'قطع الألمنيوم المنجزة', type: 'number', min: 0, required: true },
     ],
     getRequiredPhotos: (values) => numberValue(values.completed_aluminum),
-    validate: (values) => {
-      const total = numberValue(values.total_aluminum)
-      const completed = numberValue(values.completed_aluminum)
-      if (completed > total) return 'عدد قطع الألمنيوم المنجزة لا يمكن أن يكون أكبر من الإجمالي.'
-      return null
-    },
   },
-  { id: 'electricity', match: ['كهرباء'], title: 'تحديث تمديدات الكهرباء', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, fields: [completedSpaceField('تم إنجاز تمديدات الكهرباء لهذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
+  { id: 'electricity', match: ['كهرباء'], title: 'تحديث تمديدات الكهرباء', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, fields: [], getRequiredPhotos: () => 1 },
   {
     id: 'sanitary',
     match: ['صحية'],
     title: 'تحديث التمديدات الصحية',
-    helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.',
+    helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.',
     needsSpace: true,
     exactPhotos: true,
     filterSpaces: (space) => ['kitchen', 'bathroom', 'toilet'].includes(space.type),
-    fields: [completedSpaceField('تم إنجاز التمديدات الصحية لهذا الفراغ')],
-    getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0),
+    fields: [],
+    getRequiredPhotos: () => 1,
   },
-  { id: 'tile', match: ['بلاط'], title: 'تحديث البلاط', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, fields: [completedSpaceField('تم إنجاز بلاط هذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
-  { id: 'gypsum', match: ['جبس'], title: 'تحديث الجبس بورد', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.ceilingFinishType === 'gypsum', fields: [completedSpaceField('تم إنجاز جبس هذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
-  { id: 'paint', match: ['دهان'], title: 'تحديث الدهان', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.wallFinishType === 'paint' || space.ceilingFinishType === 'paint', fields: [completedSpaceField('تم إنجاز دهان هذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
-  { id: 'plaster', match: ['طينة', 'لياسة'], title: 'تحديث الطينة / اللياسة', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, fields: [completedSpaceField('تم إنجاز الطينة / اللياسة لهذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
-  { id: 'ceramic', match: ['سيراميك'], title: 'تحديث السيراميك', helper: 'اختر فراغاً محدداً. سيتم إرسال completed=1 مع صورة واحدة لهذا الفراغ.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.wallFinishType === 'ceramic' || space.ceilingFinishType === 'ceramic', fields: [completedSpaceField('تم إنجاز السيراميك لهذا الفراغ')], getRequiredPhotos: (values) => (boolValue(values.completed) ? 1 : 0) },
+  { id: 'tile', match: ['بلاط'], title: 'تحديث البلاط', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, fields: [], getRequiredPhotos: () => 1 },
+  { id: 'gypsum', match: ['جبس'], title: 'تحديث الجبس بورد', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.ceilingFinishType === 'gypsum', fields: [], getRequiredPhotos: () => 1 },
+  { id: 'paint', match: ['دهان'], title: 'تحديث الدهان', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.wallFinishType === 'paint' || space.ceilingFinishType === 'paint', fields: [], getRequiredPhotos: () => 1 },
+  { id: 'plaster', match: ['طينة', 'لياسة'], title: 'تحديث الطينة / اللياسة', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, fields: [], getRequiredPhotos: () => 1 },
+  { id: 'ceramic', match: ['سيراميك'], title: 'تحديث السيراميك', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.wallFinishType === 'ceramic' || space.ceilingFinishType === 'ceramic', fields: [], getRequiredPhotos: () => 1 },
 ]
 
-function createInitialValues(fields: ProgressField[]): FieldValues {
+function createInitialValues(fields: ProgressField[], item: WorkItem): FieldValues {
   return fields.reduce<FieldValues>((current, field) => {
-    current[field.name] = field.type === 'checkbox' ? false : ''
+    current[field.name] = field.type === 'checkbox' ? false : field.type === 'number' ? (getInitialProgressFieldValue(item, field.name) ?? '0') : ''
     return current
   }, {})
 }
@@ -155,24 +148,66 @@ function getImages(input: HTMLInputElement | null) {
 function validateRequiredFields(config: ProgressConfig, values: FieldValues) {
   for (const field of config.fields) {
     const value = values[field.name]
-    if (field.required && field.type === 'number' && isBlank(value)) {
-      return `أدخل قيمة الحقل: ${field.label}.`
-    }
-
-    if (field.required && field.type === 'checkbox' && !boolValue(value)) {
-      return `فعّل الخيار: ${field.label}.`
-    }
+    if (field.required && field.type === 'number' && isBlank(value)) return `أدخل قيمة الحقل: ${field.label}.`
+    if (field.required && field.type === 'checkbox' && !boolValue(value)) return `فعّل الخيار: ${field.label}.`
   }
 
   return config.validate?.(values) ?? null
 }
 
-export function WorkItemProgressSection({ projectId, item, projectStatus, spaces }: WorkItemProgressSectionProps) {
+function filterSpaces<T extends ProjectSpace>(spaces: T[], config: ProgressConfig): T[] {
+  return config.filterSpaces ? spaces.filter(config.filterSpaces) : spaces
+}
+
+function clampNumberText(value: string, max?: number) {
+  if (value === '') return value
+
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return ''
+  if (max !== undefined && parsed > max) return String(max)
+
+  return value
+}
+
+function canReviewProgressRequests(role?: string) {
+  return role === 'company_admin' || role === 'project_manager'
+}
+
+function NumericProgressSummary({ counters }: { counters: ReturnType<typeof getWorkItemProgressCounters> }) {
+  if (counters.length === 0) return null
+
+  return (
+    <div className="mb-5 grid gap-3 md:grid-cols-3">
+      {counters.map((counter) => (
+        <div key={counter.id} className="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+          <p className="text-xs font-black text-slate-400">{counter.label}</p>
+          <p className="mt-1 text-lg font-black text-slate-900">
+            {counter.completed} / {counter.total}
+          </p>
+          <p className="mt-1 text-xs font-bold text-[#50683f]">المتبقي: {counter.remaining}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function hasSpace(spaces: WorkItemProgressSpace[], spaceId: string) {
+  return spaces.some((space) => space.id === spaceId)
+}
+
+export function WorkItemProgressSection({ projectId, item, projectStatus }: WorkItemProgressSectionProps) {
+  const userRole = useAuthStore((state) => state.user?.role)
+  const canReviewRequests = canReviewProgressRequests(userRole)
   const progressMutation = useUpdateWorkItemProgress(projectId)
+  const progressRequestsQuery = useWorkItemProgressRequests(projectId, item.id)
+  const approveRequestMutation = useApproveProgressRequest(projectId, item.id)
+  const rejectRequestMutation = useRejectProgressRequest(projectId, item.id)
   const [selectedSpaceId, setSelectedSpaceId] = useState('')
   const [fieldValues, setFieldValues] = useState<FieldValues>({})
   const [selectedImagesCount, setSelectedImagesCount] = useState(0)
   const [validationError, setValidationError] = useState('')
+  const [reviewRequest, setReviewRequest] = useState<WorkItemProgressRequest | null>(null)
+  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null)
 
   const config = useMemo<ProgressConfig>(() => {
     const normalizedName = item.name.toLowerCase()
@@ -186,32 +221,69 @@ export function WorkItemProgressSection({ projectId, item, projectStatus, spaces
     }
   }, [item.name])
 
+  const progressCounters = useMemo(() => getWorkItemProgressCounters(item), [item])
+  const spacesProgressQuery = useWorkItemSpacesProgress(projectId, item.id, Boolean(config.needsSpace))
+  const unfinishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.unfinished ?? [], config), [config, spacesProgressQuery.data?.unfinished])
+  const finishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.finished ?? [], config), [config, spacesProgressQuery.data?.finished])
+  const pendingSpaceRequestIds = useMemo(() => new Set((progressRequestsQuery.data ?? []).filter((request) => request.status === 'pending').map((request) => String(request.payload.space_id ?? request.payload.spaceId ?? '')).filter(Boolean)), [progressRequestsQuery.data])
+  const selectableUnfinishedSpaces = useMemo(() => unfinishedSpaces.filter((space) => !pendingSpaceRequestIds.has(space.id)), [pendingSpaceRequestIds, unfinishedSpaces])
+
   useEffect(() => {
-    setFieldValues(createInitialValues(config.fields))
+    setFieldValues(createInitialValues(config.fields, item))
     setSelectedSpaceId('')
     setSelectedImagesCount(0)
     setValidationError('')
   }, [config.id, config.fields, item.id])
 
-  const availableSpaces = useMemo(() => {
-    const filtered = config.filterSpaces ? spaces.filter(config.filterSpaces) : spaces
-    return filtered.length > 0 ? filtered : spaces
-  }, [config, spaces])
+  useEffect(() => {
+    if (!config.needsSpace || !selectedSpaceId || spacesProgressQuery.isLoading) return
+    if (!hasSpace(selectableUnfinishedSpaces, selectedSpaceId)) setSelectedSpaceId('')
+  }, [config.needsSpace, selectedSpaceId, spacesProgressQuery.isLoading, selectableUnfinishedSpaces])
 
   const requiredPhotos = config.getRequiredPhotos ? config.getRequiredPhotos(fieldValues) : 0
   const mustMatchPhotos = Boolean(config.exactPhotos)
   const isProjectOngoing = projectStatus === 'ongoing'
   const isItemOngoing = item.status === 'ongoing'
   const canUpdateProgress = isProjectOngoing && isItemOngoing
+  const spacesProgressError = config.needsSpace && spacesProgressQuery.isError ? getWorkItemsErrorMessage(spacesProgressQuery.error) : ''
+  const progressRequestsError = progressRequestsQuery.isError ? getWorkItemsErrorMessage(progressRequestsQuery.error) : ''
+  const pendingProgressRequests = useMemo(
+    () => (progressRequestsQuery.data ?? []).filter((request) => request.status === 'pending'),
+    [progressRequestsQuery.data]
+  )
+  const isSpacesProgressLoading = Boolean(config.needsSpace && spacesProgressQuery.isLoading)
+  const hasNoUnfinishedSpaces = Boolean(config.needsSpace && !isSpacesProgressLoading && !spacesProgressError && selectableUnfinishedSpaces.length === 0)
   const disabledReason = !isProjectOngoing
     ? 'لا يمكن تحديث الإنجاز لأن المشروع إما مكتمل أو لم يبدأ بعد.'
     : !isItemOngoing
       ? 'لا يمكن تحديث الإنجاز لأن البند ليس قيد التنفيذ.'
       : ''
 
+  function getFieldMax(fieldName: string) {
+    return getRemainingCountForProgressField(item, fieldName)
+  }
+
+  function validateNumericProgressLimits() {
+    for (const counter of progressCounters) {
+      if (!config.fields.some((field) => field.name === counter.fieldName)) continue
+
+      const value = numberValue(fieldValues[counter.fieldName])
+      if (value > counter.remaining) {
+        return `لا يمكن إدخال أكثر من ${counter.remaining} لـ ${counter.label}. المنجز الحالي ${counter.completed} من أصل ${counter.total}.`
+      }
+    }
+
+    return null
+  }
+
   function updateField(field: ProgressField, event: ChangeEvent<HTMLInputElement>) {
     setValidationError('')
-    const value = field.type === 'checkbox' ? event.target.checked : field.type === 'number' ? sanitizeNumberText(event.target.value) : event.target.value
+    const value = field.type === 'checkbox'
+      ? event.target.checked
+      : field.type === 'number'
+        ? clampNumberText(sanitizeNumberText(event.target.value), getFieldMax(field.name))
+        : event.target.value
+
     setFieldValues((current) => ({ ...current, [field.name]: value }))
   }
 
@@ -220,13 +292,48 @@ export function WorkItemProgressSection({ projectId, item, projectStatus, spaces
     setSelectedImagesCount(getImages(event.currentTarget).length)
   }
 
+  function closeReviewDialog() {
+    setReviewRequest(null)
+    setReviewAction(null)
+  }
+
+  function handleApproveRequest(request: WorkItemProgressRequest) {
+    approveRequestMutation.mutate(request.id, { onSuccess: closeReviewDialog })
+  }
+
+  function handleRejectRequest(request: WorkItemProgressRequest, reason: string) {
+    rejectRequestMutation.mutate({ requestId: request.id, reason }, { onSuccess: closeReviewDialog })
+  }
+
+  function openApproveDialog(request: WorkItemProgressRequest) {
+    setReviewRequest(request)
+    setReviewAction('approve')
+  }
+
+  function openRejectDialog(request: WorkItemProgressRequest) {
+    setReviewRequest(request)
+    setReviewAction('reject')
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setValidationError('')
 
     if (!canUpdateProgress) return
+    if (isSpacesProgressLoading) {
+      setValidationError('انتظر حتى يتم تحميل حالة الفراغات.')
+      return
+    }
+    if (spacesProgressError) {
+      setValidationError('تعذر تحميل حالة الفراغات، حاول تحديث الصفحة.')
+      return
+    }
     if (config.needsSpace && !selectedSpaceId) {
-      setValidationError('اختر الفراغ قبل حفظ تحديث الإنجاز.')
+      setValidationError('اختر فراغاً غير منجز قبل حفظ تحديث الإنجاز.')
+      return
+    }
+    if (config.needsSpace && !hasSpace(selectableUnfinishedSpaces, selectedSpaceId)) {
+      setValidationError('هذا الفراغ منجز سابقاً أو عليه طلب معلّق حالياً.')
       return
     }
 
@@ -236,8 +343,14 @@ export function WorkItemProgressSection({ projectId, item, projectStatus, spaces
       return
     }
 
+    const numericProgressError = validateNumericProgressLimits()
+    if (numericProgressError) {
+      setValidationError(numericProgressError)
+      return
+    }
+
     if (mustMatchPhotos && requiredPhotos <= 0) {
-      setValidationError(config.needsSpace ? 'فعّل إنجاز الفراغ حتى يتم إرسال completed=1.' : 'أدخل عدد العناصر المنجزة أولاً. يجب أن يكون العدد المنجز أكبر من صفر.')
+      setValidationError(config.needsSpace ? 'اختر فراغاً وارفع صورة توثيق واحدة.' : 'أدخل عدد العناصر المنجزة أولاً. يجب أن يكون العدد المنجز أكبر من صفر.')
       return
     }
 
@@ -254,15 +367,25 @@ export function WorkItemProgressSection({ projectId, item, projectStatus, spaces
       const value = toPayloadValue(field, fieldValues[field.name])
       if (value !== null) current[field.name] = value
       return current
-    }, {})
+    }, config.needsSpace ? { completed: true } : {})
 
-    progressMutation.mutate({
-      projectId,
-      workItemId: item.id,
-      spaceId: config.needsSpace ? selectedSpaceId : undefined,
-      values,
-      images,
-    })
+    progressMutation.mutate(
+      {
+        projectId,
+        workItemId: item.id,
+        spaceId: config.needsSpace ? selectedSpaceId : undefined,
+        values,
+        images,
+      },
+      {
+        onSuccess: () => {
+          setSelectedSpaceId('')
+          setSelectedImagesCount(0)
+          if (config.needsSpace) void spacesProgressQuery.refetch()
+          void progressRequestsQuery.refetch()
+        },
+      }
+    )
   }
 
   return (
@@ -279,105 +402,121 @@ export function WorkItemProgressSection({ projectId, item, projectStatus, spaces
         </div>
       </div>
 
-      {!canUpdateProgress ? (
-        <div className="mb-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-700">{disabledReason}</div>
-      ) : null}
-
+      {!canUpdateProgress ? <div className="mb-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-700">{disabledReason}</div> : null}
       {validationError ? <div className="mb-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-700">{validationError}</div> : null}
       {progressMutation.isError ? <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{getWorkItemsErrorMessage(progressMutation.error)}</div> : null}
+      {approveRequestMutation.isError || rejectRequestMutation.isError ? <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{getWorkItemsErrorMessage(approveRequestMutation.error ?? rejectRequestMutation.error)}</div> : null}
       {progressMutation.isSuccess ? <div className="mb-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">تم إرسال طلب تحديث الإنجاز بنجاح.</div> : null}
+
+      <NumericProgressSummary counters={progressCounters} />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {config.needsSpace ? (
-          <div>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-base font-black text-slate-800">الفراغات</h3>
-              <span className="text-xs font-bold text-slate-400">يتم إرسال طلب إنجاز فراغ واحد في كل مرة</span>
-            </div>
-            {availableSpaces.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {availableSpaces.map((space) => {
-                  const selected = selectedSpaceId === space.id
+          <SpaceProgressSelector
+            unfinishedSpaces={unfinishedSpaces}
+            finishedSpaces={finishedSpaces}
+            selectedSpaceId={selectedSpaceId}
+            onSelect={setSelectedSpaceId}
+            disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
+            isLoading={isSpacesProgressLoading || progressRequestsQuery.isLoading}
+            errorMessage={spacesProgressError || progressRequestsError}
+            progressRequests={progressRequestsQuery.data ?? []}
+            canReviewRequests={canReviewRequests}
+            onApproveRequest={openApproveDialog}
+            onRejectRequest={openRejectDialog}
+          />
+        ) : null}
+
+        {!config.needsSpace ? (
+          <ProgressRequestsPanel
+            requests={pendingProgressRequests}
+            isLoading={progressRequestsQuery.isLoading}
+            errorMessage={progressRequestsError}
+            canReview={canReviewRequests}
+            title="طلبات تحديث الإنجاز المعلّقة"
+            emptyMessage="لا توجد طلبات تحديث إنجاز معلّقة لهذا البند."
+            onApprove={openApproveDialog}
+            onReject={openRejectDialog}
+          />
+        ) : null}
+
+        {hasNoUnfinishedSpaces ? null : (
+          <>
+            {config.fields.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {config.fields.map((field) => {
+                  const value = fieldValues[field.name]
+
+                  if (field.type === 'checkbox') {
+                    return (
+                      <label key={field.name} className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700">
+                        <input
+                          name={field.name}
+                          type="checkbox"
+                          checked={Boolean(value)}
+                          onChange={(event) => updateField(field, event)}
+                          disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
+                          className="h-5 w-5 rounded border-slate-300 text-[#50683f] focus:ring-[#50683f]"
+                        />
+                        <span>{field.label}</span>
+                      </label>
+                    )
+                  }
+
                   return (
-                    <button
-                      key={space.id}
-                      type="button"
-                      onClick={() => setSelectedSpaceId(space.id)}
-                      disabled={!canUpdateProgress}
-                      className={`rounded-2xl border px-4 py-3 text-right transition disabled:cursor-not-allowed disabled:opacity-60 ${selected ? 'border-[#50683f] bg-[#50683f]/10 text-[#50683f] shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-[#50683f]/40 hover:bg-white'}`}
-                    >
-                      <p className="text-sm font-black">{spaceTypeLabels[space.type] ?? space.type}</p>
-                      <p className="mt-1 text-xs font-bold opacity-80">جدران: {space.wallArea ?? '-'} م² • سقف: {space.ceilingArea ?? '-'} م²</p>
-                    </button>
+                    <label key={field.name} className="block text-sm font-bold text-slate-700">
+                      <span className="mb-2 block">{field.label}</span>
+                      <input
+                        name={field.name}
+                        type={field.type === 'number' ? 'number' : 'text'}
+                        min={field.type === 'number' ? (field.min ?? 0) : undefined}
+                        max={field.type === 'number' ? getFieldMax(field.name) : undefined}
+                        step={field.type === 'number' ? '1' : undefined}
+                        value={typeof value === 'string' ? value : ''}
+                        onChange={(event) => updateField(field, event)}
+                        disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
+                        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-2 focus:ring-[#50683f]/10 disabled:bg-slate-50 disabled:text-slate-400"
+                      />
+                      {field.helper ? <span className="mt-1 block text-xs font-semibold text-slate-400">{field.helper}</span> : null}
+                    </label>
                   )
                 })}
               </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">لا توجد فراغات متاحة لهذا النوع من الإنجاز.</div>
-            )}
-          </div>
-        ) : null}
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {config.fields.map((field) => {
-            const value = fieldValues[field.name]
-
-            if (field.type === 'checkbox') {
-              return (
-                <label key={field.name} className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700">
-                  <input
-                    name={field.name}
-                    type="checkbox"
-                    checked={Boolean(value)}
-                    onChange={(event) => updateField(field, event)}
-                    disabled={!canUpdateProgress}
-                    className="h-5 w-5 rounded border-slate-300 text-[#50683f] focus:ring-[#50683f]"
-                  />
-                  <span>{field.label}</span>
-                </label>
-              )
-            }
-
-            return (
-              <label key={field.name} className="block text-sm font-bold text-slate-700">
-                <span className="mb-2 block">{field.label}</span>
-                <input
-                  name={field.name}
-                  type={field.type === 'number' ? 'number' : 'text'}
-                  min={field.type === 'number' ? (field.min ?? 0) : undefined}
-                  step={field.type === 'number' ? '1' : undefined}
-                  value={typeof value === 'string' ? value : ''}
-                  onChange={(event) => updateField(field, event)}
-                  disabled={!canUpdateProgress}
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-2 focus:ring-[#50683f]/10 disabled:bg-slate-50 disabled:text-slate-400"
-                />
-                {field.helper ? <span className="mt-1 block text-xs font-semibold text-slate-400">{field.helper}</span> : null}
-              </label>
-            )
-          })}
-        </div>
-
-        <label className="block rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-500">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-slate-700">صور الإنجاز</span>
-            {mustMatchPhotos ? (
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-500 ring-1 ring-slate-200">
-                المطلوب: {requiredPhotos} صورة • المرفوع: {selectedImagesCount}
-              </span>
             ) : null}
-          </div>
-          <input name="progress_images" type="file" multiple accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" onChange={handleImagesChange} disabled={!canUpdateProgress} className="w-full text-sm" />
-          {mustMatchPhotos ? (
-            <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-              يجب أن يكون عدد الصور مطابقاً تماماً للعدد الذي يتم تحديثه.
-            </p>
-          ) : null}
-        </label>
 
-        <button type="submit" disabled={!canUpdateProgress || progressMutation.isPending || (config.needsSpace && !selectedSpaceId)} className="inline-flex h-11 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500">
-          {progressMutation.isPending ? 'جاري إرسال الطلب...' : 'إرسال طلب تحديث الإنجاز'}
-        </button>
+            <label className="block rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-500">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-slate-700"><WorkItemIcon name="image" className="h-4 w-4" />صور الإنجاز</span>
+                {mustMatchPhotos ? (
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-500 ring-1 ring-slate-200">
+                    المطلوب: {requiredPhotos} صورة • المرفوع: {selectedImagesCount}
+                  </span>
+                ) : null}
+              </div>
+              <input name="progress_images" type="file" multiple accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" onChange={handleImagesChange} disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)} className="w-full text-sm" />
+              {mustMatchPhotos ? <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">يجب أن يكون عدد الصور مطابقاً تماماً للعدد الذي يتم تحديثه.</p> : null}
+            </label>
+
+            <button
+              type="submit"
+              disabled={!canUpdateProgress || progressMutation.isPending || isSpacesProgressLoading || Boolean(spacesProgressError) || (config.needsSpace && !selectedSpaceId)}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+            >
+              <WorkItemIcon name={progressMutation.isPending ? 'reload' : 'send'} className="h-4 w-4" />
+              <span>{progressMutation.isPending ? 'جاري إرسال الطلب...' : 'إرسال طلب تحديث الإنجاز'}</span>
+            </button>
+          </>
+        )}
       </form>
+
+      <ProgressRequestReviewDialog
+        request={reviewRequest}
+        action={reviewAction}
+        isLoading={approveRequestMutation.isPending || rejectRequestMutation.isPending}
+        onClose={closeReviewDialog}
+        onApprove={handleApproveRequest}
+        onReject={handleRejectRequest}
+      />
     </section>
   )
 }

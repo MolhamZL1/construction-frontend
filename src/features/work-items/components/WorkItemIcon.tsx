@@ -20,6 +20,12 @@ interface WorkItemIconProps {
     | 'search'
     | 'warning'
     | 'work'
+    | 'reject'
+    | 'pending'
+    | 'user'
+    | 'open-image'
+    | 'send'
+    | 'x'
   className?: string
 }
 
@@ -98,6 +104,31 @@ export function WorkItemIcon({ name, className = 'h-5 w-5' }: WorkItemIconProps)
 
   if (name === 'warning') {
     return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m12 3 9 16H3L12 3Z" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 9v4M12 17h.01" strokeLinecap="round" /></svg>
+  }
+
+
+  if (name === 'x') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  }
+
+  if (name === 'send') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 4 9 15" strokeLinecap="round" strokeLinejoin="round" /><path d="M20 4 13 20l-4-5-5-4 16-7Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  }
+
+  if (name === 'open-image') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="m7 16 3.5-4 3 3 2-2 2.5 3" strokeLinecap="round" strokeLinejoin="round" /><path d="M15 8h3v3M18 8l-4 4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  }
+
+  if (name === 'user') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="8" r="4" /><path d="M5 20a7 7 0 0 1 14 0" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  }
+
+  if (name === 'pending') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" strokeLinecap="round" strokeLinejoin="round" /><path d="M7 4.5 5 3M17 4.5 19 3" strokeLinecap="round" /></svg>
+  }
+
+  if (name === 'reject') {
+    return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="12" r="8" /><path d="M9 9l6 6M15 9l-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
   }
 
   return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 7h12M6 12h12M6 17h8" strokeLinecap="round" /><circle cx="4" cy="7" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="17" r="1" /></svg>

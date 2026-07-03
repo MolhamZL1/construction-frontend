@@ -109,6 +109,7 @@ export interface WorkItemApiResponse {
   is_active?: boolean | number | string | null
   is_custom?: boolean | number | string | null
   progress_percent?: number | string | null
+  percent?: number | string | null
   details?: WorkItemDetail[] | null
   comments?: WorkItemCommentApiResponse[] | null
   delay_reason?: string | null

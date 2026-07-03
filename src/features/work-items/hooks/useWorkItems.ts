@@ -27,6 +27,7 @@ import type {
   UpdateWorkItemInlinePayload,
   UpdateWorkItemProgressPayload,
   UpsertWorkItemPayload,
+  WorkItemEquipmentBooking,
 } from '../models/work-item.model'
 
 export const workItemsKeys = {

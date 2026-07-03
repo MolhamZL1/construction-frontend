@@ -1,7 +1,29 @@
-import { type FormEvent, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
-import { getProjectsErrorMessage, useProjectSummary, useUpdateWorkItemDetails } from '../hooks/useProjects'
+import { getWorkItemDetailText } from '@/utils/work-item-details'
+import {
+  getProjectsErrorMessage,
+  useProjectSummary,
+  useUpdateWorkItemDetails,
+  useProjectWorkItems
+} from '../hooks/useProjects'
+
+const PROJECT_COUNT_KEYS = {
+  woodDoors: ['total_wood_doors', 'wood_doors_count', 'woodDoorsCount'],
+  aluminumDoors: ['total_aluminum_doors', 'aluminum_doors_count', 'aluminumDoorsCount'],
+  windows: ['total_windows', 'windows_count', 'windowsCount'],
+} as const
+
+function findDetailValue(workItem: { details?: readonly unknown[] | null } | null | undefined, keys: readonly string[]) {
+  return getWorkItemDetailText(workItem?.details, keys, '0')
+}
+
+function workItemHasProjectCountDetails(workItem: { details?: readonly unknown[] | null }) {
+  return [PROJECT_COUNT_KEYS.woodDoors, PROJECT_COUNT_KEYS.aluminumDoors, PROJECT_COUNT_KEYS.windows].some(
+    (keys) => getWorkItemDetailText(workItem.details, keys, '') !== '',
+  )
+}
 
 function toInteger(value: string) {
   const numericValue = Number(value)
@@ -42,22 +64,57 @@ function CountField({
   )
 }
 
+interface TotalCountCardProps {
+  label: string
+  value: string | number | null | undefined
+  ['data-project-counts-summary']?: string
+  ['data-initial-project-counts-summary']?: string
+}
+
+function TotalCountCard({ label, value, ...props }: TotalCountCardProps) {
+  const numericValue = Number(value)
+  const displayValue = Number.isFinite(numericValue) && numericValue >= 0 ? String(Math.trunc(numericValue)) : '0'
+
+  return (
+    <div {...props} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <p className="text-xs font-black text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-black text-slate-950">{displayValue}</p>
+    </div>
+  )
+}
+
 export function ProjectInitialWorkItemDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const projectId = id ?? ''
   const navigate = useNavigate()
   const projectQuery = useProjectSummary(projectId)
+  const workItemsQuery = useProjectWorkItems(projectId)
   const updateMutation = useUpdateWorkItemDetails()
 
-  const [woodDoorsCount, setWoodDoorsCount] = useState('')
-  const [aluminumDoorsCount, setAluminumDoorsCount] = useState('')
-  const [windowsCount, setWindowsCount] = useState('')
+  const [woodDoorsCount, setWoodDoorsCount] = useState('0')
+  const [aluminumDoorsCount, setAluminumDoorsCount] = useState('0')
+  const [windowsCount, setWindowsCount] = useState('0')
   const [formError, setFormError] = useState<string | null>(null)
 
-  const workItems = projectQuery.data?.workItems ?? []
+  const workItems = workItemsQuery.data ?? projectQuery.data?.workItems ?? []
   const targetWorkItem = useMemo(() => {
-    return workItems.find((workItem) => workItem.name.includes('ملابن')) ?? workItems.find((workItem) => Number(workItem.sortOrder) === 1) ?? null
+    return (
+      workItems.find(workItemHasProjectCountDetails) ??
+      workItems.find((workItem) => workItem.name.includes('ملابن')) ??
+      workItems.find((workItem) => Number(workItem.sortOrder) === 1) ??
+      null
+    )
   }, [workItems])
+
+  const savedWoodDoorsCount = findDetailValue(targetWorkItem, PROJECT_COUNT_KEYS.woodDoors)
+  const savedAluminumDoorsCount = findDetailValue(targetWorkItem, PROJECT_COUNT_KEYS.aluminumDoors)
+  const savedWindowsCount = findDetailValue(targetWorkItem, PROJECT_COUNT_KEYS.windows)
+
+  useEffect(() => {
+    setWoodDoorsCount(savedWoodDoorsCount)
+    setAluminumDoorsCount(savedAluminumDoorsCount)
+    setWindowsCount(savedWindowsCount)
+  }, [targetWorkItem?.id, savedWoodDoorsCount, savedAluminumDoorsCount, savedWindowsCount])
 
   if (!projectId) {
     return <section className="min-h-screen bg-slate-50 p-8 text-right" dir="rtl">رابط المشروع غير صحيح.</section>
@@ -68,7 +125,7 @@ export function ProjectInitialWorkItemDetailsPage() {
     setFormError(null)
 
     if (!targetWorkItem) {
-      setFormError('لم يتم العثور على بند ملابن الأبواب لهذا المشروع.')
+      setFormError('لم يتم العثور على مكان حفظ أعداد الأبواب والنوافذ لهذا المشروع.')
       return
     }
 
@@ -85,6 +142,8 @@ export function ProjectInitialWorkItemDetailsPage() {
         aluminumDoorsCount: toInteger(aluminumDoorsCount),
         windowsCount: toInteger(windowsCount),
       })
+      await projectQuery.refetch()
+      await workItemsQuery.refetch()
       navigate(`/projects/${projectId}`)
     } catch {
       return
@@ -103,9 +162,9 @@ export function ProjectInitialWorkItemDetailsPage() {
               <span className="inline-flex rounded-full bg-[#50683f]/10 px-3 py-1 text-xs font-black text-[#50683f]">
                 خطوة إعداد أولية
               </span>
-              <h1 className="text-3xl font-black text-slate-950">تحديد كميات الملابن</h1>
+              <h1 className="text-3xl font-black text-slate-950">تحديد عدد الأبواب والنوافذ</h1>
               <p className="max-w-2xl text-sm font-semibold leading-7 text-slate-500">
-                أدخل الأعداد الكلية لبند ملابن الأبواب والنوافذ قبل متابعة إدارة المشروع.
+                هون عم نحدد عدد أبواب الخشب وأبواب الألمنيوم والنوافذ للمشروع.
               </p>
             </div>
 
@@ -130,35 +189,37 @@ export function ProjectInitialWorkItemDetailsPage() {
           <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
             <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-xl font-black text-slate-950">بيانات بند ملابن الأبواب</h2>
-                {targetWorkItem ? <p className="mt-2 text-sm font-bold text-[#50683f]">سيتم الحفظ على: {targetWorkItem.name}</p> : null}
+                <h2 className="text-xl font-black text-slate-950">أعداد أبواب ونوافذ المشروع</h2>
               </div>
             </div>
 
             {!targetWorkItem ? (
               <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
-                لم يتم العثور على بند ملابن الأبواب ضمن بنود المشروع.
+                لم يتم العثور على مكان حفظ أعداد الأبواب والنوافذ ضمن المشروع.
               </div>
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-3">
-              <CountField
-                label="إجمالي ملابن أبواب الخشب"
+                            <TotalCountCard data-initial-project-counts-summary="true" label="القيمة الحالية المحفوظة لأبواب الخشب" value={savedWoodDoorsCount} />
+              <TotalCountCard label="القيمة الحالية المحفوظة لأبواب الألمنيوم" value={savedAluminumDoorsCount} />
+              <TotalCountCard label="القيمة الحالية المحفوظة للنوافذ" value={savedWindowsCount} />
+<CountField
+                label="العدد الكلي لأبواب الخشب"
                 value={woodDoorsCount}
                 onChange={setWoodDoorsCount}
-                placeholder="مثال: 5"
+                placeholder="0"
               />
               <CountField
-                label="إجمالي ملابن أبواب الألمنيوم"
+                label="العدد الكلي لأبواب الألمنيوم"
                 value={aluminumDoorsCount}
                 onChange={setAluminumDoorsCount}
-                placeholder="مثال: 1"
+                placeholder="0"
               />
               <CountField
-                label="إجمالي ملابن النوافذ"
+                label="العدد الكلي للنوافذ"
                 value={windowsCount}
                 onChange={setWindowsCount}
-                placeholder="مثال: 10"
+                placeholder="0"
               />
             </div>
 

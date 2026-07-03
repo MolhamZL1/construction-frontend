@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { WorkItemCommentsSection } from '../components/WorkItemCommentsSection'
+import { WorkItemFinishedSpacesSection } from '../components/WorkItemFinishedSpacesSection'
 import { WorkItemSpecCard } from '../components/WorkItemSpecCard'
 import { getWorkItemsErrorMessage, useWorkItems } from '../hooks/useWorkItems'
 
@@ -49,8 +50,10 @@ export function WorkItemDetailsPage() {
         </div>
 
         <WorkItemSpecCard item={item} />
-        <WorkItemCommentsSection projectId={projectId} item={item} />
+        <WorkItemFinishedSpacesSection projectId={projectId} item={item} />
+                <WorkItemCommentsSection projectId={projectId} item={item} />
       </div>
     </section>
   )
 }
+

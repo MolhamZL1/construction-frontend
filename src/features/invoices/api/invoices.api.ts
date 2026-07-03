@@ -248,14 +248,19 @@ export async function archiveProjectInvoice(invoiceId: string): Promise<void> {
   await api.delete(`/invoices/${invoiceId}`)
 }
 
-export async function listWorkItemMaterials(workItemId: string): Promise<WorkItemMaterial[]> {
-  const response = await api.get<ApiEnvelope<WorkItemMaterialDto[]>>(`/work-items/${workItemId}/materials`)
-  const raw = Array.isArray(response.data.data) ? response.data.data : []
+export async function listWorkItemMaterials(workItemName: string): Promise<WorkItemMaterial[]> {
+  const normalizedName = workItemName.trim()
+  if (!normalizedName) return []
+
+  const encodedName = encodeURIComponent(normalizedName)
+  const response = await api.get<ApiEnvelope<WorkItemMaterialDto[]>>(`/work-items/${encodedName}/materials`)
+  const payload = response.data.data ?? response.data.message
+  const raw = Array.isArray(payload) ? payload : []
 
   return raw.map((item) => ({
     id: toStringValue(item.id),
     materialId: toStringValue(item.material_id ?? item.material?.id),
-    workItemName: item.work_item_name || 'بند غير محدد',
+    workItemName: item.work_item_name || normalizedName,
     sortOrder: toNumberValue(item.sort_order),
     isRequired: toBooleanValue(item.is_required),
     material: mapMaterial(item.material),

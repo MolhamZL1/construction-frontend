@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { SearchInput } from '@/components/ui'
 import type { ProjectStatus } from '../models/project.model'
 import { projectStatusMeta } from '../utils/projects-formatters'
+import { useAuthStore } from '@/stores/authStore'
 
 export type ProjectStatusFilter = 'all' | ProjectStatus
 
@@ -36,6 +37,9 @@ export function ProjectsToolbar({
   onClearSearch,
   onStatusChange,
 }: ProjectsToolbarProps) {
+  const user = useAuthStore((state) => state.user)
+  const canCreateProject = user?.role === 'company_admin'
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
       <div className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center">
@@ -62,15 +66,17 @@ export function ProjectsToolbar({
           </select>
 
         
-        </div><Link
-          to="/projects/create"
-          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#435834] active:scale-[0.98]"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-          </svg>
-          إضافة مشروع
-        </Link>
+        </div>{canCreateProject ? (
+          <Link
+                    to="/projects/create"
+                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#435834] active:scale-[0.98]"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                    </svg>
+                    إضافة مشروع
+                  </Link>
+        ) : null}
 
         
       </div>

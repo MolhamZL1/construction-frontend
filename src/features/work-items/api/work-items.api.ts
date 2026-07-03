@@ -302,8 +302,8 @@ export async function updateWorkItemProgress(payload: UpdateWorkItemProgressPayl
     .forEach((file) => formData.append('photos[]', file, file.name))
 
   const endpoint = payload.spaceId
-    ? `/projects/${payload.projectId}/work-items/${payload.workItemId}/progress-requests/room/${payload.spaceId}`
-    : `/projects/${payload.projectId}/work-items/${payload.workItemId}/progress-requests`
+    ? `/projects/${payload.projectId}/work-items/${payload.workItemId}/progress/${payload.spaceId}`
+    : `/projects/${payload.projectId}/work-items/${payload.workItemId}/progress`
 
   await postProgressFormData(endpoint, formData)
 }

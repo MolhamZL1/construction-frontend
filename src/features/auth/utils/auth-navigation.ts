@@ -13,5 +13,9 @@ export function getAuthenticatedHomePath(user: AuthUser | null | undefined) {
 }
 
 export function canInternalUserAccessPath(pathname: string) {
+  if (pathname === '/projects/create') {
+    return false
+  }
+
   return pathname === '/notifications' || pathname.startsWith('/projects')
 }

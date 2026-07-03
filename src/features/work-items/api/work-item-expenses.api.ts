@@ -1,165 +1,159 @@
+import { AxiosError } from 'axios'
 import { api } from '@/lib/axios'
+import type {
+  CreateWorkItemExpenseInput,
+  WorkItemExpense,
+  WorkItemExpensesFilter,
+  WorkItemExpensesSummary,
+} from '../models/work-item-expense.model'
 
 interface ApiEnvelope<T> {
   status?: number
+  success?: boolean
   message?: string
   data: T
 }
 
-interface ExpenseUserDto {
-  id: number | string
-  name: string
+interface ApiErrorResponse {
+  message?: string
+  errors?: Record<string, string[]>
+  data?: {
+    errors?: Record<string, string[]>
+  }
 }
 
-interface ExpenseProjectDto {
-  id: number | string
-  name: string
-}
-
-interface ExpenseWorkItemDto {
-  id: number | string
-  name: string
-}
-
-interface WorkItemExpenseDto {
+interface ExpenseDto {
   id: number | string
   amount: number | string
   description?: string | null
-  created_by?: ExpenseUserDto | null
+  created_by?: {
+    id?: number | string | null
+    name?: string | null
+  } | null
   created_at?: string | null
-  updated_at?: string | null
-  project?: ExpenseProjectDto | null
-  work_item?: ExpenseWorkItemDto | null
 }
 
-interface WorkItemExpensesResponseDto {
-  project?: ExpenseProjectDto
-  work_item?: ExpenseWorkItemDto
-  from?: string | null
-  to?: string | null
-  total_amount?: number | string
-  expenses?: WorkItemExpenseDto[]
-}
-
-export interface WorkItemExpenseUser {
-  id: string
-  name: string
-}
-
-export interface WorkItemExpense {
-  id: string
-  amount: number
-  amountLabel: string
-  description: string
-  createdBy?: WorkItemExpenseUser
-  createdAt?: string | null
-  updatedAt?: string | null
-}
-
-export interface WorkItemExpensesResult {
+interface ExpensesSummaryDto {
   project?: {
-    id: string
-    name: string
-  }
-  workItem?: {
-    id: string
-    name: string
-  }
+    id?: number | string | null
+    name?: string | null
+  } | null
+  work_item?: {
+    id?: number | string | null
+    name?: string | null
+  } | null
   from?: string | null
   to?: string | null
-  totalAmount: number
-  expenses: WorkItemExpense[]
+  total_amount?: number | string | null
+  expenses?: ExpenseDto[] | null
 }
 
-export interface GetWorkItemExpensesInput {
-  projectId: string
-  workItemId: string
-  from?: string
-  to?: string
+function getFirstValidationMessage(errors?: Record<string, string[]>) {
+  return errors ? Object.values(errors)[0]?.[0] : null
 }
 
-export interface AddWorkItemExpenseInput {
-  projectId: string
-  workItemId: string
-  amount: string
-  description: string
+export function getWorkItemExpensesErrorMessage(error: unknown) {
+  if (!(error instanceof AxiosError)) {
+    return 'حدث خطأ غير متوقع. حاول مرة أخرى.'
+  }
+
+  const responseData = error.response?.data as ApiErrorResponse | undefined
+  const validationMessage = getFirstValidationMessage(responseData?.errors) ?? getFirstValidationMessage(responseData?.data?.errors)
+
+  return validationMessage ?? responseData?.message ?? 'تعذر تنفيذ العملية. حاول مرة أخرى.'
+}
+
+function toNullableString(value: number | string | null | undefined) {
+  return value == null ? null : String(value)
 }
 
 function toNumber(value: number | string | null | undefined) {
-  const numberValue = Number(value ?? 0)
-  return Number.isFinite(numberValue) ? numberValue : 0
+  const numericValue = Number(value ?? 0)
+  return Number.isFinite(numericValue) ? numericValue : 0
 }
 
-function formatAmount(value: number | string | null | undefined) {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(toNumber(value))
-}
-
-function mapUser(dto?: ExpenseUserDto | null): WorkItemExpenseUser | undefined {
-  if (!dto) return undefined
-
-  return {
-    id: String(dto.id),
-    name: dto.name,
+function normalizeSummaryPayload(payload: unknown): ExpensesSummaryDto {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return ((payload as ApiEnvelope<ExpensesSummaryDto>).data ?? {}) as ExpensesSummaryDto
   }
+
+  return (payload ?? {}) as ExpensesSummaryDto
 }
 
-function mapExpense(dto: WorkItemExpenseDto): WorkItemExpense {
+function normalizeExpensePayload(payload: unknown): ExpenseDto {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return ((payload as ApiEnvelope<ExpenseDto>).data ?? {}) as ExpenseDto
+  }
+
+  return (payload ?? {}) as ExpenseDto
+}
+
+function mapExpense(dto: ExpenseDto): WorkItemExpense {
+  const creatorId = toNullableString(dto.created_by?.id)
+
   return {
     id: String(dto.id),
-    amount: toNumber(dto.amount),
-    amountLabel: formatAmount(dto.amount),
+    amount: String(dto.amount ?? '0'),
     description: dto.description ?? '',
-    createdBy: mapUser(dto.created_by),
-    createdAt: dto.created_at ?? null,
-    updatedAt: dto.updated_at ?? null,
+    createdBy: creatorId
+      ? {
+          id: creatorId,
+          name: dto.created_by?.name ?? 'غير محدد',
+        }
+      : null,
+    createdAt: dto.created_at ?? '',
   }
 }
 
-function mapResult(dto: WorkItemExpensesResponseDto): WorkItemExpensesResult {
-  return {
-    project: dto.project ? { id: String(dto.project.id), name: dto.project.name } : undefined,
-    workItem: dto.work_item ? { id: String(dto.work_item.id), name: dto.work_item.name } : undefined,
-    from: dto.from ?? null,
-    to: dto.to ?? null,
-    totalAmount: toNumber(dto.total_amount),
-    expenses: (dto.expenses ?? []).map(mapExpense),
-  }
-}
-
-function buildExpenseFormData(input: AddWorkItemExpenseInput) {
-  const formData = new FormData()
-  formData.append('amount', input.amount.trim())
-  formData.append('description', input.description.trim())
-
-  return formData
-}
-
-export async function getWorkItemExpenses(input: GetWorkItemExpensesInput): Promise<WorkItemExpensesResult> {
-  const { data } = await api.get<ApiEnvelope<WorkItemExpensesResponseDto>>(
-    `/projects/${input.projectId}/work-items/${input.workItemId}/expenses`,
+export async function getWorkItemExpenses(filter: WorkItemExpensesFilter): Promise<WorkItemExpensesSummary> {
+  const response = await api.get<ApiEnvelope<ExpensesSummaryDto>>(
+    `/projects/${filter.projectId}/work-items/${filter.workItemId}/expenses`,
     {
       params: {
-        from: input.from || undefined,
-        to: input.to || undefined,
+        from: filter.from,
+        to: filter.to,
       },
-      headers: { Accept: 'application/json' },
-    }
+    },
   )
 
-  return mapResult(data.data)
+  const data = normalizeSummaryPayload(response.data)
+  const projectId = toNullableString(data.project?.id)
+  const workItemId = toNullableString(data.work_item?.id)
+
+  return {
+    project: projectId
+      ? {
+          id: projectId,
+          name: data.project?.name ?? 'المشروع',
+        }
+      : null,
+    workItem: workItemId
+      ? {
+          id: workItemId,
+          name: data.work_item?.name ?? 'بند العمل',
+        }
+      : null,
+    from: data.from ?? filter.from,
+    to: data.to ?? filter.to,
+    totalAmount: toNumber(data.total_amount),
+    expenses: (data.expenses ?? []).map(mapExpense),
+  }
 }
 
-export async function addWorkItemExpense(input: AddWorkItemExpenseInput): Promise<WorkItemExpense> {
-  const { data } = await api.post<ApiEnvelope<WorkItemExpenseDto>>(
+export async function createWorkItemExpense(input: CreateWorkItemExpenseInput): Promise<WorkItemExpense> {
+  const formData = new FormData()
+  formData.append('amount', input.amount)
+  formData.append('description', input.description)
+
+  const response = await api.post<ApiEnvelope<ExpenseDto>>(
     `/projects/${input.projectId}/work-items/${input.workItemId}/expenses`,
-    buildExpenseFormData(input),
+    formData,
     {
-      headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data' },
-    }
+      headers: {
+        Accept: 'application/json',
+      },
+    },
   )
 
-  return mapExpense(data.data)
+  return mapExpense(normalizeExpensePayload(response.data))
 }

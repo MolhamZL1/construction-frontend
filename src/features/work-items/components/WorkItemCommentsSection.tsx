@@ -20,7 +20,7 @@ export function WorkItemCommentsSection({ projectId, item }: WorkItemCommentsSec
     if (!body.trim()) return
 
     addCommentMutation.mutate(
-      { projectId, workItemId: item.id, body: body.trim() },
+      { workItemId: item.id, body: body.trim() },
       { onSuccess: () => setBody('') }
     )
   }

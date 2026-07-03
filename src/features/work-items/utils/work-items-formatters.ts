@@ -96,7 +96,7 @@ export function mapWorkItem(item: WorkItemApiResponse): WorkItem {
     isDefault: toBoolean(item.is_default),
     isActive: item.is_active === undefined || item.is_active === null ? true : toBoolean(item.is_active),
     isCustom: toBoolean(item.is_custom),
-    progressPercent: toNumber(item.progress_percent, item.status === 'completed' ? 100 : 0),
+    progressPercent: toNumber(item.progress_percent ?? item.percent, item.status === 'completed' ? 100 : 0),
     details: item.details ?? [],
     comments: (item.comments ?? []).map(mapWorkItemComment),
     delayInfo,

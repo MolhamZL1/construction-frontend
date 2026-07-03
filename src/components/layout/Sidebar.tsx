@@ -52,13 +52,6 @@ export function Sidebar() {
   const displayName = user?.name?.trim() || 'مستخدم النظام'
   const roleLabel = user?.role ? roleLabels[user.role] ?? user.role : 'غير محدد'
   const visibleLinks = isInternalUser(user) ? links.filter((link) => link.to === '/projects') : links
-  const initials = displayName
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-
   return (
     <aside
       className={cn(

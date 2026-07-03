@@ -1,11 +1,12 @@
-import { useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import {
+  useMemo } from 'react'
+import { Link,
+  useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemProgressSection } from '../components/WorkItemProgressSection'
-import { getWorkItemsErrorMessage, useWorkItems } from '../hooks/useWorkItems'
-import { normalizeStatus } from '../utils/work-items-formatters'
-
+import { getWorkItemsErrorMessage,
+  useWorkItems } from '../hooks/useWorkItems'
 export function WorkItemProgressPage() {
   const { id, workItemId } = useParams<{ id: string; workItemId: string }>()
   const projectId = id ?? ''
@@ -50,19 +51,7 @@ export function WorkItemProgressPage() {
           </Link>
         </div>
 
-        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.07)]">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black text-slate-900">تحديث إنجاز: {item.name}</h1>
-              <p className="mt-2 text-sm font-semibold text-slate-500">هذه الصفحة مخصصة للإنجاز فقط، ولا تظهر داخل تفاصيل البند.</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-black text-slate-700">البند: {normalizeStatus(item.status)}</span>
-              <span className="rounded-full bg-[#50683f]/10 px-3 py-1.5 text-sm font-black text-[#50683f]">{item.progressPercent}%</span>
-            </div>
-          </div>
-        </header>
-
+   
         <WorkItemProgressSection projectId={projectId} item={item} projectStatus={project?.status} spaces={spaces} />
       </div>
     </section>

@@ -1,11 +1,24 @@
-export function formatInvoiceMoney(value: string | number | null | undefined) {
+export function toInvoiceNumber(value: string | number | null | undefined) {
   const numeric = Number(value ?? 0)
-  const safeValue = Number.isFinite(numeric) ? numeric : 0
+  return Number.isFinite(numeric) ? numeric : 0
+}
+
+export function formatInvoiceMoney(value: string | number | null | undefined) {
+  const safeValue = toInvoiceNumber(value)
 
   return `${safeValue.toLocaleString('ar-SY', {
     minimumFractionDigits: safeValue % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   })} ر.س`
+}
+
+export function formatInvoicePlainNumber(value: string | number | null | undefined) {
+  const safeValue = toInvoiceNumber(value)
+
+  return safeValue.toLocaleString('ar-SY', {
+    minimumFractionDigits: safeValue % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
 }
 
 export function formatInvoiceDate(value?: string | null) {
@@ -31,4 +44,15 @@ export function getInvoiceInitials(name?: string | null) {
     .join('')
     .slice(0, 2)
     .toUpperCase()
+}
+
+
+export function formatInvoiceQuantity(value: string | number | null | undefined) {
+  const numeric = Number(value ?? 0)
+  const safeValue = Number.isFinite(numeric) ? numeric : 0
+
+  return safeValue.toLocaleString('ar-SY', {
+    minimumFractionDigits: safeValue % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
 }

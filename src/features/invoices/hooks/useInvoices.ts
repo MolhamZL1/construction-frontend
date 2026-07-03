@@ -14,7 +14,7 @@ export const invoicesKeys = {
   project: (projectId: string) => [...invoicesKeys.all, 'project', projectId] as const,
   detail: (projectId: string, invoiceId: string) => [...invoicesKeys.project(projectId), 'detail', invoiceId] as const,
   archived: (projectId: string) => [...invoicesKeys.all, 'project', projectId, 'archived'] as const,
-  workItemMaterials: (workItemId: string) => [...invoicesKeys.all, 'work-item-materials', workItemId] as const,
+  workItemMaterials: (workItemName: string) => [...invoicesKeys.all, 'work-item-materials', workItemName] as const,
 }
 
 export function getInvoicesErrorMessage(error: unknown) {
@@ -60,11 +60,11 @@ export function useProjectInvoice(projectId?: string, invoiceId?: string) {
   })
 }
 
-export function useWorkItemMaterials(workItemId?: string) {
+export function useWorkItemMaterials(workItemName?: string) {
   return useQuery({
-    queryKey: invoicesKeys.workItemMaterials(workItemId ?? ''),
-    queryFn: () => listWorkItemMaterials(workItemId ?? ''),
-    enabled: Boolean(workItemId),
+    queryKey: invoicesKeys.workItemMaterials(workItemName ?? ''),
+    queryFn: () => listWorkItemMaterials(workItemName ?? ''),
+    enabled: Boolean(workItemName?.trim()),
   })
 }
 

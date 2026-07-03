@@ -42,6 +42,7 @@ interface ProjectDto {
   started_at?: string | null
   completed_at?: string | null
   progress_percent?: number | string | null
+  percent?: number | string | null
   created_at?: string
   updated_at?: string
 }
@@ -56,6 +57,7 @@ interface WorkItemDto {
   sort_order: number
   status?: string | null
   progress_percent?: number | string | null
+  percent?: number | string | null
   started_at?: string | null
   completed_at?: string | null
   is_default: boolean
@@ -176,7 +178,7 @@ function mapProject(dto: ProjectDto): Project {
     updatedBy: toNullableString(dto.updated_by),
     startedAt: dto.started_at ?? null,
     completedAt: dto.completed_at ?? null,
-    progressPercent: toProgressPercent(dto.progress_percent),
+    progressPercent: toProgressPercent(dto.progress_percent ?? dto.percent),
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   }
@@ -192,7 +194,7 @@ function mapWorkItem(dto: WorkItemDto): WorkItem {
     durationDays: dto.duration_days,
     sortOrder: dto.sort_order,
     status: dto.status ?? 'planned',
-    progressPercent: toProgressPercent(dto.progress_percent),
+    progressPercent: toProgressPercent(dto.progress_percent ?? dto.percent),
     startedAt: dto.started_at ?? null,
     completedAt: dto.completed_at ?? null,
     isDefault: dto.is_default,
