@@ -71,6 +71,9 @@ export interface ProjectSpace {
 }
 
 export interface ProjectEngineer {
+  /**
+   * id يمثل assignment_id عندما يرجعه API، حتى نستخدمه في إزالة العضو.
+   */
   id: string
   projectId: string
   userId: string
@@ -79,9 +82,9 @@ export interface ProjectEngineer {
   user?: {
     id: string
     name: string
-    email?: string
+    email?: string | null
     internalId?: string | null
-    status?: string
+    status?: string | null
   }
 }
 

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import { registerFcmTokenAfterLogin } from '@/features/notifications/hooks/useFcmTokenRegistration'
 import { getLoginErrorMessage, useLoginCompany } from '../hooks/useLoginCompany'
 import { loginSchema, type LoginSchema } from '../schemas/login.schema'
 
@@ -50,6 +51,12 @@ export function LoginForm() {
             }
       )
       setAuth(session.user, session.token)
+
+      void registerFcmTokenAfterLogin({
+        userId: session.user.id,
+        accessToken: session.token,
+        force: true,
+      })
 
       const nextPath =
         values.accountType === 'internal'

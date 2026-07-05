@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BackButton, LoadingState, SearchInput } from '@/components/ui'
 import {
   getProjectsErrorMessage,
@@ -13,6 +13,7 @@ import { projectTeamRoleLabels } from '../constants/project-team'
 export function ProjectTeamPage() {
   const { id } = useParams<{ id: string }>()
   const projectId = id ?? ''
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
   const summaryQuery = useProjectSummary(projectId)
@@ -131,6 +132,7 @@ export function ProjectTeamPage() {
           hasMembers={members.length > 0}
           isFiltered={Boolean(search.trim())}
           isRemoving={removeMutation.isPending}
+          onOpenUser={(userId) => navigate(`/users/${userId}`)}
           onRemove={(memberId) => removeMutation.mutate({ projectId, engineerId: memberId })}
         />
       </div>
@@ -144,6 +146,7 @@ interface TeamMembersTableProps {
   hasMembers: boolean
   isFiltered: boolean
   isRemoving: boolean
+  onOpenUser: (userId: string) => void
   onRemove: (memberId: string) => void
 }
 
@@ -153,6 +156,7 @@ function TeamMembersTable({
   hasMembers,
   isFiltered,
   isRemoving,
+  onOpenUser,
   onRemove,
 }: TeamMembersTableProps) {
   return (
@@ -195,7 +199,7 @@ function TeamMembersTable({
       {!isLoading && members.length > 0 ? (
         <div className="divide-y divide-slate-100">
           {members.map((member) => (
-            <TeamMemberRow key={member.id} member={member} isRemoving={isRemoving} onRemove={onRemove} />
+            <TeamMemberRow key={member.id} member={member} isRemoving={isRemoving} onOpenUser={onOpenUser} onRemove={onRemove} />
           ))}
         </div>
       ) : null}
@@ -206,14 +210,31 @@ function TeamMembersTable({
 function TeamMemberRow({
   member,
   isRemoving,
+  onOpenUser,
   onRemove,
 }: {
   member: ProjectEngineer
   isRemoving: boolean
+  onOpenUser: (userId: string) => void
   onRemove: (memberId: string) => void
 }) {
+  const statusLabel = getMemberStatusLabel(member.user?.status)
+
   return (
-    <div className="grid gap-4 px-6 py-5 md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpenUser(member.userId)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpenUser(member.userId)
+        }
+      }}
+      className="grid cursor-pointer gap-4 px-6 py-5 transition hover:bg-[#50683f]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#50683f]/30 md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center"
+      aria-label={`فتح معلومات ${member.user?.name ?? `مستخدم #${member.userId}`}`}
+      title="فتح معلومات المستخدم"
+    >
       <div className="flex min-w-0 items-center gap-3">
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#50683f]/10 text-[#50683f]">
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -233,6 +254,12 @@ function TeamMemberRow({
           <p className="mt-0.5 truncate text-xs text-slate-500" dir="ltr">
             {member.user?.email ?? member.user?.internalId ?? `#${member.userId}`}
           </p>
+
+          {statusLabel ? (
+            <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-100">
+              {statusLabel}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -252,7 +279,10 @@ function TeamMemberRow({
       <div className="md:text-center">
         <button
           type="button"
-          onClick={() => onRemove(member.id)}
+          onClick={(event) => {
+            event.stopPropagation()
+            onRemove(member.id)
+          }}
           disabled={isRemoving}
           className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-rose-500 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
           aria-label="إزالة العضو من فريق العمل"
@@ -332,4 +362,16 @@ function formatTeamDate(dateStr?: string) {
     month: '2-digit',
     day: '2-digit',
   })
+}
+
+function getMemberStatusLabel(status?: string | null) {
+  if (!status) return null
+
+  const normalizedStatus = status.trim().toLowerCase()
+
+  if (normalizedStatus === 'active') return 'نشط'
+  if (normalizedStatus === 'inactive') return 'غير نشط'
+  if (normalizedStatus === 'pending') return 'معلّق'
+
+  return status
 }

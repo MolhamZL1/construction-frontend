@@ -2,11 +2,13 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { ServerUnavailablePage } from '@/features/errors/pages/ServerUnavailablePage'
 import { AddProjectTeamMemberPage } from '@/features/projects/pages/AddProjectTeamMemberPage'
 import { CreateProjectPage } from '@/features/projects/pages/CreateProjectPage'
 import { EditProjectPage } from '@/features/projects/pages/EditProjectPage'
 import { ProjectCrewCostPage } from '@/features/projects/pages/ProjectCrewCostPage'
 import { ProjectDetailPage } from '@/features/projects/pages/ProjectDetailPage'
+import { ProjectDurationExtensionsPage } from '@/features/projects/pages/ProjectDurationExtensionsPage'
 import { ProjectMaterialEstimatePage } from '@/features/projects/pages/ProjectMaterialEstimatePage'
 import { ProjectTimelineAnalysisPage } from '@/features/projects/pages/ProjectTimelineAnalysisPage'
 import { ProjectInitialWorkItemDetailsPage } from '@/features/projects/pages/ProjectInitialWorkItemDetailsPage'
@@ -23,6 +25,7 @@ import { CreateDocumentVersionPage } from '@/features/documents/pages/CreateDocu
 import { CreateProjectDocumentPage } from '@/features/documents/pages/CreateProjectDocumentPage'
 import { ProjectDocumentDetailsPage } from '@/features/documents/pages/ProjectDocumentDetailsPage'
 import { ProjectDocumentsPage } from '@/features/documents/pages/ProjectDocumentsPage'
+import { ProjectContractsPage } from '@/features/documents/pages/ProjectContractsPage'
 import {
   CreateWorkItemPage,
   EditWorkItemPage,
@@ -36,6 +39,7 @@ import {
   WorkItemProgressPage,
 } from '@/features/work-items'
 import { ArchivedProjectInvoicesPage, CreateProjectInvoicePage, ProjectInvoiceDetailsPage, ProjectInvoicesPage } from '@/features/invoices'
+import { WorkItemDurationExtensionsPage } from '@/features/work-items/pages/WorkItemDurationExtensionsPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { NotificationsPage } from '@/features/notifications'
 import { EquipmentDetailsPage } from '@/features/equipments/pages/EquipmentDetailsPage'
@@ -54,6 +58,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/server-error',
+    element: <ServerUnavailablePage />,
   },
   {
     element: <ProtectedRoute />,
@@ -96,6 +104,14 @@ export const router = createBrowserRouter([
           {
             path: '/projects/:id/invoices',
             element: <ProjectInvoicesPage />,
+          },
+          {
+            path: '/projects/:id/duration-extensions',
+            element: <ProjectDurationExtensionsPage />,
+          },
+          {
+            path: '/projects/:id/contracts',
+            element: <ProjectContractsPage />,
           },
           {
             path: '/projects/:id/documents/create',
@@ -154,6 +170,10 @@ export const router = createBrowserRouter([
             element: <WorkItemEquipmentPage />,
           },
           {
+            path: '/projects/:id/work-items/:workItemId/duration-extensions',
+            element: <WorkItemDurationExtensionsPage />,
+          },
+          {
             path: '/projects/:id/work-items/:workItemId',
             element: <WorkItemDetailsPage />,
           },
@@ -185,7 +205,6 @@ export const router = createBrowserRouter([
             path: '/projects/:id/images',
             element: <ProjectImagesPage />,
           },
-
 
           {
             path: '/projects/:id/weather',

@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import {
   downloadDocumentVersion,
   getProjectDocument,
+  listProjectContracts,
   listProjectDocuments,
   uploadDocumentVersion,
   uploadProjectDocument,
@@ -43,8 +44,16 @@ export function getDocumentsErrorMessage(error: unknown) {
 
 export function useProjectDocuments(projectId?: string) {
   return useQuery({
-    queryKey: [...DOCUMENTS_QUERY_KEY, 'project', projectId],
+    queryKey: [...DOCUMENTS_QUERY_KEY, 'project', projectId, 'documents'],
     queryFn: () => listProjectDocuments(projectId ?? ''),
+    enabled: Boolean(projectId),
+  })
+}
+
+export function useProjectContracts(projectId?: string) {
+  return useQuery({
+    queryKey: [...DOCUMENTS_QUERY_KEY, 'project', projectId, 'contracts'],
+    queryFn: () => listProjectContracts(projectId ?? ''),
     enabled: Boolean(projectId),
   })
 }

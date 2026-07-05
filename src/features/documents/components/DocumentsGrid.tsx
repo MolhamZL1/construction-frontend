@@ -6,9 +6,17 @@ interface DocumentsGridProps {
   projectId: string
   documents: ProjectDocumentListItem[]
   isFiltering?: boolean
+  emptyTitle?: string
+  emptyDescription?: string
 }
 
-export function DocumentsGrid({ projectId, documents, isFiltering = false }: DocumentsGridProps) {
+export function DocumentsGrid({
+  projectId,
+  documents,
+  isFiltering = false,
+  emptyTitle = 'لا توجد مستندات بعد',
+  emptyDescription = 'ابدأ برفع أول مستند لهذا المشروع.',
+}: DocumentsGridProps) {
   if (!documents.length) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
@@ -16,10 +24,10 @@ export function DocumentsGrid({ projectId, documents, isFiltering = false }: Doc
           <DocumentIcon name="document" className="h-8 w-8" />
         </div>
         <h2 className="mt-5 text-xl font-black text-slate-900">
-          {isFiltering ? 'لا توجد نتائج مطابقة' : 'لا توجد مستندات بعد'}
+          {isFiltering ? 'لا توجد نتائج مطابقة' : emptyTitle}
         </h2>
         <p className="mt-2 text-sm font-semibold text-slate-500">
-          {isFiltering ? 'جرّب كلمة بحث مختلفة أو امسح البحث الحالي.' : 'ابدأ برفع أول مستند لهذا المشروع.'}
+          {isFiltering ? 'جرّب كلمة بحث مختلفة أو امسح البحث الحالي.' : emptyDescription}
         </p>
       </div>
     )

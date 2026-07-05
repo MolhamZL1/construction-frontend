@@ -1,4 +1,4 @@
-import type { ProjectDocumentListItem } from '../models/document.model'
+import type { ProjectDocumentListItem, ProjectDocumentType } from '../models/document.model'
 
 export function formatDocumentDate(value?: string | null) {
   if (!value) {
@@ -16,6 +16,10 @@ export function formatDocumentDate(value?: string | null) {
     month: '2-digit',
     day: '2-digit',
   }).format(date)
+}
+
+export function getDocumentTypeLabel(type?: ProjectDocumentType | string | null) {
+  return type === 'contract' ? 'عقد' : 'مستند'
 }
 
 export function getFileExtensionFromUrl(value?: string | null) {
@@ -46,7 +50,7 @@ export function documentMatchesSearch(document: ProjectDocumentListItem, search:
     return true
   }
 
-  return [document.title, document.category, getLatestVersionLabel(document)]
+  return [document.title, document.category, getDocumentTypeLabel(document.type), getLatestVersionLabel(document)]
     .filter(Boolean)
     .some((value) => String(value).toLowerCase().includes(normalizedSearch))
 }

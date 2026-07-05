@@ -340,7 +340,7 @@ export function EditProjectPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-3">
-              <Field label={`إجمالي أبواب الخشب • منجز ${completedCounts.wood}`}>
+              <Field label={`إجمالي أبواب الخشب`}>
                 <input
                   className={detailInputClass}
                   type="number"
@@ -351,7 +351,7 @@ export function EditProjectPage() {
                   placeholder="0"
                 />
               </Field>
-              <Field label={`إجمالي أبواب الألمنيوم • منجز ${completedCounts.aluminum}`}>
+              <Field label={`إجمالي أبواب الألمنيوم`}>
                 <input
                   className={detailInputClass}
                   type="number"
@@ -362,7 +362,7 @@ export function EditProjectPage() {
                   placeholder="0"
                 />
               </Field>
-              <Field label={`إجمالي النوافذ • منجز ${completedCounts.windows}`}>
+              <Field label={`إجمالي النوافذ `}>
                 <input
                   className={detailInputClass}
                   type="number"

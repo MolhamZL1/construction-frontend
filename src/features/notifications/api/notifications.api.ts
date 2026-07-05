@@ -1,11 +1,20 @@
 import { api } from '@/lib/axios'
+
 import type { ApiNotification, AppNotification } from '../models/notification.model'
 import { mapNotification, sortNotificationsByNewest } from '../utils/notification-formatters'
 
 interface NotificationsResponse {
   status?: number
   message?: string
-  data?: ApiNotification[]
+  data?: ApiNotification[] | { notifications?: ApiNotification[]; data?: ApiNotification[] }
+}
+
+function getNotificationsArray(payload: NotificationsResponse): ApiNotification[] {
+  if (Array.isArray(payload.data)) return payload.data
+  if (payload.data && Array.isArray(payload.data.notifications)) return payload.data.notifications
+  if (payload.data && Array.isArray(payload.data.data)) return payload.data.data
+
+  return []
 }
 
 export async function getNotifications(): Promise<AppNotification[]> {
@@ -13,6 +22,5 @@ export async function getNotifications(): Promise<AppNotification[]> {
     headers: { Accept: 'application/json' },
   })
 
-  const notifications = Array.isArray(data.data) ? data.data.map(mapNotification) : []
-  return sortNotificationsByNewest(notifications)
+  return sortNotificationsByNewest(getNotificationsArray(data).map(mapNotification))
 }

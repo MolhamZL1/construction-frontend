@@ -1,32 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ChangeEvent, FormEvent, ReactNode } from 'react'
-import { inspectConstructionImage } from '../../../tools/api/ai-inspection.api'
+import type { MouseEvent, ReactNode } from 'react'
+import { inspectProgressRequest } from '../../../tools/api/ai-inspection.api'
 import type { AiInspectionResult, AiInspectionType } from '../../../tools/api/ai-inspection.api'
 import type { WorkItemProgressRequest } from '../../models/work-item-progress-request.model'
-import { getProgressPhotoUrlCandidates } from '../../utils/progress-photo-url'
-
-type RequestPhoto = WorkItemProgressRequest['photos'][number] & {
-  fullUrl?: string | null
-  full_url?: string | null
-  fileUrl?: string | null
-  file_url?: string | null
-  previewUrl?: string | null
-  preview_url?: string | null
-  file_path?: string | null
-  path?: string | null
-  storagePath?: string | null
-  storage_path?: string | null
-  original_name?: string | null
-  name?: string | null
-  filename?: string | null
-}
-
-type DialogPhoto = {
-  key: string
-  name: string
-  url: string
-  sources: string[]
-}
+import { ProgressPhotoThumbs } from './ProgressPhotoThumbs'
 
 interface ProgressRequestAiInspectionDialogProps {
   request: WorkItemProgressRequest | null
@@ -37,16 +14,17 @@ interface ProgressRequestAiInspectionDialogProps {
 type InspectionOption = {
   value: AiInspectionType
   label: string
+  hint: string
 }
 
 const inspectionOptions: InspectionOption[] = [
-  { value: 'general', label: 'فحص عام' },
-  { value: 'paint', label: 'دهان' },
-  { value: 'cement_plaster', label: 'لياسة / طينة' },
-  { value: 'tiles', label: 'بلاط وسيراميك' },
-  { value: 'ceiling', label: 'أسقف' },
-  { value: 'electrical', label: 'كهرباء' },
-  { value: 'plumbing', label: 'صحية' },
+  { value: 'general', label: 'فحص عام', hint: 'مناسب إذا مو محدد نوع المشكلة' },
+  { value: 'paint', label: 'دهان', hint: 'تشققات، تمويج، اختلاف لون، ضعف تغطية' },
+  { value: 'cement_plaster', label: 'لياسة / طينة', hint: 'استواء، تشققات، انفصال، خشونة' },
+  { value: 'tiles', label: 'بلاط وسيراميك', hint: 'فواصل، ميلان، كسر، تركيب غير منتظم' },
+  { value: 'ceiling', label: 'أسقف', hint: 'مستوى السقف، تشققات، آثار رطوبة' },
+  { value: 'electrical', label: 'كهرباء', hint: 'مسارات، علب، تمديدات ظاهرة' },
+  { value: 'plumbing', label: 'صحية', hint: 'تمديدات، مخارج، تسريب، ترتيب' },
 ]
 
 const statusLabels: Record<string, string> = {
@@ -59,40 +37,6 @@ const statusLabels: Record<string, string> = {
   failed: 'مرفوض',
   warning: 'بحاجة مراجعة',
   pending: 'بحاجة مراجعة',
-}
-
-function unique(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean)))
-}
-
-function firstString(...values: unknown[]) {
-  for (const value of values) {
-    if (value === null || value === undefined || value === '') continue
-    return String(value)
-  }
-
-  return null
-}
-
-function getPhotoSources(photo: RequestPhoto) {
-  return unique([
-    ...getProgressPhotoUrlCandidates(photo.url),
-    ...getProgressPhotoUrlCandidates(photo.fullUrl),
-    ...getProgressPhotoUrlCandidates(photo.full_url),
-    ...getProgressPhotoUrlCandidates(photo.fileUrl),
-    ...getProgressPhotoUrlCandidates(photo.file_url),
-    ...getProgressPhotoUrlCandidates(photo.previewUrl),
-    ...getProgressPhotoUrlCandidates(photo.preview_url),
-    ...getProgressPhotoUrlCandidates(photo.filePath),
-    ...getProgressPhotoUrlCandidates(photo.file_path),
-    ...getProgressPhotoUrlCandidates(photo.path),
-    ...getProgressPhotoUrlCandidates(photo.storagePath),
-    ...getProgressPhotoUrlCandidates(photo.storage_path),
-  ])
-}
-
-function getPhotoName(photo: RequestPhoto, index: number) {
-  return firstString(photo.originalName, photo.original_name, photo.name, photo.filename) ?? `صورة الطلب ${index + 1}`
 }
 
 function getStatusLabel(status?: string) {
@@ -117,234 +61,102 @@ function getStatusClass(status?: string) {
 function formatPercent(value?: number) {
   const numberValue = Number(value ?? 0)
   if (!Number.isFinite(numberValue)) return '0%'
+
   return `${new Intl.NumberFormat('ar-SY', { maximumFractionDigits: 0 }).format(numberValue)}%`
 }
 
 function clampPercent(value?: number) {
   const numberValue = Number(value ?? 0)
   if (!Number.isFinite(numberValue)) return 0
+
   return Math.max(0, Math.min(100, numberValue))
 }
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) return error.message
-  return 'تعذر تحليل صورة الطلب. حاول مرة ثانية.'
-}
+function formatDateTime(date?: string | null) {
+  if (!date) return 'غير محدد'
 
-function isDownloadProblem(error: unknown) {
-  const message = getErrorMessage(error).toLowerCase()
+  const value = new Date(date)
+  if (Number.isNaN(value.getTime())) return 'غير محدد'
 
-  return (
-    message.includes('failed to fetch') ||
-    message.includes('load failed') ||
-    message.includes('networkerror') ||
-    message.includes('cors') ||
-    message.includes('تنزيل') ||
-    message.includes('تحميل')
-  )
-}
-
-function guessImageTypeFromUrl(url: string) {
-  const cleanUrl = url.split('?')[0]?.toLowerCase() ?? ''
-
-  if (cleanUrl.endsWith('.png')) return 'image/png'
-  if (cleanUrl.endsWith('.webp')) return 'image/webp'
-  if (cleanUrl.endsWith('.gif')) return 'image/gif'
-  if (cleanUrl.endsWith('.jpeg') || cleanUrl.endsWith('.jpg')) return 'image/jpeg'
-
-  return 'image/jpeg'
-}
-
-function getImageExtension(type: string) {
-  if (type.includes('png')) return 'png'
-  if (type.includes('webp')) return 'webp'
-  if (type.includes('gif')) return 'gif'
-  if (type.includes('jpeg') || type.includes('jpg')) return 'jpg'
-  return 'jpg'
-}
-
-function getSafeImageFileName(filename: string, url: string, type: string) {
-  const normalizedName = filename.trim() || 'progress-request-photo'
-  const hasExtension = /\.[a-z0-9]{2,5}$/i.test(normalizedName)
-
-  if (hasExtension) return normalizedName
-
-  const urlName = decodeURIComponent(url.split('?')[0]?.split('/').pop() ?? '').trim()
-  if (/\.[a-z0-9]{2,5}$/i.test(urlName)) return urlName
-
-  return `${normalizedName}.${getImageExtension(type)}`
-}
-
-async function fetchImageBlobFromUrl(url: string) {
-  const response = await fetch(url, {
-    cache: 'no-store',
-    credentials: 'omit',
+  return value.toLocaleString('ar-SY', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   })
-
-  if (!response.ok) {
-    throw new Error('تعذر تنزيل صورة الطلب قبل إرسالها للفحص.')
-  }
-
-  const blob = await response.blob()
-  const contentType = blob.type || response.headers.get('content-type') || guessImageTypeFromUrl(url)
-
-  if (contentType && !contentType.toLowerCase().startsWith('image/')) {
-    throw new Error('الملف المختار من الطلب ليس صورة صالحة للفحص.')
-  }
-
-  if (blob.type) return blob
-
-  return new Blob([blob], { type: contentType || 'image/jpeg' })
 }
 
-async function urlToImageFile(url: string, filename: string) {
-  const blob = await fetchImageBlobFromUrl(url)
-  const type = blob.type || guessImageTypeFromUrl(url)
-  const safeName = getSafeImageFileName(filename, url, type)
-
-  return new File([blob], safeName, { type })
-}
-
-async function dialogPhotoToImageFile(photo: DialogPhoto) {
-  let lastError: unknown = null
-
-  for (const source of photo.sources.length > 0 ? photo.sources : [photo.url]) {
-    try {
-      return await urlToImageFile(source, photo.name)
-    } catch (error) {
-      lastError = error
-    }
+function getErrorMessage(error: unknown) {
+  const possibleAxiosError = error as {
+    response?: { data?: { message?: string; errors?: Record<string, string[]> } }
+    message?: string
   }
+  const data = possibleAxiosError.response?.data
+  const validationMessage = data?.errors ? Object.values(data.errors).flat()[0] : undefined
 
-  if (lastError instanceof Error) throw lastError
-  throw new Error('تعذر تنزيل صورة الطلب قبل إرسالها للفحص.')
+  return validationMessage || data?.message || possibleAxiosError.message || 'تعذر تحليل طلب الإنجاز. حاول مرة ثانية.'
 }
 
-function isImageFile(file: File) {
-  return file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name)
+function getRequesterName(request: WorkItemProgressRequest) {
+  return request.requester?.name ?? 'غير محدد'
+}
+
+function getRequestStatusLabel(request: WorkItemProgressRequest) {
+  if (request.status === 'pending') return 'معلّق'
+  if (request.status === 'approved') return 'مقبول'
+  if (request.status === 'rejected') return 'مرفوض'
+
+  return request.status
 }
 
 export function ProgressRequestAiInspectionDialog({ request, isOpen, onClose }: ProgressRequestAiInspectionDialogProps) {
-  const [selectedPhotoKey, setSelectedPhotoKey] = useState('')
   const [inspectionType, setInspectionType] = useState<AiInspectionType>('general')
-  const [manualImageFile, setManualImageFile] = useState<File | null>(null)
-  const [manualPreviewUrl, setManualPreviewUrl] = useState<string | null>(null)
-  const [needsManualUpload, setNeedsManualUpload] = useState(false)
   const [result, setResult] = useState<AiInspectionResult | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const photos = useMemo<DialogPhoto[]>(() => {
-    return (request?.photos ?? [])
-      .map((photo, index) => {
-        const typedPhoto = photo as RequestPhoto
-        const sources = getPhotoSources(typedPhoto)
-        const url = sources[0]
-
-        if (!url) return null
-
-        return {
-          key: String(typedPhoto.id || `${request?.id ?? 'request'}-${index}-${url}`),
-          name: getPhotoName(typedPhoto, index),
-          url,
-          sources,
-        }
-      })
-      .filter((photo): photo is DialogPhoto => Boolean(photo))
-  }, [request])
-
-  const selectedPhoto = photos.find((photo) => photo.key === selectedPhotoKey) ?? photos[0] ?? null
-  const previewUrl = manualPreviewUrl ?? selectedPhoto?.url ?? ''
+  const selectedOption = useMemo(() => {
+    return inspectionOptions.find((option) => option.value === inspectionType) ?? inspectionOptions[0]
+  }, [inspectionType])
 
   useEffect(() => {
     if (!isOpen) {
-      setSelectedPhotoKey('')
       setInspectionType('general')
-      setManualImageFile(null)
-      setNeedsManualUpload(false)
       setResult(null)
       setErrorMessage(null)
       setIsSubmitting(false)
       return
     }
 
-    setSelectedPhotoKey(photos[0]?.key ?? '')
-    setManualImageFile(null)
-    setNeedsManualUpload(false)
     setResult(null)
     setErrorMessage(null)
     setIsSubmitting(false)
-  }, [isOpen, request?.id, photos])
+  }, [isOpen, request?.id])
 
-  useEffect(() => {
-    if (!manualImageFile) {
-      setManualPreviewUrl(null)
-      return
-    }
-
-    const nextPreviewUrl = URL.createObjectURL(manualImageFile)
-    setManualPreviewUrl(nextPreviewUrl)
-
-    return () => URL.revokeObjectURL(nextPreviewUrl)
-  }, [manualImageFile])
-
-  function handleManualFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null
+  async function handleAnalyze(event?: MouseEvent<HTMLButtonElement>) {
+    event?.preventDefault()
+    event?.stopPropagation()
+    setErrorMessage(null)
     setResult(null)
 
-    if (!file) {
-      setManualImageFile(null)
-      return
-    }
-
-    if (!isImageFile(file)) {
-      setManualImageFile(null)
-      setNeedsManualUpload(true)
-      setErrorMessage('الملف المختار ليس صورة. اختار صورة بصيغة png أو jpg أو webp.')
-      return
-    }
-
-    setManualImageFile(file)
-    setNeedsManualUpload(false)
-    setErrorMessage(null)
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setErrorMessage(null)
-
-    if (!selectedPhoto && !manualImageFile) {
-      setErrorMessage('اختار صورة من طلب الإنجاز قبل بدء التحليل.')
+    if (!request?.id) {
+      setErrorMessage('رقم طلب الإنجاز غير موجود، لا يمكن تشغيل التحليل.')
       return
     }
 
     setIsSubmitting(true)
-    setResult(null)
 
     try {
-      let image = manualImageFile
+      const response = await inspectProgressRequest({
+        progressRequestId: request.id,
+        inspectionType,
+      })
 
-      if (!image && selectedPhoto) {
-        try {
-          image = await dialogPhotoToImageFile(selectedPhoto)
-        } catch (error) {
-          setNeedsManualUpload(true)
-          setErrorMessage(
-            isDownloadProblem(error)
-              ? 'الصورة ظاهرة للعرض، لكن المتصفح ممنوع يقرأها كملف بسبب CORS لمسارات storage. اختار نفس الصورة من جهازك من الزر بالأسفل، أو افتح CORS على storage/* في الباكند.'
-              : getErrorMessage(error),
-          )
-          return
-        }
+      if (response.success === false) {
+        throw new Error(response.message || 'فشل تحليل طلب الإنجاز من السيرفر.')
       }
 
-      if (!image) {
-        setErrorMessage('لم يتم تجهيز صورة صالحة للفحص.')
-        return
-      }
-
-      const response = await inspectConstructionImage({ image, inspectionType })
-      setNeedsManualUpload(false)
       setResult(response)
     } catch (error) {
       setErrorMessage(getErrorMessage(error))
@@ -355,20 +167,22 @@ export function ProgressRequestAiInspectionDialog({ request, isOpen, onClose }: 
 
   if (!isOpen || !request) return null
 
+  const photos = request.photos ?? []
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/45 px-4 py-6" dir="rtl">
-      <section className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-right shadow-[0_24px_90px_rgba(15,23,42,0.28)]">
-        <header className="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-l from-[#eef4eb] via-white to-white px-5 py-4 sm:px-6">
+      <section className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-right shadow-[0_24px_90px_rgba(15,23,42,0.28)]">
+        <header className="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-l from-violet-50 via-white to-white px-5 py-4 sm:px-6">
           <div className="flex items-start gap-3">
-            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#50683f] text-white shadow-sm">
+            <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-700 text-white shadow-sm">
               <span className="absolute -left-1 -top-1 h-3 w-3 rounded-full bg-emerald-300 ring-4 ring-white" />
               <RobotIcon />
             </span>
             <div>
-              <p className="text-xs font-black text-[#50683f]">AI Inspection</p>
-              <h2 className="mt-1 text-lg font-black text-slate-950">تحليل مشاكل صورة طلب الإنجاز</h2>
-              <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
-                اختار صورة من الطلب المعلّق. سنحاول تنزيلها كملف وإرسالها للـ AI، وإذا منع المتصفح القراءة بسبب CORS فيك تختار نفس الصورة من جهازك.
+              <p className="text-xs font-black text-violet-700">AI Inspection</p>
+              <h2 className="mt-1 text-lg font-black text-slate-950">تحليل طلب الإنجاز</h2>
+              <p className="mt-1 max-w-xl text-sm font-semibold leading-6 text-slate-500">
+                لا تحتاج اختيار صورة. سيتم إرسال رقم طلب الإنجاز للسيرفر، والسيرفر يستخدم الصور المرتبطة بالطلب.
               </p>
             </div>
           </div>
@@ -384,123 +198,124 @@ export function ProgressRequestAiInspectionDialog({ request, isOpen, onClose }: 
           </button>
         </header>
 
-        <form onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
-          {photos.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm font-bold text-slate-500">
-              لا توجد صور صالحة داخل هذا الطلب حتى يتم تحليلها.
-            </div>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <main className="space-y-4">
               <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt={manualImageFile?.name ?? selectedPhoto?.name ?? 'صورة الطلب'} className="max-h-[360px] w-full object-contain" />
-                  ) : null}
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black text-slate-400">رقم طلب الإنجاز</p>
+                    <h3 className="mt-1 text-2xl font-black text-slate-950" dir="ltr">#{request.id}</h3>
+                  </div>
+                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700 ring-1 ring-amber-100">
+                    {getRequestStatusLabel(request)}
+                  </span>
                 </div>
 
-                {photos.length > 1 ? (
-                  <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    {photos.map((photo) => (
-                      <button
-                        key={photo.key}
-                        type="button"
-                        onClick={() => {
-                          setSelectedPhotoKey(photo.key)
-                          setManualImageFile(null)
-                          setNeedsManualUpload(false)
-                          setResult(null)
-                          setErrorMessage(null)
-                        }}
-                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-100 ring-2 transition ${selectedPhoto?.key === photo.key && !manualImageFile ? 'ring-[#50683f]' : 'ring-transparent hover:ring-slate-200'}`}
-                        title={photo.name}
-                      >
-                        <img src={photo.url} alt={photo.name} className="h-full w-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-
-                <div className="mt-4 rounded-2xl bg-[#eef4eb] px-4 py-3 text-sm font-bold leading-7 text-[#405633]">
-                  الصورة المختارة: <span className="font-black">{manualImageFile?.name ?? selectedPhoto?.name ?? 'غير محدد'}</span>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <InfoPill label="أرسل بواسطة" value={getRequesterName(request)} />
+                  <InfoPill label="تاريخ الطلب" value={formatDateTime(request.createdAt)} />
+                  <InfoPill label="نوع الفحص" value={selectedOption.label} />
+                  <InfoPill label="صور مرفقة" value={String(photos.length)} />
                 </div>
               </section>
 
-              <aside className="space-y-4">
+              {photos.length > 0 ? (
                 <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
-                      <SparkIcon />
-                    </span>
+                  <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-black text-slate-950">إعداد التحليل</h3>
-                      <p className="mt-0.5 text-xs font-bold text-slate-500">حدد نوع الفحص المناسب للصورة.</p>
+                      <h3 className="text-sm font-black text-slate-950">صور الطلب</h3>
+                      <p className="mt-0.5 text-xs font-bold text-slate-500">للمعاينة فقط، وليست اختياراً للتحليل.</p>
                     </div>
+                    <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-black text-violet-700">
+                      {photos.length} صورة
+                    </span>
                   </div>
-
-                  <label className="mt-4 block text-xs font-black text-slate-600" htmlFor="ai-inspection-type">
-                    نوع الفحص
-                  </label>
-                  <select
-                    id="ai-inspection-type"
-                    value={inspectionType}
-                    onChange={(event) => setInspectionType(event.target.value as AiInspectionType)}
-                    disabled={isSubmitting}
-                    className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10 disabled:cursor-not-allowed disabled:bg-slate-50"
-                  >
-                    {inspectionOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  <input
-                    id="progress-request-ai-manual-file"
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={handleManualFileChange}
-                    disabled={isSubmitting}
-                  />
-
-                  <label
-                    htmlFor="progress-request-ai-manual-file"
-                    className={`mt-4 flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed px-4 text-center text-sm font-black transition ${needsManualUpload ? 'border-amber-300 bg-amber-50 text-amber-800' : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
-                  >
-                    <UploadIcon />
-                    {manualImageFile ? 'تم اختيار صورة من الجهاز' : needsManualUpload ? 'اختيار نفس الصورة من الجهاز' : 'اختيار ملف بدل التنزيل التلقائي'}
-                  </label>
-
-                  <p className="mt-2 text-xs font-bold leading-5 text-slate-400">
-                    API يستقبل ملف فقط باسم construction_image، لذلك لا يتم إرسال رابط الصورة أبداً.
-                  </p>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || (!selectedPhoto && !manualImageFile)}
-                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-4 text-sm font-black text-white shadow-sm transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {isSubmitting ? 'جاري تحليل المشاكل...' : manualImageFile ? 'حلل الصورة المختارة' : 'نزّل الصورة وحللها'}
-                    <RobotSmallIcon />
-                  </button>
+                  <ProgressPhotoThumbs photos={photos} />
                 </section>
+              ) : (
+                <MessageBox>
+                  لا توجد صور ظاهرة في الواجهة لهذا الطلب. سيتم إرسال رقم الطلب فقط، والسيرفر يقرر إذا كان الطلب قابل للتحليل.
+                </MessageBox>
+              )}
 
-                {errorMessage ? <MessageBox tone="danger">{errorMessage}</MessageBox> : null}
+              {errorMessage ? <MessageBox tone="danger">{errorMessage}</MessageBox> : null}
+              {isSubmitting ? <AiLoadingCard /> : null}
+              {!isSubmitting && result?.report ? <InspectionReportCard result={result} /> : null}
+            </main>
 
-                {isSubmitting ? <AiLoadingCard /> : null}
+            <aside className="space-y-4">
+              <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
+                    <SparkIcon />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-950">إعداد التحليل</h3>
+                    <p className="mt-0.5 text-xs font-bold text-slate-500">حدد نوع الفحص فقط.</p>
+                  </div>
+                </div>
 
-                {!isSubmitting && result?.report ? <InspectionReportCard result={result} /> : null}
+                <div className="mt-4 grid gap-2">
+                  {inspectionOptions.map((option) => {
+                    const isSelected = option.value === inspectionType
 
-                {!isSubmitting && !result?.report && !errorMessage ? (
-                  <MessageBox>
-                    التحليل مساعد سريع للقرار، بس القرار النهائي لازم يبقى حسب معاينة المهندس والصور المرفقة.
-                  </MessageBox>
-                ) : null}
-              </aside>
-            </div>
-          )}
-        </form>
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setInspectionType(option.value)
+                          setResult(null)
+                          setErrorMessage(null)
+                        }}
+                        disabled={isSubmitting}
+                        className={`rounded-2xl border px-3 py-2 text-right transition disabled:cursor-not-allowed disabled:opacity-70 ${isSelected ? 'border-violet-200 bg-violet-50 ring-2 ring-violet-700/10' : 'border-slate-100 bg-slate-50 hover:bg-slate-100'}`}
+                      >
+                        <span className={`block text-xs font-black ${isSelected ? 'text-violet-700' : 'text-slate-700'}`}>{option.label}</span>
+                        <span className="mt-1 block text-[11px] font-bold leading-5 text-slate-400">{option.hint}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAnalyze}
+                  disabled={isSubmitting || !request.id}
+                  className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-violet-700 px-4 text-sm font-black text-white shadow-sm transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmitting ? 'جاري التحليل...' : 'حلل الطلب'}
+                  <RobotSmallIcon />
+                </button>
+
+                <div className="mt-4 rounded-2xl bg-violet-50 px-3 py-2 text-xs font-bold leading-6 text-violet-700">
+                  سيرسل النظام:
+                  <br />
+                  <span className="font-black" dir="ltr">progress_update_request_id = {request.id}</span>
+                  <br />
+                  <span className="font-black" dir="ltr">inspection_type = {inspectionType}</span>
+                </div>
+              </section>
+
+              {!isSubmitting && !result?.report && !errorMessage ? (
+                <MessageBox>
+                  تحليل AI مساعد للمراجعة فقط. قرار الاعتماد أو الرفض يبقى عند المهندس أو المدير.
+                </MessageBox>
+              ) : null}
+            </aside>
+          </div>
+        </div>
       </section>
+    </div>
+  )
+}
+
+function InfoPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
+      <p className="text-[11px] font-black text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-xs font-black text-slate-800">{value || 'غير محدد'}</p>
     </div>
   )
 }
@@ -515,26 +330,26 @@ function MessageBox({ children, tone = 'default' }: { children: ReactNode; tone?
 
 function AiLoadingCard() {
   return (
-    <section className="rounded-3xl border border-[#50683f]/15 bg-white p-4 shadow-sm">
+    <section className="rounded-3xl border border-violet-100 bg-white p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef4eb] text-[#50683f]">
-          <span className="absolute inset-0 animate-ping rounded-2xl bg-[#50683f]/10" />
+        <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
+          <span className="absolute inset-0 animate-ping rounded-2xl bg-violet-700/10" />
           <ScanIcon />
         </span>
         <div>
-          <p className="text-sm font-black text-slate-950">AI عم يفحص الصورة</p>
-          <p className="mt-0.5 text-xs font-bold text-slate-500">عم يدور على المشاكل والملاحظات الأهم.</p>
+          <p className="text-sm font-black text-slate-950">AI عم يفحص الطلب</p>
+          <p className="mt-0.5 text-xs font-bold text-slate-500">تم إرسال رقم الطلب، والسيرفر يتولى قراءة الصور.</p>
         </div>
       </div>
       <div className="mt-4 space-y-2">
-        {['قراءة الصورة', 'تحديد نوع العمل', 'استخراج العيوب', 'تجهيز التوصيات'].map((step, index) => (
+        {['إرسال رقم الطلب', 'قراءة صور الطلب من السيرفر', 'تحليل العيوب', 'تجهيز النتيجة'].map((step, index) => (
           <div key={step} className="rounded-2xl bg-slate-50 px-3 py-2">
             <div className="flex items-center justify-between gap-2 text-xs font-black text-slate-600">
               <span>{step}</span>
-              <span className="text-[#50683f]">0{index + 1}</span>
+              <span className="text-violet-700">0{index + 1}</span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200" dir="ltr">
-              <div className="h-full w-2/3 animate-pulse rounded-full bg-[#50683f]" />
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-violet-700" />
             </div>
           </div>
         ))}
@@ -550,21 +365,31 @@ function InspectionReportCard({ result }: { result: AiInspectionResult }) {
   const defects = (report.confirmed_defects ?? []).filter(Boolean)
   const recommendations = (report.recommendations ?? []).filter(Boolean)
   const observations = (report.visual_observations ?? []).filter(Boolean)
+  const unverifiedItems = (report.unverified_items ?? []).filter(Boolean)
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black text-[#50683f]">نتيجة AI</p>
+          <p className="text-xs font-black text-violet-700">نتيجة AI</p>
           <h3 className="mt-1 text-lg font-black text-slate-950">{getStatusLabel(report.status)}</h3>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(report.status)}`}>{getStatusLabel(report.status)}</span>
+        <span className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(report.status)}`}>
+          {getStatusLabel(report.status)}
+        </span>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <MiniMeter label="الجودة" value={score} display={formatPercent(report.score)} />
         <MiniMeter label="الثقة" value={confidence} display={formatPercent(report.confidence)} />
       </div>
+
+      {result.message ? (
+        <section className="mt-4 rounded-2xl bg-violet-50 px-3 py-3">
+          <h4 className="text-xs font-black text-violet-700">رسالة السيرفر</h4>
+          <p className="mt-2 text-sm font-bold leading-7 text-violet-800">{result.message}</p>
+        </section>
+      ) : null}
 
       {report.summary ? (
         <section className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
@@ -574,8 +399,9 @@ function InspectionReportCard({ result }: { result: AiInspectionResult }) {
       ) : null}
 
       <CompactList title="المشاكل المحتملة" items={defects} dotClass="bg-rose-500" />
-      <CompactList title="التوصيات" items={recommendations} dotClass="bg-[#50683f]" />
+      <CompactList title="التوصيات" items={recommendations} dotClass="bg-violet-700" />
       <CompactList title="ملاحظات مرئية" items={observations} dotClass="bg-slate-400" />
+      <CompactList title="نقاط غير مؤكدة" items={unverifiedItems} dotClass="bg-amber-500" />
     </section>
   )
 }
@@ -588,14 +414,14 @@ function MiniMeter({ label, value, display }: { label: string; value: number; di
         <span className="text-sm font-black text-slate-950" dir="ltr">{display}</span>
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100" dir="ltr">
-        <div className="h-full rounded-full bg-[#50683f]" style={{ width: `${value}%` }} />
+        <div className="h-full rounded-full bg-violet-700" style={{ width: `${value}%` }} />
       </div>
     </div>
   )
 }
 
 function CompactList({ title, items, dotClass }: { title: string; items: string[]; dotClass: string }) {
-  const visibleItems = items.filter(Boolean).slice(0, 5)
+  const visibleItems = items.filter(Boolean).slice(0, 6)
 
   if (visibleItems.length === 0) return null
 
@@ -629,16 +455,6 @@ function RobotIcon() {
 
 function RobotSmallIcon() {
   return <RobotIcon />
-}
-
-function UploadIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 15V3" strokeLinecap="round" />
-      <path d="M7 8l5-5 5 5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 15v3a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
 }
 
 function CloseIcon() {

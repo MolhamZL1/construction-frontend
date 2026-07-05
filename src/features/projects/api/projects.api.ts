@@ -1,29 +1,6 @@
 import { api } from '@/lib/axios'
 import type {
-  AssignEngineerInput,
-  CreateProjectInput,
-  CreateSpaceInput,
-  CreateWorkItemInput,
-  FinishType,
-  Project,
-  ProjectEngineer,
-  ProjectEngineerRole,
-  ProjectSpace,
-  ProjectStatus,
-  ProjectSummary,
-  ProjectWeather,
-  ProjectWeatherByDate,
-  QualityLevel,
-  ReorderWorkItemsInput,
-  SpaceType,
-  ToiletType,
-  UpdateWorkItemInput,
-  UpdateProjectInput,
-  UpdateSpaceInput,
-  UpdateWorkItemDetailsInput,
-  WorkItem,
-  WorkItemDetail,
-} from '../models/project.model'
+  AssignEngineerInput, CreateProjectInput, CreateSpaceInput, CreateWorkItemInput, FinishType, Project, ProjectEngineer, ProjectEngineerRole, ProjectSpace, ProjectStatus, ProjectSummary, ProjectWeather, ProjectWeatherByDate, QualityLevel, ReorderWorkItemsInput, SpaceType, ToiletType, UpdateWorkItemInput, UpdateProjectInput, UpdateSpaceInput, UpdateWorkItemDetailsInput, WorkItem, WorkItemDetail } from '../models/project.model'
 
 interface ProjectDto {
   id: number | string
@@ -86,17 +63,32 @@ interface SpaceDto {
 }
 
 interface EngineerDto {
+  /**
+   * الاستجابة الجديدة من:
+   * GET /projects/:project/engineers
+   *
+   * ترجع المستخدم مباشرة:
+   * { id, name, email, internal_id, status, role, assigned_at, assignment_id }
+   *
+   * وتركنا دعم الشكل القديم:
+   * { id, project_id, user_id, role, assigned_at, user: {...} }
+   */
   id: number | string
-  project_id: number | string
-  user_id: number | string
+  project_id?: number | string | null
+  user_id?: number | string | null
+  assignment_id?: number | string | null
+  name?: string | null
+  email?: string | null
+  internal_id?: string | null
+  status?: string | null
   role: ProjectEngineerRole
-  assigned_at: string
+  assigned_at?: string | null
   user?: {
     id: number | string
     name: string
-    email?: string
+    email?: string | null
     internal_id?: string | null
-    status?: string
+    status?: string | null
   }
 }
 
@@ -112,10 +104,10 @@ interface ApiSingleResponse<T> {
   data: T
 }
 
-interface SummaryDto {
-  project: ProjectDto
-  spaces: SpaceDto[]
-  work_items: WorkItemDto[]
+interface SummaryDto extends ProjectDto {
+  project?: ProjectDto
+  spaces?: SpaceDto[]
+  work_items?: WorkItemDto[]
   totals_by_finish_type?: Partial<Record<FinishType, number>>
   total_ceiling_ceramic_area?: number
 }
@@ -238,22 +230,25 @@ function mapSpace(dto: SpaceDto): ProjectSpace {
   }
 }
 
-function mapEngineer(dto: EngineerDto): ProjectEngineer {
+function mapEngineer(dto: EngineerDto, projectId?: string): ProjectEngineer {
+  const userId = dto.user_id ?? dto.user?.id ?? dto.id
+  const assignmentId = dto.assignment_id ?? dto.id
+
   return {
-    id: String(dto.id),
-    projectId: String(dto.project_id),
-    userId: String(dto.user_id),
+    // مهم: id هنا هو assignment_id إذا موجود، لأنه المستخدم غالباً يحتاجه بالإزالة.
+    // أما userId فهو id المستخدم نفسه.
+    id: String(assignmentId),
+    projectId: projectId ?? toNullableString(dto.project_id) ?? '',
+    userId: String(userId),
     role: dto.role,
-    assignedAt: dto.assigned_at,
-    user: dto.user
-      ? {
-          id: String(dto.user.id),
-          name: dto.user.name,
-          email: dto.user.email,
-          internalId: dto.user.internal_id,
-          status: dto.user.status,
-        }
-      : undefined,
+    assignedAt: dto.assigned_at ?? '',
+    user: {
+      id: String(userId),
+      name: dto.user?.name ?? dto.name ?? `مستخدم #${userId}`,
+      email: dto.user?.email ?? dto.email ?? undefined,
+      internalId: dto.user?.internal_id ?? dto.internal_id ?? null,
+      status: dto.user?.status ?? dto.status ?? undefined,
+    },
   }
 }
 
@@ -336,13 +331,15 @@ export async function updateProject(input: UpdateProjectInput): Promise<Project>
 
 export async function getProjectSummary(projectId: string): Promise<ProjectSummary> {
   const { data } = await api.get<ApiSingleResponse<SummaryDto>>(`/projects/${projectId}/summary`)
+  const rawSummary = data.data
+  const projectDto = rawSummary.project ?? rawSummary
 
   return {
-    project: mapProject(data.data.project),
-    spaces: data.data.spaces.map(mapSpace),
-    workItems: data.data.work_items.map(mapWorkItem),
-    totalsByFinishType: data.data.totals_by_finish_type,
-    totalCeilingCeramicArea: data.data.total_ceiling_ceramic_area,
+    project: mapProject(projectDto),
+    spaces: (rawSummary.spaces ?? []).map(mapSpace),
+    workItems: (rawSummary.work_items ?? []).map(mapWorkItem),
+    totalsByFinishType: rawSummary.totals_by_finish_type,
+    totalCeilingCeramicArea: rawSummary.total_ceiling_ceramic_area,
   }
 }
 
@@ -363,7 +360,7 @@ export async function getProjectWeatherByDate(projectId: string, date: string): 
 export async function listProjectEngineers(projectId: string): Promise<ProjectEngineer[]> {
   const { data } = await api.get<ApiListResponse<EngineerDto>>(`/projects/${projectId}/engineers`)
 
-  return data.data.map(mapEngineer)
+  return data.data.map((engineer) => mapEngineer(engineer, projectId))
 }
 
 export async function assignProjectEngineer(input: AssignEngineerInput): Promise<ProjectEngineer> {
@@ -372,7 +369,7 @@ export async function assignProjectEngineer(input: AssignEngineerInput): Promise
     role: input.role,
   })
 
-  return mapEngineer(data.data)
+  return mapEngineer(data.data, input.projectId)
 }
 
 export async function removeProjectEngineer(projectId: string, engineerId: string): Promise<void> {
@@ -436,7 +433,6 @@ export async function createProjectWorkItem(input: CreateWorkItemInput): Promise
 
   return mapWorkItem(data.data)
 }
-
 
 export async function updateWorkItemDetails(input: UpdateWorkItemDetailsInput): Promise<void> {
   const payload: Record<string, unknown> = {}

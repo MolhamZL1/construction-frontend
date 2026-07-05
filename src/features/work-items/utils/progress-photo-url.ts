@@ -93,5 +93,5 @@ export function getProgressPhotoUrl(filePath?: string | null) {
 }
 
 export function getProgressPhotoDirectUrl(filePath?: string | null) {
-  return getProgressPhotoUrlCandidates(filePath)[1] ?? getProgressPhotoUrl(filePath)
+  return getProgressPhotoUrl(filePath)
 }

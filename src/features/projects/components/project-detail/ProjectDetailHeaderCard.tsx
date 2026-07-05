@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+
 import type { Project } from '../../models/project.model'
 import { ProjectStatusBadge } from '../ProjectStatusBadge'
 import { formatMeasurement, formatProjectDate } from '../../utils/projects-formatters'
@@ -53,6 +54,7 @@ export function ProjectDetailHeaderCard({
 
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 <ProjectStatusBadge status={project.status} />
+
                 {canEditProject ? (
                   <Link
                     to={editTo}
@@ -72,8 +74,17 @@ export function ProjectDetailHeaderCard({
 
       <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:gap-4">
-          <ProjectDetailMetricBox icon="ruler" label="مساحة الشقة" value={`${formatMeasurement(project.apartmentArea)} م²`} />
-          <ProjectDetailMetricBox icon="building" label="الارتفاع" value={`${formatMeasurement(project.height)} م`} />
+          <ProjectDetailMetricBox
+            icon="ruler"
+            label="مساحة الشقة"
+            value={`${formatMeasurement(project.apartmentArea)} م²`}
+          />
+
+          <ProjectDetailMetricBox
+            icon="building"
+            label="الارتفاع"
+            value={`${formatMeasurement(project.height)} م`}
+          />
         </div>
 
         <div className="flex shrink-0 items-center justify-center rounded-3xl border border-[#50683f]/10 bg-[#50683f]/5 px-5 py-4 lg:w-56">

@@ -6,8 +6,7 @@ import { FileDropInput } from './FileDropInput'
 
 interface DocumentUploadFormValues {
   title?: string
-  category?: string
-  customName: string
+  customName?: string
   file: File | null
 }
 
@@ -20,6 +19,8 @@ interface DocumentUploadFormProps {
   customNameLabel?: string
   customNamePlaceholder?: string
   customNameHelpText?: string
+  titleLabel?: string
+  titlePlaceholder?: string
   isSubmitting?: boolean
   errorMessage?: string | null
   onSubmit: (values: DocumentUploadFormValues & { file: File }) => void
@@ -35,14 +36,15 @@ export function DocumentUploadForm({
   hideTitleFields = false,
   hideCustomNameField = false,
   customNameLabel = 'اسم الملف داخل النظام',
-  customNamePlaceholder = 'مثال: soil-report-v1',
+  customNamePlaceholder = 'مثال: contract-v1',
   customNameHelpText = 'سيُرسل هذا الحقل باسم custom_name حسب API.',
+  titleLabel = 'عنوان الملف',
+  titlePlaceholder = 'مثال: عقد المشروع',
   isSubmitting = false,
   errorMessage,
   onSubmit,
 }: DocumentUploadFormProps) {
   const [title, setTitle] = useState(initialValues?.title ?? '')
-  const [category, setCategory] = useState(initialValues?.category ?? '')
   const [customName, setCustomName] = useState(initialValues?.customName ?? '')
   const [file, setFile] = useState<File | null>(initialValues?.file ?? null)
   const [localError, setLocalError] = useState<string | null>(null)
@@ -51,20 +53,15 @@ export function DocumentUploadForm({
     event.preventDefault()
 
     const normalizedTitle = title.trim()
-    const normalizedCategory = category.trim()
-    const generatedCustomName = hideCustomNameField ? normalizedTitle : customName.trim()
+    const normalizedCustomName = customName?.trim()
+    const generatedCustomName = hideCustomNameField ? normalizedTitle : normalizedCustomName
 
     if (!hideTitleFields && !normalizedTitle) {
-      setLocalError('عنوان المستند مطلوب.')
+      setLocalError(`${titleLabel} مطلوب.`)
       return
     }
 
-    if (!hideTitleFields && !normalizedCategory) {
-      setLocalError('تصنيف المستند مطلوب.')
-      return
-    }
-
-    if (!generatedCustomName) {
+    if (!hideCustomNameField && !generatedCustomName) {
       setLocalError(`${customNameLabel} مطلوب.`)
       return
     }
@@ -77,7 +74,6 @@ export function DocumentUploadForm({
     setLocalError(null)
     onSubmit({
       title: normalizedTitle,
-      category: normalizedCategory,
       customName: generatedCustomName,
       file,
     })
@@ -86,29 +82,16 @@ export function DocumentUploadForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {!hideTitleFields ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2">
-            <span className="block text-sm font-black text-slate-700">عنوان المستند</span>
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className={fieldClassName}
-              placeholder="مثال: تقرير التربة"
-              disabled={isSubmitting}
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block text-sm font-black text-slate-700">التصنيف</span>
-            <input
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              className={fieldClassName}
-              placeholder="مثال: تقارير، عقود، مخططات"
-              disabled={isSubmitting}
-            />
-          </label>
-        </div>
+        <label className="block space-y-2">
+          <span className="block text-sm font-black text-slate-700">{titleLabel}</span>
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            className={fieldClassName}
+            placeholder={titlePlaceholder}
+            disabled={isSubmitting}
+          />
+        </label>
       ) : null}
 
       {!hideCustomNameField ? (

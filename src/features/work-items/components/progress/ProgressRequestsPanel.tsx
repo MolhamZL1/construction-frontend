@@ -16,6 +16,7 @@ interface ProgressRequestsPanelProps {
   canReview?: boolean
   title?: string
   emptyMessage?: string
+  showHistory?: boolean
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
 }
@@ -59,6 +60,17 @@ function RobotMiniIcon() {
   )
 }
 
+function MetaRow({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null
+
+  return (
+    <div className="flex items-center justify-between gap-3 text-xs">
+      <span className="shrink-0 font-bold text-slate-400">{label}</span>
+      <span className="truncate font-black text-slate-700">{value}</span>
+    </div>
+  )
+}
+
 function RequestCard({
   request,
   canReview,
@@ -73,60 +85,88 @@ function RequestCard({
   onAiInspect?: (request: WorkItemProgressRequest) => void
 }) {
   const isPending = isPendingProgressRequest(request)
+  const isApproved = isApprovedProgressRequest(request)
+  const isRejected = isRejectedProgressRequest(request)
   const hasPhotos = (request.photos ?? []).length > 0
+  const cardClass = isPending
+    ? 'border-amber-100 bg-amber-50/50'
+    : isApproved
+      ? 'border-emerald-100 bg-emerald-50/50'
+      : isRejected
+        ? 'border-rose-100 bg-rose-50/50'
+        : 'border-slate-100 bg-slate-50/70'
 
   return (
-    <article className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <RequestStatusBadge status={request.status} />
-            <p className="text-sm font-black text-slate-800">{describeProgressRequestPayload(request)}</p>
+    <article className={`rounded-2xl border p-4 text-right ${cardClass}`}>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <RequestStatusBadge status={request.status} />
+              <p className="text-sm font-black text-slate-800">{describeProgressRequestPayload(request)}</p>
+            </div>
           </div>
-          <p className="mt-2 text-xs font-bold leading-5 text-slate-500">
-            طالب التحديث: {request.requester?.name ?? 'غير محدد'} • تاريخ الطلب: {formatDateTime(request.createdAt)}
-          </p>
-          {request.reviewer || request.reviewedAt ? (
-            <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
-              المراجع: {request.reviewer?.name ?? 'غير محدد'} • تاريخ القرار: {formatDateTime(request.reviewedAt)}
-            </p>
-          ) : null}
-          {request.comment ? <p className="mt-2 rounded-xl bg-white px-3 py-2 text-xs font-bold leading-5 text-slate-500 ring-1 ring-slate-100">{request.comment}</p> : null}
-          <ProgressPhotoThumbs photos={request.photos} />
-        </div>
 
-        {isPending ? (
-          <div className="flex shrink-0 flex-wrap gap-2">
-            {hasPhotos ? (
+          {isPending ? (
+            <div className="flex shrink-0 flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => onAiInspect?.(request)}
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  onAiInspect?.(request)
+                }}
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-violet-100 bg-violet-50 px-3 text-xs font-extrabold text-violet-700 transition hover:bg-violet-100"
-                title="تحليل صور الطلب بالذكاء الاصطناعي"
+                title="تحليل طلب الإنجاز بالذكاء الاصطناعي"
               >
                 <RobotMiniIcon />
                 تحليل AI
               </button>
-            ) : null}
 
-            {canReview ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => onApprove?.(request)}
-                  className="inline-flex h-9 items-center justify-center rounded-xl bg-[#50683f] px-3 text-xs font-extrabold text-white transition hover:bg-[#405633]"
-                >
-                  اعتماد
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onReject?.(request)}
-                  className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 px-3 text-xs font-extrabold text-rose-600 transition hover:bg-rose-100"
-                >
-                  رفض
-                </button>
-              </>
-            ) : null}
+              {canReview ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onApprove?.(request)}
+                    className="inline-flex h-9 items-center justify-center rounded-xl bg-[#50683f] px-3 text-xs font-extrabold text-white transition hover:bg-[#405633]"
+                  >
+                    اعتماد
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onReject?.(request)}
+                    className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-white px-3 text-xs font-extrabold text-rose-600 transition hover:bg-rose-50"
+                  >
+                    رفض
+                  </button>
+                </>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="rounded-xl border border-white/70 bg-white/70 px-3 py-2">
+          <div className="space-y-1.5">
+            <MetaRow label="أرسل بواسطة" value={request.requester?.name} />
+            <MetaRow label="تاريخ الطلب" value={formatDateTime(request.createdAt)} />
+            {isApproved ? <MetaRow label="اعتمد بواسطة" value={request.reviewer?.name} /> : null}
+            {isApproved ? <MetaRow label="تاريخ الاعتماد" value={formatDateTime(request.reviewedAt)} /> : null}
+            {isRejected ? <MetaRow label="رفض بواسطة" value={request.reviewer?.name} /> : null}
+            {isRejected ? <MetaRow label="تاريخ الرفض" value={formatDateTime(request.reviewedAt)} /> : null}
+          </div>
+        </div>
+
+        {isRejected && request.comment ? (
+          <div className="rounded-xl border border-rose-100 bg-white/80 px-3 py-2">
+            <p className="text-[11px] font-black text-rose-500">سبب الرفض</p>
+            <p className="mt-1 text-xs font-bold leading-5 text-rose-800">{request.comment}</p>
+          </div>
+        ) : null}
+
+        {hasPhotos ? (
+          <div className="space-y-2">
+            <p className="text-xs font-black text-slate-500">صور الطلب</p>
+            <ProgressPhotoThumbs photos={request.photos} />
           </div>
         ) : null}
       </div>
@@ -175,13 +215,15 @@ export function ProgressRequestsPanel({
   canReview,
   title = 'طلبات تحديث الإنجاز',
   emptyMessage = 'لا توجد طلبات تحديث إنجاز لهذا البند.',
+  showHistory = true,
   onApprove,
   onReject,
 }: ProgressRequestsPanelProps) {
   const [aiInspectionRequest, setAiInspectionRequest] = useState<WorkItemProgressRequest | null>(null)
   const pendingRequests = requests.filter(isPendingProgressRequest)
-  const approvedRequests = requests.filter(isApprovedProgressRequest)
-  const rejectedRequests = requests.filter(isRejectedProgressRequest)
+  const approvedRequests = showHistory ? requests.filter(isApprovedProgressRequest) : []
+  const rejectedRequests = showHistory ? requests.filter(isRejectedProgressRequest) : []
+  const visibleRequestsCount = pendingRequests.length + approvedRequests.length + rejectedRequests.length
 
   if (isLoading) {
     return (
@@ -198,7 +240,7 @@ export function ProgressRequestsPanel({
     return <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{errorMessage}</div>
   }
 
-  if (requests.length === 0) {
+  if (visibleRequestsCount === 0) {
     return <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">{emptyMessage}</div>
   }
 
@@ -210,13 +252,13 @@ export function ProgressRequestsPanel({
             <p className="text-xs font-black text-[#50683f]">مراجعة الطلبات</p>
             <h2 className="mt-1 text-xl font-black text-slate-900">{title}</h2>
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
-              الطلبات المعلقة تحتاج قرار. بجانب كل طلب فيه صور، فيك تشغّل تحليل AI سريع للمشاكل قبل القرار.
+              الطلبات المعلقة تحتاج قرار. زر تحليل AI يرسل رقم طلب الإنجاز فقط للـ API الجديد، بدون اختيار صورة أو إرسال رابط من الواجهة.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">{pendingRequests.length} معلّق</span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{approvedRequests.length} مقبول</span>
-            <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">{rejectedRequests.length} مرفوض</span>
+            {showHistory ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{approvedRequests.length} مقبول</span> : null}
+            {showHistory ? <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">{rejectedRequests.length} مرفوض</span> : null}
           </div>
         </div>
 
@@ -230,8 +272,8 @@ export function ProgressRequestsPanel({
             onReject={onReject}
             onAiInspect={setAiInspectionRequest}
           />
-          <RequestGroup title="الطلبات المقبولة" count={approvedRequests.length} requests={approvedRequests} />
-          <RequestGroup title="الطلبات المرفوضة" count={rejectedRequests.length} requests={rejectedRequests} />
+          {showHistory ? <RequestGroup title="الطلبات المقبولة" count={approvedRequests.length} requests={approvedRequests} /> : null}
+          {showHistory ? <RequestGroup title="الطلبات المرفوضة" count={rejectedRequests.length} requests={rejectedRequests} /> : null}
         </div>
       </section>
 

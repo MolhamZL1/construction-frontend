@@ -1,12 +1,21 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { DocumentFormShell } from '../components/DocumentFormShell'
 import { DocumentUploadForm } from '../components/DocumentUploadForm'
 import { getDocumentsErrorMessage, useUploadProjectDocument } from '../hooks/useDocuments'
+import type { ProjectDocumentType } from '../models/document.model'
+
+function getDocumentTypeFromSearch(value: string | null): ProjectDocumentType {
+  return value === 'contract' ? 'contract' : 'document'
+}
 
 export function CreateProjectDocumentPage() {
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const uploadDocumentMutation = useUploadProjectDocument()
+  const documentType = getDocumentTypeFromSearch(searchParams.get('type'))
+  const isContract = documentType === 'contract'
+  const backTo = isContract ? `/projects/${id}/contracts` : `/projects/${id}/documents`
 
   if (!id) {
     return (
@@ -20,31 +29,37 @@ export function CreateProjectDocumentPage() {
 
   return (
     <DocumentFormShell
-      title="رفع مستند جديد"
-      description="أضف مستنداً للمشروع مع أول إصدار له، وسيتم استخدام عنوان المستند كاسم الملف داخل النظام تلقائياً."
+      title={isContract ? 'رفع عقد جديد' : 'رفع مستند جديد'}
+      description={
+        isContract
+          ? 'أضف عقداً للمشروع وسيظهر ضمن صفحة العقود فقط، بعيداً عن باقي المستندات.'
+          : 'أضف مستنداً للمشروع مع أول إصدار له، وسيظهر ضمن صفحة المستندات.'
+      }
       breadcrumbs={[
         { label: 'المشاريع', to: '/projects' },
-        { label: 'المستندات', to: `/projects/${id}/documents` },
-        { label: 'رفع مستند' },
+        { label: isContract ? 'العقود' : 'المستندات', to: backTo },
+        { label: isContract ? 'رفع عقد' : 'رفع مستند' },
       ]}
     >
       <DocumentUploadForm
-        submitLabel="رفع المستند"
-        cancelTo={`/projects/${id}/documents`}
+        submitLabel={isContract ? 'رفع العقد' : 'رفع المستند'}
+        cancelTo={backTo}
         hideCustomNameField
+        titleLabel={isContract ? 'عنوان العقد' : 'عنوان المستند'}
+        titlePlaceholder={isContract ? 'مثال: عقد الإكساء' : 'مثال: تقرير التربة'}
         isSubmitting={uploadDocumentMutation.isPending}
         errorMessage={uploadDocumentMutation.isError ? getDocumentsErrorMessage(uploadDocumentMutation.error) : null}
         onSubmit={(values) => {
           uploadDocumentMutation.mutate(
             {
               projectId: id,
+              type: documentType,
               title: values.title ?? '',
-              category: values.category ?? '',
               customName: values.customName,
               file: values.file,
             },
             {
-              onSuccess: () => navigate(`/projects/${id}/documents`),
+              onSuccess: () => navigate(backTo),
             }
           )
         }}

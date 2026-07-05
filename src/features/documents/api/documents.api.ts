@@ -2,6 +2,7 @@ import { api } from '@/lib/axios'
 import type {
   ProjectDocumentDetails,
   ProjectDocumentListItem,
+  ProjectDocumentType,
   ProjectDocumentVersion,
   ProjectDocumentsPayload,
   UploadDocumentVersionInput,
@@ -34,7 +35,8 @@ interface DocumentDto {
   id: number | string
   project_id?: number | string | null
   title: string
-  category: string
+  type?: string | null
+  category?: string | null
   versions_count?: number | string | null
   latest_version?: DocumentVersionDto | null
   project?: DocumentProjectDto | null
@@ -63,6 +65,14 @@ function toNumber(value: number | string | null | undefined, fallback = 0) {
   return Number.isFinite(numericValue) ? numericValue : fallback
 }
 
+function normalizeDocumentType(value?: string | null): ProjectDocumentType {
+  return value === 'contract' ? 'contract' : 'document'
+}
+
+function getDocumentTypeLabel(type: ProjectDocumentType) {
+  return type === 'contract' ? 'عقد' : 'مستند'
+}
+
 function mapVersion(dto: DocumentVersionDto | null | undefined, fallbackDocumentId?: string | null): ProjectDocumentVersion | null {
   if (!dto) {
     return null
@@ -86,6 +96,7 @@ function mapVersion(dto: DocumentVersionDto | null | undefined, fallbackDocument
 
 function mapDocument(dto: DocumentDto): ProjectDocumentListItem {
   const documentId = String(dto.id)
+  const documentType = normalizeDocumentType(dto.type ?? dto.category)
   const latestVersion = mapVersion(dto.latest_version, documentId)
   const versionsCount = toNumber(dto.versions_count, dto.versions?.length ?? (latestVersion ? 1 : 0))
 
@@ -93,7 +104,8 @@ function mapDocument(dto: DocumentDto): ProjectDocumentListItem {
     id: documentId,
     projectId: toNullableString(dto.project_id),
     title: dto.title,
-    category: dto.category,
+    type: documentType,
+    category: getDocumentTypeLabel(documentType),
     versionsCount,
     latestVersion,
     createdAt: dto.created_at ?? null,
@@ -124,11 +136,13 @@ function mapDocumentDetails(dto: DocumentDto): ProjectDocumentDetails {
 
 function buildUploadDocumentFormData(input: UploadProjectDocumentInput) {
   const formData = new FormData()
+  const title = input.title.trim()
+  const customName = input.customName?.trim() || title
 
   formData.append('project_id', input.projectId)
-  formData.append('title', input.title.trim())
-  formData.append('category', input.category.trim())
-  formData.append('custom_name', input.customName.trim())
+  formData.append('type', input.type)
+  formData.append('title', title)
+  formData.append('custom_name', customName)
   formData.append('file', input.file)
 
   return formData
@@ -137,7 +151,10 @@ function buildUploadDocumentFormData(input: UploadProjectDocumentInput) {
 function buildVersionFormData(input: UploadDocumentVersionInput) {
   const formData = new FormData()
 
-  formData.append('custom_name', input.customName.trim())
+  if (input.customName?.trim()) {
+    formData.append('custom_name', input.customName.trim())
+  }
+
   formData.append('file', input.file)
 
   return formData
@@ -155,16 +172,28 @@ function getFileNameFromContentDisposition(contentDisposition?: string) {
   return rawName ? decodeURIComponent(rawName) : null
 }
 
-export async function listProjectDocuments(projectId: string): Promise<ProjectDocumentsPayload> {
-  const { data } = await api.get<ApiSingleResponse<ProjectDocumentsDto>>(`/projects/${projectId}/documents`)
-
+function mapProjectDocumentsPayload(data: ProjectDocumentsDto): ProjectDocumentsPayload {
   return {
     project: {
-      id: String(data.data.project.id),
-      name: data.data.project.name,
+      id: String(data.project.id),
+      name: data.project.name,
     },
-    documents: data.data.documents.map(mapDocument),
+    documents: data.documents.map(mapDocument),
   }
+}
+
+export async function listProjectDocuments(projectId: string): Promise<ProjectDocumentsPayload> {
+  const { data } = await api.get<ApiSingleResponse<ProjectDocumentsDto>>(`/projects/${projectId}/documents`, {
+    params: { type: 'document' },
+  })
+
+  return mapProjectDocumentsPayload(data.data)
+}
+
+export async function listProjectContracts(projectId: string): Promise<ProjectDocumentsPayload> {
+  const { data } = await api.get<ApiSingleResponse<ProjectDocumentsDto>>(`/projects/${projectId}/contracts`)
+
+  return mapProjectDocumentsPayload(data.data)
 }
 
 export async function uploadProjectDocument(input: UploadProjectDocumentInput): Promise<ProjectDocumentDetails> {
@@ -194,8 +223,9 @@ export async function uploadDocumentVersion(input: UploadDocumentVersionInput): 
   return mapDocumentDetails(data.data.document)
 }
 
-export async function downloadDocumentVersion(version: Pick<ProjectDocumentVersion, 'id' | 'versionNo' | 'filePath'>) {
-  const response = await api.get<Blob>(`/documents/versions/${version.id}/download`, {
+export async function downloadDocumentVersion(version: Pick<ProjectDocumentVersion, 'id' | 'versionNo' | 'filePath' | 'downloadUrl'>) {
+  const downloadPath = version.downloadUrl ?? `/documents/versions/${version.id}/download`
+  const response = await api.get<Blob>(downloadPath, {
     responseType: 'blob',
   })
 

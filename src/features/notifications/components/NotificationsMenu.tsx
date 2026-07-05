@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import { useNotifications } from '../hooks/useNotifications'
 import { formatNotificationDate, getNotificationBody, getNotificationTargetPath } from '../utils/notification-formatters'
 
@@ -38,17 +39,16 @@ export function NotificationsMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  async function handleToggle() {
-    const nextValue = !isOpen
-    setIsOpen(nextValue)
-    if (nextValue) void notificationsQuery.refetch()
+  function openNotification(path: string) {
+    setIsOpen(false)
+    navigate(path)
   }
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="relative" dir="rtl">
       <button
         type="button"
-        onClick={handleToggle}
+        onClick={() => setIsOpen((value) => !value)}
         className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
         aria-label="الإشعارات"
         title="الإشعارات"
@@ -101,7 +101,11 @@ export function NotificationsMenu() {
             ) : notificationsQuery.error ? (
               <div className="px-4 py-8 text-center">
                 <p className="text-sm font-medium text-slate-800">تعذر تحميل الإشعارات</p>
-                <button type="button" onClick={() => void notificationsQuery.refetch()} className="mt-3 rounded-xl border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+                <button
+                  type="button"
+                  onClick={() => void notificationsQuery.refetch()}
+                  className="mt-3 rounded-xl border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                >
                   إعادة المحاولة
                 </button>
               </div>
@@ -116,15 +120,13 @@ export function NotificationsMenu() {
             ) : (
               visibleNotifications.map((notification) => {
                 const body = getNotificationBody(notification)
+                const targetPath = getNotificationTargetPath(notification)
 
                 return (
                   <button
                     key={notification.id}
                     type="button"
-                    onClick={() => {
-                      setIsOpen(false)
-                      navigate(getNotificationTargetPath(notification))
-                    }}
+                    onClick={() => openNotification(targetPath)}
                     className="group flex w-full gap-3 rounded-2xl px-3 py-3 text-right transition hover:bg-slate-50"
                   >
                     <span className={notification.isRead ? 'mt-1 h-2.5 w-2.5 rounded-full bg-slate-300' : 'mt-1 h-2.5 w-2.5 rounded-full bg-orange-500'} />
@@ -144,10 +146,7 @@ export function NotificationsMenu() {
 
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false)
-              navigate('/notifications')
-            }}
+            onClick={() => openNotification('/notifications')}
             className="block w-full border-t border-slate-100 px-4 py-3.5 text-center text-sm font-bold text-[#50683f] transition hover:bg-slate-50"
           >
             عرض كل الإشعارات

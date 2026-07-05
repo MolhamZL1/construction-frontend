@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/authStore'
 import { ProjectDetailSectionCard } from './ProjectDetailSectionCard'
 
 interface ProjectDetailSectionsPanelProps {
@@ -15,6 +16,9 @@ export function ProjectDetailSectionsPanel({
   workItemsCount,
   documentsCount = 0,
 }: ProjectDetailSectionsPanelProps) {
+  const role = useAuthStore((state) => state.user?.role)
+  const canViewDurationExtensions = role === 'project_manager' || role === 'engineer'
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-7">
       <div className="mb-6 flex flex-col gap-1">
@@ -57,6 +61,22 @@ export function ProjectDetailSectionsPanel({
           icon="invoice"
           accent="green"
           to={`/projects/${projectId}/expenses`}
+        />
+        {canViewDurationExtensions ? (
+          <ProjectDetailSectionCard
+            title="طلبات تمديد الوقت"
+            description="مراجعة طلبات تمديد مدة البنود"
+            icon="calendar"
+            accent="blue"
+            to={`/projects/${projectId}/duration-extensions`}
+          />
+        ) : null}
+        <ProjectDetailSectionCard
+          title="العقود"
+          description="عقود المشروع وإصداراتها"
+          icon="document"
+          accent="emerald"
+          to={`/projects/${projectId}/contracts`}
         />
         <ProjectDetailSectionCard
           title="المستندات"
