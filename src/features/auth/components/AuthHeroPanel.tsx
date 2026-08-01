@@ -1,25 +1,54 @@
 import authImage from '@/assets/auth.jpg'
+import { BrandLockup } from '@/components/brand/BrandLockup'
 
 export function AuthHeroPanel() {
   return (
-    <section className="relative min-h-[260px] overflow-hidden sm:min-h-[340px] lg:min-h-screen">
-      <img src={authImage} alt="واجهة نظام إدارة المشاريع" className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-[rgba(55,66,43,0.46)]" />
+    <section className="relative min-h-screen overflow-hidden bg-[var(--color-brand-ink)]">
+      <img
+        src={authImage}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full scale-[1.02] object-cover opacity-[0.2] grayscale"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(140deg,rgb(var(--color-brand-ink-deep-rgb)/0.98),rgb(var(--color-brand-ink-rgb)/0.84))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_32%,rgb(var(--color-brand-gold-rgb)/0.14),transparent_28rem)]" />
+      <div
+        className="absolute inset-0 opacity-[0.09]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgb(var(--color-brand-gold-rgb)/.34) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--color-brand-gold-rgb)/.34) 1px, transparent 1px)',
+          backgroundSize: '46px 46px',
+        }}
+      />
 
-      <div className="relative flex min-h-[260px] items-center px-6 py-10 sm:min-h-[340px] sm:px-12 lg:min-h-screen lg:px-16 xl:px-28" dir="ltr">
-        <div className="flex items-end gap-4 text-white sm:gap-6">
-          <div className="space-y-2 text-right sm:space-y-3" dir="rtl">
-            <h1 className="text-3xl leading-tight font-bold tracking-normal sm:text-4xl xl:text-5xl">نظام إدارة المشاريع</h1>
-            <p className="text-xl leading-tight font-light tracking-normal text-white/90 sm:text-2xl xl:text-3xl">
-              Construction Management System
-            </p>
-          </div>
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-12 py-16" dir="rtl">
+        <div className="w-full max-w-xl text-center">
+          <BrandLockup
+            tone="reversed"
+            orientation="stacked"
+            className="mx-auto"
+            markClassName="h-[92px] w-[92px] xl:h-[104px] xl:w-[104px]"
+            wordmarkClassName="w-[172px] xl:w-[194px]"
+          />
 
-          <div className="mb-1 flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] border border-white/20 bg-white/15 backdrop-blur-sm sm:h-16 sm:w-16 sm:rounded-[1.5rem] xl:h-20 xl:w-20 xl:rounded-[1.75rem]">
-            <svg viewBox="0 0 24 24" className="h-7 w-7 text-white sm:h-8 sm:w-8 xl:h-10 xl:w-10" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="6" y="3" width="12" height="18" rx="2.5" />
-              <path d="M9 7h6M9 11h6M9 15h4M4 7h2M4 11h2M4 15h2" strokeLinecap="round" />
-            </svg>
+          <div className="mx-auto mt-9 h-px w-24 bg-[linear-gradient(90deg,transparent,rgb(var(--color-brand-gold-rgb)/0.9),transparent)]" />
+
+          <h2 className="mt-8 text-2xl font-extrabold text-[var(--color-brand-paper)] xl:text-[30px]">
+            منصة إدارة مشاريع الإكساء
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-base font-medium leading-8 text-[rgb(var(--color-brand-paper-rgb)/0.68)]">
+            متابعة المشاريع والميزانية والورش والإنجاز ضمن مساحة عمل واحدة واضحة ومتكاملة.
+          </p>
+
+          <div className="mx-auto mt-10 grid max-w-md grid-cols-3 gap-3 text-center">
+            {['إدارة أدق', 'متابعة أسرع', 'قرار أوضح'].map((label) => (
+              <span
+                key={label}
+                className="rounded-2xl border border-[rgb(var(--color-brand-paper-rgb)/0.11)] bg-[rgb(var(--color-brand-paper-rgb)/0.055)] px-3 py-3 text-xs font-bold text-[rgb(var(--color-brand-paper-rgb)/0.74)] backdrop-blur-sm"
+              >
+                {label}
+              </span>
+            ))}
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ export function WorkItemSpecCard({ item }: WorkItemSpecCardProps) {
   const expectedFinishDate = getExpectedFinishDate(item)
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -25,14 +25,14 @@ export function WorkItemSpecCard({ item }: WorkItemSpecCardProps) {
           <p className="mt-2 text-sm font-semibold text-slate-500">تفاصيل البند، حالته، مستوى التنفيذ، والإنجاز الحالي.</p>
         </div>
 
-        <div className="rounded-2xl bg-[#50683f]/10 px-5 py-3 text-center text-[#50683f]">
+        <div className="rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-5 py-3 text-center text-[var(--color-brand-ink)]">
           <p className="text-2xl font-black">{Math.round(item.progressPercent)}%</p>
           <p className="text-xs font-black">إنجاز البند</p>
         </div>
       </div>
 
       <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-[#50683f] transition-all" style={{ width: `${Math.round(item.progressPercent)}%` }} />
+        <div className="h-full rounded-full bg-[var(--color-brand-ink)] transition-all" style={{ width: `${Math.round(item.progressPercent)}%` }} />
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

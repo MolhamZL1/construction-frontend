@@ -25,7 +25,7 @@ export function CreateWorkItemPage() {
       <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
         <div className="mx-auto max-w-4xl space-y-6">
           <div className="flex justify-start">
-            <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+            <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
               العودة إلى بنود العمل
             </Link>
           </div>
@@ -42,7 +42,7 @@ export function CreateWorkItemPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
             العودة إلى بنود العمل
           </Link>
         </div>

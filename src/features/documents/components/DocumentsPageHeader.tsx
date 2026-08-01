@@ -16,11 +16,11 @@ export function DocumentsPageHeader({
   onSearchChange,
 }: DocumentsPageHeaderProps) {
   return (
-    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
       <div className="mb-6 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 md:max-w-2xl">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
-            <Link to="/projects" className="transition hover:text-[#50683f]">
+            <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">
               المشاريع
             </Link>
 
@@ -28,7 +28,7 @@ export function DocumentsPageHeader({
 
             <Link
               to={`/projects/${projectId}`}
-              className="max-w-[220px] truncate transition hover:text-[#50683f]"
+              className="max-w-[220px] truncate transition hover:text-[var(--color-brand-ink)]"
             >
               {projectName ?? 'تفاصيل المشروع'}
             </Link>
@@ -50,7 +50,7 @@ export function DocumentsPageHeader({
         <div className="flex shrink-0 justify-start md:pt-1">
           <Link
             to={`/projects/${projectId}/documents/create`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#405633] active:scale-[0.98] sm:h-12"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98] sm:h-12"
           >
             <DocumentIcon name="plus" className="h-5 w-5" />
             رفع مستند

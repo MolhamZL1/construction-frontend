@@ -50,7 +50,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
             className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-extrabold text-white transition disabled:opacity-60 ${
-              danger ? 'bg-rose-500 hover:bg-rose-600' : 'bg-[#50683f] hover:bg-[#405633]'
+              danger ? 'bg-rose-500 hover:bg-rose-600' : 'bg-[var(--color-brand-ink)] hover:bg-[var(--color-brand-ink)]'
             }`}
           >
             {isLoading ? (

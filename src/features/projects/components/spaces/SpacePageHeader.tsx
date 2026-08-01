@@ -20,15 +20,15 @@ export function SpacePageHeader({
   canManage,
 }: SpacePageHeaderProps) {
   return (
-    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
       <div className="mb-6 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 md:max-w-2xl">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
-            <Link to="/projects" className="transition hover:text-[#50683f]">
+            <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">
               المشاريع
             </Link>
             <SpaceIcon name="arrow" className="h-4 w-4 rtl:rotate-180" />
-            <Link to={`/projects/${projectId}`} className="max-w-[240px] truncate transition hover:text-[#50683f]">
+            <Link to={`/projects/${projectId}`} className="max-w-[240px] truncate transition hover:text-[var(--color-brand-ink)]">
               {projectName ?? 'تفاصيل المشروع'}
             </Link>
             <SpaceIcon name="arrow" className="h-4 w-4 rtl:rotate-180" />
@@ -41,7 +41,7 @@ export function SpacePageHeader({
           </p>
 
           <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-500">
-            <span className="h-2 w-2 rounded-full bg-[#50683f]" />
+            <span className="h-2 w-2 rounded-full bg-[var(--color-brand-ink)]" />
             عدد الفراغات: <span className="text-slate-800">{spacesCount}</span>
           </div>
         </div>
@@ -50,7 +50,7 @@ export function SpacePageHeader({
           {canManage ? (
             <Link
               to={`/projects/${projectId}/spaces/create`}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#405633] active:scale-[0.98] sm:h-12"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98] sm:h-12"
             >
               <SpaceIcon name="plus" className="h-5 w-5" />
               إضافة فراغ

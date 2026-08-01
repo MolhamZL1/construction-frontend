@@ -11,7 +11,7 @@ export function InvoiceItemsFocusTable({ items, totalAmount }: InvoiceItemsFocus
   const total = tableTotal || toSafeNumber(totalAmount)
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_40px_rgb(var(--color-brand-ink-rgb)/0.06)]">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <h2 className="text-lg font-black text-slate-950">مواد الفاتورة</h2>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">{items.length} مادة</span>
@@ -38,7 +38,7 @@ export function InvoiceItemsFocusTable({ items, totalAmount }: InvoiceItemsFocus
                     <td className="px-5 py-4 font-bold">{formatInvoiceQuantity(item.quantity)}</td>
                     <td className="px-5 py-4 font-bold text-slate-500">{item.unit ?? item.material.unit ?? '—'}</td>
                     <td className="px-5 py-4 font-bold text-slate-700">{formatInvoiceMoney(item.unitPrice)}</td>
-                    <td className="px-5 py-4 font-black text-[#50683f]">{formatInvoiceMoney(item.totalPrice)}</td>
+                    <td className="px-5 py-4 font-black text-[var(--color-brand-ink)]">{formatInvoiceMoney(item.totalPrice)}</td>
                     <td className="max-w-xs px-5 py-4 text-slate-500">{item.notes?.trim() || '—'}</td>
                   </tr>
                 ))}
@@ -50,7 +50,7 @@ export function InvoiceItemsFocusTable({ items, totalAmount }: InvoiceItemsFocus
             {items.map((item) => (
               <article key={item.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#50683f]">{formatInvoiceMoney(item.totalPrice)}</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--color-brand-ink)]">{formatInvoiceMoney(item.totalPrice)}</span>
                   <div className="min-w-0 text-right">
                     <h3 className="truncate font-black text-slate-950">{item.material.name}</h3>
                     <p className="mt-1 text-xs font-bold text-slate-400">{item.unit ?? item.material.unit ?? '—'}</p>

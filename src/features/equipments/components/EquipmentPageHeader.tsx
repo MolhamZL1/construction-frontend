@@ -14,7 +14,7 @@ export function EquipmentPageHeader({ isCreateOpen, onToggleCreate }: EquipmentP
       <button
         type="button"
         onClick={onToggleCreate}
-        className="inline-flex h-12 w-fit items-center justify-center gap-2 rounded-lg bg-[#50683f] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#435834]"
+        className="inline-flex h-12 w-fit items-center justify-center gap-2 rounded-lg bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)]"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 5v14M5 12h14" strokeLinecap="round" />

@@ -22,7 +22,7 @@ export function DocumentVersionsPanel({ versions, downloadingVersionId, onDownlo
   }
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] md:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] md:p-6">
       <div className="mb-5 flex items-center justify-between gap-4">
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">{versions.length} إصدار</span>
         <div>
@@ -38,7 +38,7 @@ export function DocumentVersionsPanel({ versions, downloadingVersionId, onDownlo
           return (
             <div key={version.id} className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center justify-end gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#50683f] shadow-sm">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[var(--color-brand-ink)] shadow-sm">
                   <DocumentIcon name="document" className="h-6 w-6" />
                 </div>
                 <div>

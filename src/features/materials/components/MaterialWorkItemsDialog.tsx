@@ -66,10 +66,10 @@ export function MaterialWorkItemsDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" dir="rtl">
-      <section className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white text-right shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
+      <section className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white text-right shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.28)]">
         <header className="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef4eb] text-[#50683f]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
               <MaterialIcon name="link" />
             </span>
             <div>
@@ -100,8 +100,8 @@ export function MaterialWorkItemsDialog({
               </div>
 
               {isSavingLink ? (
-                <span className="inline-flex w-fit items-center gap-2 rounded-2xl bg-[#eef4eb] px-3 py-2 text-xs font-black text-[#50683f]">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-[#50683f]" />
+                <span className="inline-flex w-fit items-center gap-2 rounded-2xl bg-[var(--color-brand-gold-surface)] px-3 py-2 text-xs font-black text-[var(--color-brand-ink)]">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-brand-ink)]" />
                   جاري تنفيذ العملية...
                 </span>
               ) : null}
@@ -116,7 +116,7 @@ export function MaterialWorkItemsDialog({
                 {instantLinkedNames.map((name) => (
                   <span
                     key={name}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-[#50683f]/15 bg-[#eef4eb] px-3 py-2 text-xs font-black text-[#50683f]"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-[rgb(var(--color-brand-ink-rgb)/0.15)] bg-[var(--color-brand-gold-surface)] px-3 py-2 text-xs font-black text-[var(--color-brand-ink)]"
                   >
                     {name}
                     <button
@@ -147,7 +147,7 @@ export function MaterialWorkItemsDialog({
                   value={selectedWorkItemName}
                   onChange={(event) => setSelectedWorkItemName(event.target.value)}
                   disabled={isLoadingWorkItems || isAttaching || availableWorkItems.length === 0}
-                  className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                  className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                 >
                   <option value="">{isLoadingWorkItems ? 'جاري تحميل البنود...' : 'اختر البند'}</option>
                   {availableWorkItems.map((workItem) => (
@@ -160,7 +160,7 @@ export function MaterialWorkItemsDialog({
                 type="button"
                 onClick={handleAttach}
                 disabled={!selectedWorkItemName || isAttaching}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 text-sm font-black text-white transition hover:bg-[#405433] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <MaterialIcon name="link" className="h-4 w-4" />
                 {isAttaching ? 'جاري الربط...' : 'ربط المادة'}

@@ -19,12 +19,12 @@ export function PendingWorkItemUpdatesPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
             العودة إلى بنود العمل
           </Link>
         </div>
 
-        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.07)]">
+        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
           <h1 className="text-3xl font-black text-slate-900">طلبات تحديث تفاصيل البنود</h1>
           <p className="mt-2 text-sm font-semibold text-slate-500">اعتماد أو رفض التحديثات المطلوبة على تفاصيل البنود.</p>
         </header>
@@ -51,7 +51,7 @@ export function PendingWorkItemUpdatesPage() {
                   <button
                     onClick={() => approveMutation.mutate(request.workItemId)}
                     disabled={approveMutation.isPending || rejectMutation.isPending}
-                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[#50683f] px-4 text-sm font-extrabold text-white disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-extrabold text-white disabled:opacity-60"
                   >
                     اعتماد
                   </button>
@@ -93,7 +93,7 @@ export function PendingWorkItemUpdatesPage() {
               <textarea
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
-                className="mt-4 min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[#50683f]"
+                className="mt-4 min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[var(--color-brand-gold)]"
                 placeholder="سبب الرفض..."
               />
               <div className="mt-5 flex justify-start gap-3">

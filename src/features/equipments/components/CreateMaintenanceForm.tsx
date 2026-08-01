@@ -88,7 +88,7 @@ export function CreateMaintenanceForm({ equipmentId, equipmentName, onCreated }:
 
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="نوع الصيانة" error={errors.type?.message}>
-          <select className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" {...register('type')}>
+          <select className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" {...register('type')}>
             {maintenanceTypes.map((type) => (
               <option key={type.value} value={type.value}>
                 {type.label}
@@ -98,11 +98,11 @@ export function CreateMaintenanceForm({ equipmentId, equipmentName, onCreated }:
         </Field>
 
         <Field label="تاريخ البداية" error={errors.startDate?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('startDate')} />
+          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" type="date" {...register('startDate')} />
         </Field>
 
         <Field label="الوصف" error={errors.description?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="text" placeholder="تفاصيل الصيانة" {...register('description')} />
+          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" type="text" placeholder="تفاصيل الصيانة" {...register('description')} />
         </Field>
       </div>
 
@@ -113,7 +113,7 @@ export function CreateMaintenanceForm({ equipmentId, equipmentName, onCreated }:
       <button
         type="submit"
         disabled={createMaintenanceMutation.isPending}
-        className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="rounded-lg bg-[var(--color-brand-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {createMaintenanceMutation.isPending ? 'جاري الإضافة...' : 'حفظ الصيانة'}
       </button>

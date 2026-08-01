@@ -37,10 +37,10 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 const inputClass =
-  'h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10'
+  'h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
 const detailInputClass =
-  'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-right text-sm font-extrabold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:bg-white focus:ring-4 focus:ring-[#50683f]/10'
+  'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-right text-sm font-extrabold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:bg-white focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
 const COMPLETED_WOOD_KEYS = ['completed_wood_doors', 'completedWoodDoors']
 const COMPLETED_ALUMINUM_KEYS = ['completed_aluminum_doors', 'completedAluminumDoors']
@@ -250,7 +250,7 @@ export function EditProjectPage() {
         </div>
 
         <form
-          className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.08)] sm:p-7"
+          className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.08)] sm:p-7"
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
@@ -304,14 +304,14 @@ export function EditProjectPage() {
               type="button"
               onClick={() => navigate(`/projects/${id}`)}
               disabled={mutation.isPending}
-              className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-extrabold text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               إلغاء
             </button>
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-8 text-sm font-extrabold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-8 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
             >
               {mutation.isPending ? 'جاري الحفظ...' : 'حفظ تفاصيل المشروع'}
             </button>
@@ -320,11 +320,11 @@ export function EditProjectPage() {
 
         <form
           onSubmit={handleDetailsSubmit}
-          className="rounded-3xl border border-[#50683f]/15 bg-[#50683f]/[0.035] p-5 shadow-[0_14px_40px_rgba(15,23,42,0.06)] sm:p-7"
+          className="rounded-3xl border border-[rgb(var(--color-brand-ink-rgb)/0.15)] bg-[var(--color-brand-ink)]/[0.035] p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.06)] sm:p-7"
         >
-          <div className="mb-6 flex flex-col gap-3 border-b border-[#50683f]/10 pb-5 md:flex-row md:items-start md:justify-between">
+          <div className="mb-6 flex flex-col gap-3 border-b border-[rgb(var(--color-brand-ink-rgb)/0.1)] pb-5 md:flex-row md:items-start md:justify-between">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#50683f] shadow-sm">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--color-brand-ink)] shadow-sm">
                 <ProjectDetailIcon name="edit" className="h-5 w-5" />
               </span>
               <div>
@@ -392,7 +392,7 @@ export function EditProjectPage() {
             <button
               type="submit"
               disabled={detailsMutation.isPending || !mellabenWorkItem}
-              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-8 text-sm font-extrabold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-8 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
             >
               {detailsMutation.isPending ? 'جاري الحفظ...' : 'حفظ الأعداد'}
             </button>

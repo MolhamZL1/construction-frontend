@@ -68,7 +68,7 @@ export function ProgressRequestReviewDialog({
               setReason(event.target.value)
               setReasonError('')
             }}
-            className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-2 focus:ring-[#50683f]/10"
+            className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-2 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
             placeholder="سبب الرفض..."
           />
           {reasonError ? <p className="mt-2 text-xs font-bold text-rose-600">{reasonError}</p> : null}

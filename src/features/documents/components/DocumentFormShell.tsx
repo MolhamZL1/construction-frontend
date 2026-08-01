@@ -23,7 +23,7 @@ export function DocumentFormShell({ title, description, breadcrumbs, children }:
             <span key={`${item.label}-${index}`} className="inline-flex items-center gap-2">
               {index > 0 ? <DocumentIcon name="arrow" className="h-4 w-4 rotate-180" /> : null}
               {item.to ? (
-                <Link to={item.to} className="transition hover:text-[#50683f]">
+                <Link to={item.to} className="transition hover:text-[var(--color-brand-ink)]">
                   {item.label}
                 </Link>
               ) : (
@@ -33,9 +33,9 @@ export function DocumentFormShell({ title, description, breadcrumbs, children }:
           ))}
         </nav>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-8">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] md:p-8">
           <div className="mb-7 flex items-start justify-between gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
               <DocumentIcon name="upload" className="h-7 w-7" />
             </div>
             <div>

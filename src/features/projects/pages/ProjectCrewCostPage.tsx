@@ -1,3 +1,4 @@
+import { formatUsdCurrency } from '@/utils/currency'
 import { FormEvent, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AxiosError } from 'axios'
@@ -148,12 +149,12 @@ export function ProjectCrewCostPage() {
   return (
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
-        <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+        <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
           <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
           العودة إلى تفاصيل المشروع
         </Link>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-8">
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-start gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
@@ -174,7 +175,7 @@ export function ProjectCrewCostPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-6">
+          <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-extrabold text-slate-900">نوع الورشة</h2>
@@ -196,7 +197,7 @@ export function ProjectCrewCostPage() {
                       }}
                       className={`rounded-2xl border px-4 py-3 text-right text-sm font-extrabold transition ${
                         isActive
-                          ? 'border-[#50683f] bg-[#50683f] text-white shadow-sm'
+                          ? 'border-[var(--color-brand-ink)] bg-[var(--color-brand-ink)] text-white shadow-sm'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                       }`}
                     >
@@ -220,7 +221,7 @@ export function ProjectCrewCostPage() {
                       required
                       defaultValue={field.defaultValue}
                       placeholder={field.helper}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-sm font-bold text-slate-900 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-sm font-bold text-slate-900 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                     />
                   </label>
                 ))}
@@ -233,14 +234,14 @@ export function ProjectCrewCostPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-[#50683f] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[#455a36] disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmitting ? 'جاري الحساب...' : 'احسب أجرة الورشة'}
               </button>
             </div>
           </form>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-6">
+          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
             {isSubmitting ? (
               <div className="flex min-h-[320px] items-center justify-center">
                 <LoadingState label="جاري حساب أجرة الورشة..." />
@@ -250,7 +251,7 @@ export function ProjectCrewCostPage() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-xs font-extrabold text-slate-500">التكلفة النهائية</p>
-                    <p className="mt-2 text-2xl font-extrabold text-slate-900">{formatNumber(finalCost)}</p>
+                    <p className="mt-2 text-2xl font-extrabold text-slate-900">{formatUsdCurrency(finalCost)}</p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-xs font-extrabold text-slate-500">المساحة الإجمالية</p>
@@ -282,7 +283,7 @@ export function ProjectCrewCostPage() {
                         {pricingRows.map(([key, value]) => (
                           <tr key={key}>
                             <td className="px-4 py-3 font-bold text-slate-600">{pricingLabels[key] ?? key}</td>
-                            <td className="px-4 py-3 text-left font-extrabold text-slate-900" dir="ltr">{formatNumber(value)}</td>
+                            <td className="px-4 py-3 text-left font-extrabold text-slate-900" dir="ltr">{formatUsdCurrency(value)}</td>
                           </tr>
                         ))}
                       </tbody>

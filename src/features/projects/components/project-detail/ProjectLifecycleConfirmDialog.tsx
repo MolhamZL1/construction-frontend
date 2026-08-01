@@ -24,7 +24,7 @@ const actionContent: Record<
     description: 'سيتم تغيير حالة المشروع إلى قيد التنفيذ وبدء تتبع العمل عليه.',
     warning: 'بعد بدء المشروع لن تتمكن من تعديل تفاصيله الأساسية مثل الاسم، الموقع، المساحة والارتفاع.',
     confirmLabel: 'نعم، ابدأ المشروع',
-    confirmClassName: 'bg-[#50683f] text-white hover:bg-[#435834]',
+    confirmClassName: 'bg-[var(--color-brand-ink)] text-white hover:bg-[var(--color-brand-ink)]',
   },
   complete: {
     title: 'تأكيد إنهاء المشروع',
@@ -51,7 +51,7 @@ export function ProjectLifecycleConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white text-right shadow-[0_24px_80px_rgba(15,23,42,0.25)]" dir="rtl">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white text-right shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.25)]" dir="rtl">
         <div className="border-b border-slate-100 px-5 py-5 sm:px-6">
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">

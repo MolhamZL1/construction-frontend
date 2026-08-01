@@ -70,12 +70,12 @@ export function ProjectSpacesPage() {
   if (!project) {
     return (
       <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-white px-5 py-7 text-center" dir="rtl">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.08)]">
           <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 text-slate-300">
             <SpaceIcon name="warning" className="h-9 w-9" />
           </span>
           <p className="text-lg font-black text-slate-800">المشروع غير موجود</p>
-          <Link to="/projects" className="mt-3 inline-flex text-sm font-bold text-[#50683f] hover:underline">
+          <Link to="/projects" className="mt-3 inline-flex text-sm font-bold text-[var(--color-brand-ink)] hover:underline">
             العودة للمشاريع
           </Link>
         </div>

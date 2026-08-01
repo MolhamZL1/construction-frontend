@@ -1,23 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
-
-:root {
-  font-family: 'Cairo', system-ui, 'Segoe UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-html,
-body,
-#root {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-  direction: rtl;
-  background: #f8fafc;
-}
+@import "./styles/design-tokens.generated.css";
+@import "./styles/design-system.css";
 
 /* Leaflet RTL fixes */
 .leaflet-control-zoom {
@@ -28,3 +12,35 @@ body {
   direction: rtl;
   text-align: right;
 }
+
+/* Project owner review shimmer */
+@keyframes project-review-shimmer {
+  0% {
+    transform: translateX(120%);
+  }
+
+  100% {
+    transform: translateX(-120%);
+  }
+}
+
+.project-review-shimmer::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(var(--color-white-rgb)/0.78) 48%,
+    transparent 76%
+  );
+  animation: project-review-shimmer 1.35s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-review-shimmer::after {
+    animation: none;
+  }
+}
+

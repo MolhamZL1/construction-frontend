@@ -97,7 +97,7 @@ export function AddProjectTeamMemberPage() {
             <path d="M12 7v6M12 16.5v.1" strokeLinecap="round" />
           </svg>
           <p className="text-lg font-bold text-slate-800">المشروع غير موجود</p>
-          <Link to="/projects" className="mt-3 inline-flex text-sm font-semibold text-[#50683f] hover:underline">
+          <Link to="/projects" className="mt-3 inline-flex text-sm font-semibold text-[var(--color-brand-ink)] hover:underline">
             العودة للمشاريع
           </Link>
         </div>
@@ -110,7 +110,7 @@ export function AddProjectTeamMemberPage() {
       <div className="mx-auto max-w-6xl space-y-6">
         <TeamBreadcrumb projectId={projectId} projectName={project.name} />
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.08)] sm:p-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.08)] sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">إضافة عضو لفريق العمل</h1>
@@ -130,7 +130,7 @@ export function AddProjectTeamMemberPage() {
                   setSelectedRole(event.target.value as SelectableRole)
                   setSearch('')
                 }}
-                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
               >
                 <option value="">اختر الدور أولاً</option>
                 {projectTeamRoleOptions.map((option) => (
@@ -184,7 +184,7 @@ interface AvailableUsersCardProps {
 
 function AvailableUsersCard({ selectedRole, users, totalUsersForRole, isLoading, isAssigning, onAssign }: AvailableUsersCardProps) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+    <div className="rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
       <div className="border-b border-slate-100 px-6 py-4">
         <h2 className="text-base font-extrabold text-slate-900">المستخدمون المتاحون</h2>
         <p className="mt-1 text-xs font-medium text-slate-500">
@@ -225,9 +225,9 @@ function AvailableUsersCard({ selectedRole, users, totalUsersForRole, isLoading,
 
 function UserCard({ user, isAssigning, onAssign }: { user: User; isAssigning: boolean; onAssign: (user: User) => void }) {
   return (
-    <article className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5 transition hover:border-[#50683f]/30 hover:bg-white hover:shadow-sm">
+    <article className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:bg-white hover:shadow-sm">
       <div className="flex items-start gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#50683f]/10 text-[#50683f]">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 21a7 7 0 0 1 14 0" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -245,7 +245,7 @@ function UserCard({ user, isAssigning, onAssign }: { user: User; isAssigning: bo
         type="button"
         onClick={() => onAssign(user)}
         disabled={isAssigning}
-        className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#50683f] px-4 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
+        className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
       >
         {isAssigning ? 'جاري الإضافة...' : 'إضافة لفريق العمل'}
       </button>
@@ -256,11 +256,11 @@ function UserCard({ user, isAssigning, onAssign }: { user: User; isAssigning: bo
 function TeamBreadcrumb({ projectId, projectName }: { projectId: string; projectName: string }) {
   return (
     <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-500" aria-label="مسار الصفحة">
-      <Link to="/projects" className="transition hover:text-[#50683f]">المشاريع</Link>
+      <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">المشاريع</Link>
       <ChevronIcon />
-      <Link to={`/projects/${projectId}`} className="transition hover:text-[#50683f]">{projectName}</Link>
+      <Link to={`/projects/${projectId}`} className="transition hover:text-[var(--color-brand-ink)]">{projectName}</Link>
       <ChevronIcon />
-      <Link to={`/projects/${projectId}/team`} className="transition hover:text-[#50683f]">فريق العمل</Link>
+      <Link to={`/projects/${projectId}/team`} className="transition hover:text-[var(--color-brand-ink)]">فريق العمل</Link>
       <ChevronIcon />
       <span className="text-slate-800">إضافة عضو</span>
     </nav>

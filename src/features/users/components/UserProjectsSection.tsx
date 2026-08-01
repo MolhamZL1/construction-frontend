@@ -24,13 +24,13 @@ export function UserProjectsSection({
     >
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
         <div>
-          <h2 className="text-lg font-bold text-[#111827]">المشاريع المشارك فيها</h2>
-          <p className="mt-1 text-sm font-medium text-[#637381]">
+          <h2 className="text-lg font-bold text-[var(--color-brand-ink)]">المشاريع المشارك فيها</h2>
+          <p className="mt-1 text-sm font-medium text-[var(--color-brand-stone)]">
             قائمة المشاريع المرتبطة بهذا المستخدم
           </p>
         </div>
 
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF0EC] text-[#4A5C3F]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M4 7h16v13H4zM8 7V5h8v2M8 12h8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -54,7 +54,7 @@ export function UserProjectsSection({
       ) : null}
 
       {!isLoading && !errorMessage && projects.length === 0 ? (
-        <p className="px-5 py-12 text-center text-sm font-medium text-[#637381] sm:px-7">
+        <p className="px-5 py-12 text-center text-sm font-medium text-[var(--color-brand-stone)] sm:px-7">
           لا توجد مشاريع مرتبطة بهذا المستخدم
         </p>
       ) : null}
@@ -77,13 +77,13 @@ function ProjectRow({ project }: { project: UserProjectWithMeta }) {
   const location = project.location ?? project.city
 
   return (
-    <article className="flex flex-col gap-4 px-5 py-5 transition hover:bg-[#F9FAFB] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <article className="flex flex-col gap-4 px-5 py-5 transition hover:bg-[var(--color-brand-paper)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <div className="min-w-0 text-right">
-        <h3 className="truncate text-base font-bold text-[#111827] sm:text-lg">
+        <h3 className="truncate text-base font-bold text-[var(--color-brand-ink)] sm:text-lg">
           {project.name ?? '—'}
         </h3>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-[#637381]">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-[var(--color-brand-stone)]">
           {project.id ? <span>رقم المشروع: {project.id.toLocaleString('ar-SY')}</span> : null}
           {location ? <span>•</span> : null}
           {location ? <span>{location}</span> : null}
@@ -99,7 +99,7 @@ function ProjectStatusBadge({ status }: { status?: string | null }) {
   const label = getProjectStatusLabel(status)
 
   return (
-    <span className="inline-flex w-fit rounded-full bg-[#00B8D9]/10 px-3 py-1 text-xs font-semibold text-[#00B8D9]">
+    <span className="inline-flex w-fit rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-3 py-1 text-xs font-semibold text-[var(--color-brand-gold)]">
       {label}
     </span>
   )

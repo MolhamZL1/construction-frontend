@@ -1,0 +1,19 @@
+{
+  "name": "متقن - منصة إدارة مشاريع الإكساء",
+  "short_name": "متقن",
+  "description": "منصة متقن لإدارة مشاريع الإكساء ومتابعة التنفيذ والتكاليف.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F2EA",
+  "theme_color": "#1C2624",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

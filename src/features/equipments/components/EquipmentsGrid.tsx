@@ -21,7 +21,7 @@ export function EquipmentsGrid({ equipments, isLoading = false, onCreateMaintena
   const errorMessage = deleteEquipmentMutation.error ? getEquipmentsErrorMessage(deleteEquipmentMutation.error) : null
 
   if (isLoading) {
-    return <LoadingState label="جاري تحميل المعدات..." className="border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.08)]" />
+    return <LoadingState label="جاري تحميل المعدات..." className="border-slate-200 shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]" />
   }
 
   return (
@@ -63,12 +63,12 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
   return (
     <article
       dir="rtl"
-      className="h-[300px] w-[268px] rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-[0_10px_28px_rgba(15,23,42,0.08)]"
+      className="h-[300px] w-[268px] rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.08)]"
     >
       <div className="flex items-start justify-between">
         <StatusBadge status={equipment.status} />
 
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef1ed] text-[#50683f]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M4 17V7h10v10H4ZM14 11h3l3 4v2h-6v-6Z" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
@@ -95,7 +95,7 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
           <button
             type="button"
             onClick={isInMaintenance ? onCloseMaintenance : onCreateMaintenance}
-            className="flex h-9 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-700 transition hover:bg-[#eef4eb] hover:text-[#50683f]"
+            className="flex h-9 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-700 transition hover:bg-[var(--color-brand-gold-surface)] hover:text-[var(--color-brand-ink)]"
             aria-label={isInMaintenance ? 'إغلاق الصيانة' : 'إضافة صيانة'}
             title={isInMaintenance ? 'إغلاق الصيانة' : 'إضافة صيانة'}
           >
@@ -120,7 +120,7 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
 
           <Link
             to={`/equipments/${equipment.id}`}
-            className="inline-flex h-9 w-32 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-4 text-sm font-semibold text-white transition hover:bg-[#435834]"
+            className="inline-flex h-9 w-32 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)]"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />

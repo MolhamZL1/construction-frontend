@@ -13,12 +13,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const progressPercent = clampProgressPercent(project.progressPercent)
 
   return (
-    <article className="relative flex min-h-[265px] flex-col overflow-visible rounded-2xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(15,23,42,0.12)]">
+    <article className="relative flex min-h-[265px] flex-col overflow-visible rounded-2xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgb(var(--color-brand-ink-rgb)/0.12)]">
       <div className="flex items-start justify-between gap-3 px-5 pb-4 pt-5">
         <ProjectActionsMenu projectId={project.id} isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} onClose={() => setIsMenuOpen(false)} />
 
         <div className="min-w-0 flex-1 pt-1">
-          <Link to={`/projects/${project.id}`} className="block text-lg font-extrabold leading-8 text-slate-900 transition hover:text-[#50683f]">
+          <Link to={`/projects/${project.id}`} className="block text-lg font-extrabold leading-8 text-slate-900 transition hover:text-[var(--color-brand-ink)]">
             <span className="line-clamp-2">{project.name}</span>
           </Link>
           <div className="mt-3">
@@ -41,15 +41,16 @@ export function ProjectCard({ project }: ProjectCardProps) {
               <Icon name="progress" className="h-4 w-4 text-slate-400" />
               نسبة الإنجاز
             </span>
-            <span dir="ltr" className="text-sm font-extrabold text-[#50683f]">
+            <span dir="ltr" className="text-sm font-extrabold text-[var(--color-brand-ink)]">
               {progressPercent}%
             </span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-slate-100" dir="ltr">
-            <div className="h-full rounded-full bg-[#50683f] transition-all" style={{ width: `${progressPercent}%` }} />
+            <div className="h-full rounded-full bg-[var(--color-brand-ink)] transition-all" style={{ width: `${progressPercent}%` }} />
           </div>
         </div>
       </div>
+
 
       <div className="mt-auto flex items-center gap-2 border-t border-slate-100 px-5 py-3 text-xs font-medium text-slate-400">
         <Icon name="calendar" className="h-4 w-4 text-slate-400" />
@@ -58,6 +59,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     </article>
   )
 }
+
 
 interface ProjectActionsMenuProps {
   projectId: string
@@ -80,7 +82,7 @@ function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectAct
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-11 z-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
+        <div className="absolute left-0 top-11 z-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgb(var(--color-brand-ink-rgb)/0.18)]">
           <MenuLink to={`/projects/${projectId}`} icon="eye" label="عرض التفاصيل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}`} icon="edit" label="تعديل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/team`} icon="users" label="فريق العمل" onClick={onClose} />
@@ -109,7 +111,7 @@ interface MenuLinkProps {
 
 function MenuLink({ to, icon, label, onClick }: MenuLinkProps) {
   return (
-    <Link to={to} onClick={onClick} className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50 hover:text-[#50683f]">
+    <Link to={to} onClick={onClick} className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
       <Icon name={icon} className="h-4 w-4" />
       {label}
     </Link>

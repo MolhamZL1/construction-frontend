@@ -12,7 +12,7 @@ interface MaterialsTableProps {
 
 export function MaterialsTable({ materials, onDelete, onManageWorkItems }: MaterialsTableProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.07)]">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_35px_rgb(var(--color-brand-ink-rgb)/0.07)]">
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-full text-right text-sm">
           <thead className="bg-slate-100 text-slate-500">
@@ -79,7 +79,7 @@ export function MaterialsTable({ materials, onDelete, onManageWorkItems }: Mater
 function MaterialIdentity({ material }: { material: Material }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef4eb] text-sm font-black text-[#50683f]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-sm font-black text-[var(--color-brand-ink)]">
         {getMaterialInitials(material.name)}
       </span>
       <div className="min-w-0 text-right">
@@ -108,9 +108,9 @@ function WorkItemNames({ names }: { names: string[] }) {
       {names.map((name) => (
         <span
           key={name}
-          className="inline-flex items-center gap-2 rounded-2xl border border-[#50683f]/15 bg-[#eef4eb] px-3 py-2 text-xs font-black text-[#50683f]"
+          className="inline-flex items-center gap-2 rounded-2xl border border-[rgb(var(--color-brand-ink-rgb)/0.15)] bg-[var(--color-brand-gold-surface)] px-3 py-2 text-xs font-black text-[var(--color-brand-ink)]"
         >
-          <span className="h-2 w-2 rounded-full bg-[#50683f]" />
+          <span className="h-2 w-2 rounded-full bg-[var(--color-brand-ink)]" />
           {name}
         </span>
       ))}
@@ -129,7 +129,7 @@ interface IconActionButtonProps {
 function IconActionButton({ label, icon, tone = 'default', to, onClick }: IconActionButtonProps) {
   const className = tone === 'danger'
     ? 'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100'
-    : 'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[#50683f] transition hover:border-[#50683f] hover:bg-[#eef4eb]'
+    : 'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-[var(--color-brand-ink)] transition hover:border-[var(--color-brand-ink)] hover:bg-[var(--color-brand-gold-surface)]'
 
   if (to) {
     return (

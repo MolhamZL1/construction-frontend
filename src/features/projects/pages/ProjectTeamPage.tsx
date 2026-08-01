@@ -72,7 +72,7 @@ export function ProjectTeamPage() {
 
           <p className="text-lg font-bold text-slate-800">المشروع غير موجود</p>
 
-          <Link to="/projects" className="mt-3 inline-flex text-sm font-semibold text-[#50683f] hover:underline">
+          <Link to="/projects" className="mt-3 inline-flex text-sm font-semibold text-[var(--color-brand-ink)] hover:underline">
             العودة للمشاريع
           </Link>
         </div>
@@ -89,7 +89,7 @@ export function ProjectTeamPage() {
 
         <TeamBreadcrumb projectId={projectId} projectName={project.name} current="فريق العمل" />
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.08)] sm:p-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.08)] sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
@@ -104,7 +104,7 @@ export function ProjectTeamPage() {
 
             <Link
               to={`/projects/${projectId}/team/create`}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#435834] active:scale-[0.98]"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -160,7 +160,7 @@ function TeamMembersTable({
   onRemove,
 }: TeamMembersTableProps) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
       <div className="hidden grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] border-b border-slate-100 bg-slate-50/70 px-6 py-4 text-sm font-bold text-slate-700 md:grid">
         <span>عضو الفريق</span>
         <span className="text-center">الدور</span>
@@ -231,12 +231,12 @@ function TeamMemberRow({
           onOpenUser(member.userId)
         }
       }}
-      className="grid cursor-pointer gap-4 px-6 py-5 transition hover:bg-[#50683f]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#50683f]/30 md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center"
+      className="grid cursor-pointer gap-4 px-6 py-5 transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-ink-rgb)/0.3)] md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center"
       aria-label={`فتح معلومات ${member.user?.name ?? `مستخدم #${member.userId}`}`}
       title="فتح معلومات المستخدم"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#50683f]/10 text-[#50683f]">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path
               d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 21a7 7 0 0 1 14 0"
@@ -308,13 +308,13 @@ function TeamBreadcrumb({
 }) {
   return (
     <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-500" aria-label="مسار الصفحة">
-      <Link to="/projects" className="transition hover:text-[#50683f]">
+      <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">
         المشاريع
       </Link>
 
       <ChevronIcon />
 
-      <Link to={`/projects/${projectId}`} className="transition hover:text-[#50683f]">
+      <Link to={`/projects/${projectId}`} className="transition hover:text-[var(--color-brand-ink)]">
         {projectName}
       </Link>
 
@@ -335,7 +335,7 @@ function ChevronIcon() {
 
 function RoleBadge({ role }: { role: ProjectEngineerRole }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-[#50683f]/10 px-3 py-1.5 text-xs font-bold text-[#50683f]">
+    <span className="inline-flex items-center gap-2 rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-3 py-1.5 text-xs font-bold text-[var(--color-brand-ink)]">
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M12 3l7 3v5c0 4.4-2.8 8.3-7 10-4.2-1.7-7-5.6-7-10V6l7-3Z" />
         <path d="M9.5 12l1.7 1.7 3.5-4" strokeLinecap="round" strokeLinejoin="round" />

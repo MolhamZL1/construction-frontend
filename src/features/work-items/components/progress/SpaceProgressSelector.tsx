@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/authStore'
+import { useState } from 'react'
 import { spaceTypeLabels } from '@/features/projects/constants/project-spaces'
 import type { WorkItemProgressRequest } from '../../models/work-item-progress-request.model'
 import {
@@ -8,6 +10,7 @@ import {
 } from '../../models/work-item-progress-request.model'
 import type { WorkItemProgressSpace } from '../../models/work-item-space-progress.model'
 import { ProgressPhotoThumbs } from './ProgressPhotoThumbs'
+import { ProgressRequestAiInspectionDialog } from './ProgressRequestAiInspectionDialog'
 import { WorkItemIcon } from '../WorkItemIcon'
 
 interface SpaceProgressSelectorProps {
@@ -21,11 +24,11 @@ interface SpaceProgressSelectorProps {
   errorMessage?: string
   progressRequests?: WorkItemProgressRequest[]
   canReviewRequests?: boolean
+  showPendingRequests?: boolean
+  showPendingSpacesAsUnfinished?: boolean
   onApproveRequest?: (request: WorkItemProgressRequest) => void
   onRejectRequest?: (request: WorkItemProgressRequest) => void
 }
-
-
 
 function SpaceStatusBadge({ tone, label }: { tone: 'pending' | 'approved' | 'rejected' | 'finished'; label: string }) {
   const iconName = tone === 'pending' ? 'pending' : tone === 'rejected' ? 'reject' : 'check'
@@ -60,7 +63,7 @@ export function ReviewIconButton({
       title={isApprove ? 'اعتماد الطلب' : 'رفض الطلب'}
       className={`inline-flex h-10 w-10 items-center justify-center rounded-xl transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
         isApprove
-          ? 'bg-[#50683f] text-white hover:bg-[#405633] focus:ring-[#50683f]'
+          ? 'bg-[var(--color-brand-ink)] text-white hover:bg-[var(--color-brand-ink)] focus:ring-[var(--color-brand-gold)]'
           : 'border border-rose-100 bg-white text-rose-600 hover:bg-rose-50 focus:ring-rose-400'
       }`}
     >
@@ -151,10 +154,10 @@ function SpaceCard({
       disabled={disabled}
       className={`rounded-2xl border px-4 py-3 text-right transition disabled:cursor-not-allowed disabled:opacity-70 ${
         selected
-          ? 'border-[#50683f] bg-[#50683f]/10 text-[#50683f] shadow-sm'
+          ? 'border-[var(--color-brand-ink)] bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)] shadow-sm'
           : disabled
             ? 'border-slate-200 bg-slate-50 text-slate-400'
-            : 'border-slate-200 bg-white text-slate-700 hover:border-[#50683f]/40 hover:bg-[#50683f]/5'
+            : 'border-slate-200 bg-white text-slate-700 hover:border-[rgb(var(--color-brand-ink-rgb)/0.4)] hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)]'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -162,7 +165,7 @@ function SpaceCard({
           <p className="text-sm font-black">{getSpaceLabel(space)}</p>
           <SpaceMeta space={space} />
         </div>
-        {selected ? <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-[#50683f]" /> : null}
+        {selected ? <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-[var(--color-brand-ink)]" /> : null}
       </div>
     </button>
   )
@@ -244,6 +247,9 @@ function RequestSpaceCard({
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
 }) {
+  const role = useAuthStore((state) => state.user?.role)
+  const canAiInspect = role === 'project_manager' || role === 'engineer'
+  const [isAiInspectionOpen, setIsAiInspectionOpen] = useState(false)
   const toneClass = tone === 'pending'
     ? 'border-amber-100 bg-amber-50/70 text-amber-800'
     : tone === 'rejected'
@@ -255,117 +261,82 @@ function RequestSpaceCard({
       ? 'text-rose-700 ring-rose-100'
       : 'text-emerald-700 ring-emerald-100'
   const badgeLabel = tone === 'pending' ? 'معلّق' : tone === 'rejected' ? 'مرفوض' : 'مقبول'
-const requestMetaItems: Array<{ label: string; value: string }> = []
+  const requestMetaItems: Array<{ label: string; value: string }> = []
 
-if (request.requester?.name) {
-  requestMetaItems.push({
-    label: tone === 'pending' ? 'أرسل الطلب' : 'أرسل بواسطة',
-    value: request.requester.name,
-  })
-}
+  if (request.requester?.name) requestMetaItems.push({ label: tone === 'pending' ? 'أرسل الطلب' : 'أرسل بواسطة', value: request.requester.name })
+  if (request.createdAt) requestMetaItems.push({ label: 'تاريخ الطلب', value: formatDateTime(request.createdAt) })
+  if (tone === 'rejected' && request.reviewer?.name) requestMetaItems.push({ label: 'رفض بواسطة', value: request.reviewer.name })
+  if (tone === 'rejected' && request.reviewedAt) requestMetaItems.push({ label: 'تاريخ الرفض', value: formatDateTime(request.reviewedAt) })
+  if (tone === 'approved' && request.reviewer?.name) requestMetaItems.push({ label: 'اعتمد بواسطة', value: request.reviewer.name })
+  if (tone === 'approved' && request.reviewedAt) requestMetaItems.push({ label: 'تاريخ الاعتماد', value: formatDateTime(request.reviewedAt) })
 
-if (request.createdAt) {
-  requestMetaItems.push({
-    label: 'تاريخ الطلب',
-    value: formatDateTime(request.createdAt),
-  })
-}
-
-if (tone === 'rejected' && request.reviewer?.name) {
-  requestMetaItems.push({
-    label: 'رفض بواسطة',
-    value: request.reviewer.name,
-  })
-}
-
-if (tone === 'rejected' && request.reviewedAt) {
-  requestMetaItems.push({
-    label: 'تاريخ الرفض',
-    value: formatDateTime(request.reviewedAt),
-  })
-}
-
-if (tone === 'approved' && request.reviewer?.name) {
-  requestMetaItems.push({
-    label: 'اعتمد بواسطة',
-    value: request.reviewer.name,
-  })
-}
-
-if (tone === 'approved' && request.reviewedAt) {
-  requestMetaItems.push({
-    label: 'تاريخ الاعتماد',
-    value: formatDateTime(request.reviewedAt),
-  })
-}
- return (
-  <article className={`rounded-2xl border p-4 text-right ${toneClass}`}>
-    <div className="space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-black">
-              {space ? getSpaceLabel(space) : `فراغ #${getProgressRequestSpaceId(request) || 'غير محدد'}`}
-            </p>
-
-            <span className={`rounded-full bg-white px-2.5 py-1 text-[11px] font-black ring-1 ${badgeClass}`}>
-              {badgeLabel}
-            </span>
-          </div>
-
-          {space ? <SpaceMeta space={space} /> : null}
-        </div>
-      </div>
-
-      {requestMetaItems.length > 0 ? (
-        <div className="rounded-xl border border-white/70 bg-white/70 px-3 py-2">
-          <div className="space-y-1.5">
-            {requestMetaItems.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-3 text-xs">
-                <span className="shrink-0 font-bold opacity-75">{item.label}</span>
-                <span className="truncate font-black">{item.value}</span>
+  return (
+    <>
+      <article className={`rounded-2xl border p-4 text-right ${toneClass}`}>
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-black">{space ? getSpaceLabel(space) : `فراغ #${getProgressRequestSpaceId(request) || 'غير محدد'}`}</p>
+                <span className={`rounded-full bg-white px-2.5 py-1 text-[11px] font-black ring-1 ${badgeClass}`}>{badgeLabel}</span>
               </div>
-            ))}
+              {space ? <SpaceMeta space={space} /> : null}
+            </div>
           </div>
-        </div>
-      ) : null}
 
-      {tone === 'rejected' && request.comment ? (
-        <div className="rounded-xl border border-rose-100 bg-white/80 px-3 py-2">
-          <p className="text-[11px] font-black text-rose-500">سبب الرفض</p>
-          <p className="mt-1 text-xs font-bold leading-5 text-rose-800">{request.comment}</p>
-        </div>
-      ) : null}
+          {requestMetaItems.length > 0 ? (
+            <div className="rounded-xl border border-white/70 bg-white/70 px-3 py-2">
+              <div className="space-y-1.5">
+                {requestMetaItems.map((item) => (
+                  <div key={item.label} className="flex items-center justify-between gap-3 text-xs">
+                    <span className="shrink-0 font-bold opacity-75">{item.label}</span>
+                    <span className="truncate font-black">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
-      {request.photos.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-xs font-black opacity-80">صور الطلب</p>
-          <ProgressPhotoThumbs photos={request.photos} />
-        </div>
-      ) : null}
+          {tone === 'rejected' && request.comment ? (
+            <div className="rounded-xl border border-rose-100 bg-white/80 px-3 py-2">
+              <p className="text-[11px] font-black text-rose-500">سبب الرفض</p>
+              <p className="mt-1 text-xs font-bold leading-5 text-rose-800">{request.comment}</p>
+            </div>
+          ) : null}
 
-      {tone === 'pending' && canReview ? (
-        <div className="flex flex-wrap gap-2 border-t border-white/70 pt-3">
-          <button
-            type="button"
-            onClick={() => onApprove?.(request)}
-            className="inline-flex h-9 items-center justify-center rounded-xl bg-[#50683f] px-4 text-xs font-extrabold text-white transition hover:bg-[#405633]"
-          >
-            اعتماد
-          </button>
+          {request.photos.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-xs font-black opacity-80">صور الطلب</p>
+              <ProgressPhotoThumbs photos={request.photos} />
+            </div>
+          ) : null}
 
-          <button
-            type="button"
-            onClick={() => onReject?.(request)}
-            className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-white px-4 text-xs font-extrabold text-rose-600 transition hover:bg-rose-50"
-          >
-            رفض
-          </button>
+          {tone === 'pending' && (canReview || canAiInspect) ? (
+            <div className="flex flex-wrap gap-2 border-t border-white/70 pt-3">
+              {canAiInspect ? (
+                <button type="button" data-ai-inspection-action="true" onMouseDown={(event) => { event.preventDefault(); event.stopPropagation() }} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setIsAiInspectionOpen(true) }} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[var(--color-brand-gold-surface)] px-3 text-xs font-black text-[var(--color-brand-ink)] transition hover:shadow-sm">
+                  <RobotMiniIcon />
+                  فحص الجودة
+                </button>
+              ) : null}
+              {canReview ? (
+                <>
+                  <button type="button" onClick={() => onApprove?.(request)} className="inline-flex h-9 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-4 text-xs font-extrabold text-white transition hover:bg-[var(--color-brand-ink-soft)]">اعتماد</button>
+                  <button type="button" onClick={() => onReject?.(request)} className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-white px-4 text-xs font-extrabold text-rose-600 transition hover:bg-rose-50">رفض</button>
+                </>
+              ) : null}
+            </div>
+          ) : null}
         </div>
-      ) : null}
-    </div>
-  </article>
-)
+      </article>
+
+      <ProgressRequestAiInspectionDialog request={request} isOpen={isAiInspectionOpen} onClose={() => setIsAiInspectionOpen(false)} />
+    </>
+  )
+}
+
+function RobotMiniIcon() {
+  return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 3v3M8 6h8a4 4 0 0 1 4 4v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-5a4 4 0 0 1 4-4Z" strokeLinecap="round" strokeLinejoin="round" /><path d="M9 13h.01M15 13h.01M9.5 17h5" strokeLinecap="round" /></svg>
 }
 
 export function FinishedSpacesGrid({ spaces, approvedRequests = [] }: { spaces: WorkItemProgressSpace[]; approvedRequests?: WorkItemProgressRequest[] }) {
@@ -391,6 +362,8 @@ export function SpaceProgressSelector({
   errorMessage,
   progressRequests = [],
   canReviewRequests,
+  showPendingRequests = true,
+  showPendingSpacesAsUnfinished = false,
   onApproveRequest,
   onRejectRequest,
 }: SpaceProgressSelectorProps) {
@@ -399,6 +372,9 @@ export function SpaceProgressSelector({
   const approvedRequests = progressRequests.filter(isApprovedProgressRequest)
   const pendingSpaceIds = new Set(pendingRequests.map(getProgressRequestSpaceId).filter(Boolean))
   const selectableUnfinishedSpaces = unfinishedSpaces.filter((space) => !pendingSpaceIds.has(space.id))
+  const visibleUnfinishedSpaces = readOnly || showPendingSpacesAsUnfinished
+    ? unfinishedSpaces
+    : selectableUnfinishedSpaces
   const allSpacesById = [...finishedSpaces, ...unfinishedSpaces].reduce<Record<string, WorkItemProgressSpace>>((current, space) => {
     current[space.id] = space
     return current
@@ -427,7 +403,7 @@ export function SpaceProgressSelector({
 
   return (
     <div className="space-y-5">
-      {pendingRequests.length > 0 ? (
+      {showPendingRequests && pendingRequests.length > 0 ? (
         <div>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-black text-amber-800">الفراغات المعلّقة</h3>
@@ -454,17 +430,17 @@ export function SpaceProgressSelector({
 
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-base font-black text-slate-800">{readOnly ? 'الفراغات غير المنجزة' : 'الفراغات غير المنجزة المتاحة'}</h3>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">{readOnly ? unfinishedSpaces.length : selectableUnfinishedSpaces.length} فراغ</span>
+          <h3 className="text-base font-black text-slate-800">{readOnly || showPendingSpacesAsUnfinished ? 'الفراغات غير المنجزة' : 'الفراغات غير المنجزة المتاحة'}</h3>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">{visibleUnfinishedSpaces.length} فراغ</span>
         </div>
-        {(readOnly ? unfinishedSpaces : selectableUnfinishedSpaces).length > 0 ? (
+        {visibleUnfinishedSpaces.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {(readOnly ? unfinishedSpaces : selectableUnfinishedSpaces).map((space) => (
+            {visibleUnfinishedSpaces.map((space) => (
               <SpaceCard
                 key={space.id}
                 space={space}
                 selected={selectedSpaceId === space.id}
-                disabled={disabled}
+                disabled={disabled || (showPendingSpacesAsUnfinished && pendingSpaceIds.has(space.id))}
                 readOnly={readOnly}
                 onClick={() => onSelect(space.id)}
               />
@@ -472,7 +448,11 @@ export function SpaceProgressSelector({
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
-            {pendingRequests.length > 0 && !readOnly ? 'كل الفراغات غير المنجزة عليها طلبات معلّقة حالياً.' : 'لا توجد فراغات غير منجزة لهذا البند.'}
+            {readOnly || showPendingSpacesAsUnfinished
+              ? 'لا توجد فراغات غير منجزة لهذا البند.'
+              : showPendingRequests && pendingRequests.length > 0
+                ? 'كل الفراغات غير المنجزة عليها طلبات معلّقة حالياً.'
+                : 'لا توجد فراغات غير منجزة متاحة لهذا البند.'}
           </div>
         )}
       </div>

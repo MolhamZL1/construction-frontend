@@ -20,10 +20,10 @@ export function FinishedSpacesProgressSection({ projectId, item }: FinishedSpace
     : (spacesProgressQuery.data?.finished ?? [])
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black text-[#50683f]">توثيق الفراغات</p>
+          <p className="text-xs font-black text-[var(--color-brand-ink)]">توثيق الفراغات</p>
           <h2 className="mt-1 text-xl font-black text-slate-900">الفراغات المنجزة لهذا البند</h2>
           <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">تظهر الصور المصغرة داخل البطاقة، ويمكن فتح الصورة بالضغط عليها.</p>
         </div>

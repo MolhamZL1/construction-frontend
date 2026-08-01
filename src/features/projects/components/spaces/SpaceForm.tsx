@@ -36,7 +36,7 @@ interface FormState {
 }
 
 const inputClass =
-  'h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10'
+  'h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 const labelClass = 'mb-2 block text-sm font-extrabold text-slate-700'
 const helperClass = 'mt-2 text-xs font-semibold leading-5 text-slate-400'
 
@@ -110,7 +110,7 @@ export function SpaceForm({ initialSpace, isSubmitting = false, errorMessage, su
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
       {errorMessage ? (
         <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
           {errorMessage}
@@ -218,7 +218,7 @@ export function SpaceForm({ initialSpace, isSubmitting = false, errorMessage, su
       {showToiletQuestion ? (
         <div className="mt-5 rounded-3xl border border-slate-100 bg-slate-50/70 p-4">
           <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#50683f] shadow-sm">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--color-brand-ink)] shadow-sm">
               <SpaceIcon name="toilet" className="h-6 w-6" />
             </span>
             <div>
@@ -256,7 +256,7 @@ export function SpaceForm({ initialSpace, isSubmitting = false, errorMessage, su
         <div className="mt-5 rounded-3xl border border-slate-100 bg-slate-50/70 p-4">
           <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 shadow-sm">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
                 <SpaceIcon name="shed" className="h-6 w-6" />
               </span>
               <div>
@@ -268,7 +268,7 @@ export function SpaceForm({ initialSpace, isSubmitting = false, errorMessage, su
               type="checkbox"
               checked={form.isShedFloorTiled}
               onChange={(event) => updateField('isShedFloorTiled', event.target.checked)}
-              className="h-5 w-5 accent-[#50683f]"
+              className="h-5 w-5 accent-[var(--color-brand-ink)]"
             />
           </label>
         </div>
@@ -278,7 +278,7 @@ export function SpaceForm({ initialSpace, isSubmitting = false, errorMessage, su
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-6 text-sm font-black text-white shadow-sm transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-6 text-sm font-black text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           <SpaceIcon name="plus" className="h-5 w-5" />
           {isSubmitting ? 'جاري الحفظ...' : submitLabel}

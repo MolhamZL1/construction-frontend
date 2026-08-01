@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { approveProgressRequest, listWorkItemProgressRequests, rejectProgressRequest } from '../api/work-item-progress-requests.api'
 import { workItemSpacesProgressKeys } from './useWorkItemSpacesProgress'
 import { workItemsKeys } from './useWorkItems'
+import { useAuthStore } from '@/stores/authStore'
 
 export const workItemProgressRequestsKeys = {
   all: ['work-item-progress-requests'] as const,
@@ -21,11 +22,25 @@ function invalidateProgressRequests(queryClient: ReturnType<typeof useQueryClien
   }
 }
 
-export function useWorkItemProgressRequests(projectId?: string, workItemId?: string, enabled = true) {
+export function useWorkItemProgressRequests(
+  projectId?: string,
+  workItemId?: string,
+  enabled = true,
+) {
+  const userRole = useAuthStore((state) => state.user?.role)
+  const canAccessProgressRequests =
+    userRole === 'project_manager' || userRole === 'engineer'
+  const queryEnabled = Boolean(
+    enabled && canAccessProgressRequests && projectId && workItemId,
+  )
+
   return useQuery({
-    queryKey: workItemProgressRequestsKeys.list(projectId ?? '', workItemId ?? ''),
+    queryKey: canAccessProgressRequests
+      ? workItemProgressRequestsKeys.list(projectId ?? '', workItemId ?? '')
+      : [...workItemProgressRequestsKeys.all, 'disabled', userRole ?? 'guest'] as const,
     queryFn: () => listWorkItemProgressRequests(projectId ?? '', workItemId ?? ''),
-    enabled: Boolean(enabled && projectId && workItemId),
+    enabled: queryEnabled,
+    retry: false,
   })
 }
 

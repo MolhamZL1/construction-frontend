@@ -49,7 +49,7 @@ export function ProjectInvoicesPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="text-right">
-            <Link to={`/projects/${id}`} className="mb-3 inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+            <Link to={`/projects/${id}`} className="mb-3 inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
               <InvoiceIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
               العودة إلى تفاصيل المشروع
             </Link>
@@ -61,7 +61,7 @@ export function ProjectInvoicesPage() {
               <InvoiceIcon name="archive" className="h-4 w-4" />
               الفواتير المؤرشفة
             </Link>
-            <Link to={`/projects/${id}/invoices/create`} className="inline-flex items-center gap-2 rounded-2xl bg-[#50683f] px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#405233]">
+            <Link to={`/projects/${id}/invoices/create`} className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)]">
               <InvoiceIcon name="plus" className="h-4 w-4" />
               إنشاء فاتورة
             </Link>
@@ -69,7 +69,7 @@ export function ProjectInvoicesPage() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_38px_rgba(15,23,42,0.06)]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_14px_38px_rgb(var(--color-brand-ink-rgb)/0.06)]">
             <div className="flex items-center justify-between gap-4">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                 <InvoiceIcon name="wallet" className="h-6 w-6" />
@@ -81,7 +81,7 @@ export function ProjectInvoicesPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_38px_rgba(15,23,42,0.06)]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_38px_rgb(var(--color-brand-ink-rgb)/0.06)]">
             <label className="relative block">
               <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400">
                 <InvoiceIcon name="search" className="h-5 w-5" />
@@ -90,7 +90,7 @@ export function ProjectInvoicesPage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="البحث في الفواتير..."
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-white pr-12 pl-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-white pr-12 pl-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
               />
             </label>
           </div>

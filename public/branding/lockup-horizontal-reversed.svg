@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260">
+<g transform="translate(27,36.400000000000006) scale(1.5599999999999998)">
+<rect x="14" y="14" width="44" height="44" rx="10" fill="none" stroke="#F6F2EA" stroke-width="7"></rect>
+<rect x="68" y="14" width="44" height="44" rx="10" fill="none" stroke="#F6F2EA" stroke-width="7"></rect>
+<rect x="14" y="68" width="44" height="44" rx="10" fill="none" stroke="#F6F2EA" stroke-width="7"></rect>
+<rect x="68" y="68" width="44" height="44" rx="10" fill="#C99A46"></rect>
+<polyline points="80,92 88,100 102,80" fill="none" stroke="#F6F2EA" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+</g>
+<text x="250.2" y="124.8" text-anchor="start" font-family="Tajawal, Arial, sans-serif" font-weight="800" font-size="83.2" fill="#F6F2EA">مُتقِن</text>
+<text x="250.2" y="202.8" text-anchor="start" font-family="Tajawal, Arial, sans-serif" font-weight="700" font-size="28.6" letter-spacing="4" fill="#C99A46">MUTQIN</text>
+</svg>

@@ -30,7 +30,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
       <div className="mb-6">
         <h2 className="text-xl font-black text-slate-900">معلومات البند</h2>
         <p className="mt-1 text-sm font-semibold text-slate-500">يمكن تعديل المدة ومستوى الجودة لاحقاً من جدول بنود العمل قبل بدء البند.</p>
@@ -45,7 +45,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
             value={name}
             onChange={(event) => setName(event.target.value)}
             required
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white"
             placeholder="مثال: عزل الحمامات"
           />
         </label>
@@ -57,7 +57,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
             min="1"
             value={durationDays}
             onChange={(event) => setDurationDays(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white"
             placeholder="7"
           />
         </label>
@@ -69,7 +69,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
             min="1"
             value={sortOrder}
             onChange={(event) => setSortOrder(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white"
           />
         </label>
 
@@ -78,7 +78,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
           <select
             value={qualityLevel}
             onChange={(event) => setQualityLevel(event.target.value as WorkItemQualityLevel)}
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white"
           >
             <option value="basic">{workItemQualityLabels.basic}</option>
             <option value="good">{workItemQualityLabels.good}</option>
@@ -103,7 +103,7 @@ export function WorkItemForm({ isSubmitting = false, errorMessage, onSubmit, onC
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-11 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:opacity-60"
         >
           {isSubmitting ? 'جاري الحفظ...' : 'حفظ البند'}
         </button>

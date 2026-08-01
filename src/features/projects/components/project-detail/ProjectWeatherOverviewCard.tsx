@@ -59,11 +59,11 @@ export function ProjectWeatherOverviewCard({
   return (
     <Link
       to={`/projects/${projectId}/weather`}
-      className="group inline-flex w-full max-w-[280px] items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2.5 text-right transition hover:border-[#50683f]/20 hover:bg-[#50683f]/5"
+      className="group inline-flex w-full max-w-[280px] items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2.5 text-right transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.25)] hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)]"
       aria-label="عرض تفاصيل طقس المشروع"
     >
       <div className="flex min-w-0 items-center gap-2.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#50683f] shadow-sm">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--color-brand-ink)] shadow-sm">
           <ProjectDetailIcon name={icon} className="h-5 w-5" />
         </span>
 
@@ -83,7 +83,7 @@ export function ProjectWeatherOverviewCard({
 
         <ProjectDetailIcon
           name="arrow"
-          className="h-4 w-4 rotate-180 text-slate-400 transition group-hover:text-[#50683f]"
+          className="h-4 w-4 rotate-180 text-slate-400 transition group-hover:text-[var(--color-brand-ink)]"
         />
       </div>
     </Link>

@@ -62,7 +62,7 @@ export function ProjectWeatherPage() {
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+            <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
               <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
               العودة إلى تفاصيل المشروع
             </Link>
@@ -82,7 +82,7 @@ export function ProjectWeatherPage() {
           isError={todayWeatherQuery.isError}
         />
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.07)] sm:p-7">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-7">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-2xl font-extrabold text-slate-900">البحث بتاريخ محدد</h2>
@@ -172,7 +172,7 @@ function SelectedDateWeather({ weather, cards }: { weather: ProjectWeatherByDate
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.key} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.05)]">
+          <div key={card.key} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.05)]">
             <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600">
               <ProjectDetailIcon name={card.icon} className="h-6 w-6" />
             </div>

@@ -8,9 +8,9 @@ const roleLabels: Record<UserRole, string> = {
 }
 
 const roleClasses: Record<UserRole, string> = {
-  company_admin: 'bg-slate-100 text-[#637381]',
-  project_manager: 'bg-[#4A5C3F]/10 text-[#4A5C3F]',
-  assistant: 'bg-[#00B8D9]/10 text-[#00B8D9]',
+  company_admin: 'bg-slate-100 text-[var(--color-brand-stone)]',
+  project_manager: 'bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]',
+  assistant: 'bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-gold)]',
   project_owner: 'bg-emerald-50 text-emerald-600',
 }
 

@@ -18,7 +18,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 const inputClass =
-  'h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10'
+  'h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
 interface CreateProjectFormProps {
   onCreated?: (project: Project) => void
@@ -108,7 +108,7 @@ export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
       <button
         type="submit"
         disabled={mutation.isPending}
-        className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#50683f] px-6 text-sm font-semibold text-white transition hover:bg-[#435834] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {mutation.isPending ? 'جاري الحفظ...' : 'حفظ المشروع والمتابعة'}
       </button>

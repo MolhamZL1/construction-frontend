@@ -23,12 +23,12 @@ export function UsersTable({
   return (
     <section
       dir="rtl"
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.10)]"
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgb(var(--color-brand-ink-rgb)/0.10)]"
     >
       <div className="hidden md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full text-right text-sm">
-            <thead className="bg-[#F4F6F8] text-[#637381]">
+            <thead className="bg-[var(--color-brand-paper)] text-[var(--color-brand-stone)]">
               <tr>
                 <th className="px-5 py-4 font-semibold">المستخدم</th>
                 <th className="px-5 py-4 font-semibold">الدور</th>
@@ -77,7 +77,7 @@ function UserRow({
   const navigate = useNavigate()
 
   return (
-    <tr className="text-[#637381] transition hover:bg-[#F9FAFB]">
+    <tr className="text-[var(--color-brand-stone)] transition hover:bg-[var(--color-brand-paper)]">
       <td className="px-5 py-4">
         <UserIdentity user={user} />
       </td>
@@ -187,7 +187,7 @@ function UserCard({
 function UserIdentity({ user }: { user: User }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[#50683f]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[var(--color-brand-ink)]">
         <svg
           className="h-5 w-5"
           viewBox="0 0 24 24"
@@ -201,11 +201,11 @@ function UserIdentity({ user }: { user: User }) {
       </div>
 
       <div className="min-w-0 text-right">
-        <p className="truncate font-semibold text-[#1A2027]">
+        <p className="truncate font-semibold text-[var(--color-brand-ink)]">
           {user.name ?? '—'}
         </p>
 
-        <p className="mt-1 truncate text-xs font-medium text-[#637381]" dir="ltr">
+        <p className="mt-1 truncate text-xs font-medium text-[var(--color-brand-stone)]" dir="ltr">
           {user.internal_id ?? '—'}
         </p>
       </div>
@@ -242,8 +242,8 @@ function IconActionButton({
       disabled={disabled}
       className={
         tone === 'danger'
-          ? 'inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#FF5630] transition hover:bg-[#FF5630]/10 disabled:cursor-not-allowed disabled:opacity-50'
-          : 'inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#637381] transition hover:bg-slate-100 hover:text-[#4A5C3F] disabled:cursor-not-allowed disabled:opacity-50'
+          ? 'inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-danger)] transition hover:bg-[rgb(var(--color-danger-rgb)/0.1)] disabled:cursor-not-allowed disabled:opacity-50'
+          : 'inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-brand-stone)] transition hover:bg-slate-100 hover:text-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-50'
       }
       aria-label={label}
       title={label}

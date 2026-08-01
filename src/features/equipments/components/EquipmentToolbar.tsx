@@ -19,7 +19,7 @@ export function EquipmentToolbar({
   onStatusChange,
 }: EquipmentToolbarProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:p-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)] sm:p-6">
       <div className="flex flex-col gap-3 lg:flex-row">
         <SearchInput
           value={search}
@@ -43,8 +43,8 @@ export function EquipmentToolbar({
               onClick={() => onStatusChange(item.value)}
               className={
                 isSelected
-                  ? 'h-10 rounded-lg bg-[#50683f] px-4 text-sm font-semibold text-white shadow-sm'
-                  : 'h-10 rounded-lg bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition hover:bg-[#eef4eb] hover:text-[#50683f]'
+                  ? 'h-10 rounded-lg bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white shadow-sm'
+                  : 'h-10 rounded-lg bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition hover:bg-[var(--color-brand-gold-surface)] hover:text-[var(--color-brand-ink)]'
               }
             >
               {item.label}

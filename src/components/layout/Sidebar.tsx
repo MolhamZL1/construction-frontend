@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { isInternalUser } from '@/features/auth/utils/auth-navigation'
-import { cn } from '@/utils/cn'
-import { useAuthStore } from '@/stores/authStore'
+
+import { BrandLogo } from '@/components/brand/BrandLogo'
 import { useUIStore } from '@/stores/uiStore'
+import { cn } from '@/utils/cn'
 
 interface SidebarLink {
   label: string
@@ -11,87 +12,70 @@ interface SidebarLink {
 }
 
 const links: SidebarLink[] = [
-  {
-    label: 'لوحة التحكم',
-    to: '/dashboard',
-    icon: 'grid',
-  },
-  {
-    label: 'المشاريع',
-    to: '/projects',
-    icon: 'projects',
-  },
-  {
-    label: 'المستخدمون',
-    to: '/users',
-    icon: 'users',
-  },
-  {
-    label: 'المعدات',
-    to: '/equipments',
-    icon: 'equipment',
-  },
-  {
-    label: 'المواد',
-    to: '/materials',
-    icon: 'box',
-  },
+  { label: 'لوحة التحكم', to: '/dashboard', icon: 'grid' },
+  { label: 'المشاريع', to: '/projects', icon: 'projects' },
+  { label: 'المستخدمون', to: '/users', icon: 'users' },
+  { label: 'المعدات', to: '/equipments', icon: 'equipment' },
+  { label: 'المواد', to: '/materials', icon: 'box' },
 ]
 
-const roleLabels: Record<string, string> = {
-  company_admin: 'مدير الشركة',
-  project_manager: 'مدير مشروع',
-  assistant: 'مساعد',
-  project_owner: 'مالك مشروع',
-}
-
 export function Sidebar() {
-  const user = useAuthStore((state) => state.user)
   const sidebarOpen = useUIStore((state) => state.sidebarOpen)
   const toggleSidebar = useUIStore((state) => state.toggleSidebar)
-  const displayName = user?.name?.trim() || 'مستخدم النظام'
-  const roleLabel = user?.role ? roleLabels[user.role] ?? user.role : 'غير محدد'
-  const visibleLinks = isInternalUser(user) ? links.filter((link) => link.to === '/projects') : links
+  const [logoRotation, setLogoRotation] = useState(0)
+
+  function handleLogoClick() {
+    setLogoRotation((currentRotation) => currentRotation + 360)
+    toggleSidebar()
+  }
+
   return (
     <aside
       className={cn(
-        'flex w-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-[0_1px_4px_rgba(15,23,42,0.04)] transition-[width,padding] duration-200 lg:h-screen lg:border-b-0 lg:border-l lg:border-slate-200 lg:py-5',
-        sidebarOpen ? 'lg:w-72 lg:px-5' : 'lg:w-20 lg:px-3'
+        'flex w-full flex-col border-b border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white px-4 py-4 shadow-[0_1px_4px_rgb(var(--color-brand-ink-rgb)/0.04)] transition-[width,padding] duration-300 lg:h-screen lg:border-b-0 lg:border-l lg:py-5',
+        sidebarOpen ? 'lg:w-72 lg:px-5' : 'lg:w-20 lg:px-3',
       )}
       dir="rtl"
     >
-      <div className={cn('mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 lg:mb-6', !sidebarOpen && 'lg:justify-center lg:px-2')}>
-      
-        <div className={cn('min-w-0 flex-1 text-right transition-opacity', !sidebarOpen && 'lg:hidden')}>
-          <p className="truncate text-sm font-semibold text-slate-950">{displayName}</p>
-          <p className="mt-0.5 truncate text-xs font-medium text-[#50683f]">{roleLabel}</p>
-        </div><button
-              type="button"
-              onClick={toggleSidebar}
-              className="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-[#50683f] lg:flex"
-              aria-label={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
-              title={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-                <path d="M4 5h16M4 12h16M4 19h16" strokeLinecap="round" />
-              </svg>
-            </button>
+      <div
+        className={cn(
+          'mb-4 flex min-h-[68px] items-center rounded-2xl border border-[rgb(var(--color-brand-gold-rgb)/0.2)] bg-[var(--color-brand-paper)] px-3 shadow-[0_10px_26px_rgb(var(--color-brand-ink-rgb)/0.05)] transition-[min-height,padding,border-color,background-color,box-shadow] duration-300 hover:border-[rgb(var(--color-brand-gold-rgb)/0.45)] hover:bg-[var(--color-brand-paper-hover)] lg:mb-6',
+          sidebarOpen ? 'justify-between gap-4' : 'justify-center lg:min-h-[68px] lg:px-2',
+        )}
+      >
+        <div className={cn('min-w-0 flex-1 text-right transition-opacity duration-200', !sidebarOpen && 'lg:hidden')}>
+          <BrandLogo variant="wordmark" className="mr-0 w-[104px]" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleLogoClick}
+          className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.22)] bg-white/85 shadow-sm transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.58)] hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-gold-rgb)/0.45)]"
+          aria-label={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
+          title={sidebarOpen ? 'تصغير القائمة الجانبية' : 'توسيع القائمة الجانبية'}
+        >
+          <span
+            className="flex transform-gpu items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{ transform: `rotate(${logoRotation}deg)` }}
+          >
+            <BrandLogo variant="mark" className="h-6 w-6" decorative />
+          </span>
+        </button>
       </div>
 
-
       <nav className="flex gap-2 overflow-x-auto pb-2 lg:flex-1 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0" aria-label="القائمة الرئيسية">
-        {visibleLinks.map((link) => (
+        {links.map((link) => (
           <NavLink
             key={link.label}
             to={link.to}
             end
             className={({ isActive }) =>
               cn(
-                'group flex h-10 shrink-0 items-center justify-start gap-3 rounded-lg px-4 text-sm font-medium transition lg:h-11 lg:w-full',
+                'group flex h-10 shrink-0 items-center justify-start gap-3 rounded-xl px-4 text-sm font-bold transition lg:h-11 lg:w-full',
                 !sidebarOpen && 'lg:justify-center lg:px-0',
                 isActive
-                  ? 'bg-[#50683f] text-white shadow-sm'
-                  : 'text-slate-500 hover:bg-[#eef4eb] hover:text-[#50683f]'
+                  ? 'bg-[var(--color-brand-ink)] text-white shadow-[0_10px_24px_rgb(var(--color-brand-ink-rgb)/0.18)]'
+                  : 'text-[var(--color-brand-stone)] hover:bg-[var(--color-brand-gold-surface)] hover:text-[var(--color-brand-ink)]',
               )
             }
           >
@@ -126,15 +110,7 @@ function MenuIcon({ name }: { name: string }) {
   if (name === 'users') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM3.5 20a5.5 5.5 0 0 1 11 0M17 9a3 3 0 1 0 0-6M16 14a4.5 4.5 0 0 1 4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'materials') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM3 21v-3a6 6 0 0 1 12 0v3M16 8a3 3 0 0 1 0 6M17 16a5 5 0 0 1 4 5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
@@ -142,115 +118,15 @@ function MenuIcon({ name }: { name: string }) {
   if (name === 'equipment') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 7h10v8H4zM14 10h4l2 3v2h-6zM7 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'list') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M9 7h10M9 12h10M9 17h10M4.5 7l1 1 2-2M4.5 12l1 1 2-2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'hammer') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M14 5l5 5M13 6l-8 8 5 5 8-8M4 20l5-5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'check') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="12" cy="12" r="8" />
-        <path d="M8.5 12.5l2.3 2.3 4.7-5.4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'calendar') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M5 5h14v15H5zM8 3v4M16 3v4M5 9h14" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'document') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M7 3h7l4 4v14H7zM14 3v5h4M10 12h5M10 16h5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'alert') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="12" cy="12" r="8" />
-        <path d="M12 7v6M12 16.5v.1" strokeLinecap="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'tools') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 5h16M6 9h12M8 13h8M10 17h4" strokeLinecap="round" />
-        <path d="M5 5l1.5-2h11L19 5M8 21h8l1-4H7z" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'box') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'truck') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 7h10v8H4zM14 10h4l2 3v2h-6zM7 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'invoice') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M7 3h10l2 3v15l-3-2-3 2-3-2-3 2zM10 9h5M10 13h5M10 17h3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'nodes') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="7" cy="7" r="2" />
-        <circle cx="17" cy="17" r="2" />
-        <path d="M9 7h3a3 3 0 0 1 3 3v5" strokeLinecap="round" />
-      </svg>
-    )
-  }
-
-  if (name === 'folder') {
-    return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 7h6l2 2h8v10H4z" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 17h16M7 17V8h10v9M9 8V5h6v3M9 21h.01M15 21h.01" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
 
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M5 19V9M11 19V5M17 19v-7" strokeLinecap="round" />
+      <path d="m4 8 8-4 8 4-8 4-8-4Z" strokeLinejoin="round" />
+      <path d="M4 8v8l8 4 8-4V8M12 12v8" strokeLinejoin="round" />
     </svg>
   )
 }

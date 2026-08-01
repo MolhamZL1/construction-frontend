@@ -1,15 +1,11 @@
+import { formatUsdCurrency } from '@/utils/currency'
 export function toInvoiceNumber(value: string | number | null | undefined) {
   const numeric = Number(value ?? 0)
   return Number.isFinite(numeric) ? numeric : 0
 }
 
 export function formatInvoiceMoney(value: string | number | null | undefined) {
-  const safeValue = toInvoiceNumber(value)
-
-  return `${safeValue.toLocaleString('ar-SY', {
-    minimumFractionDigits: safeValue % 1 === 0 ? 0 : 2,
-    maximumFractionDigits: 2,
-  })} ر.س`
+  return formatUsdCurrency(value ?? 0)
 }
 
 export function formatInvoicePlainNumber(value: string | number | null | undefined) {

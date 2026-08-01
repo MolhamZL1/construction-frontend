@@ -112,7 +112,7 @@ export function DialogActions({ onCancel, submitLabel, disabled }: { onCancel: (
       <button
         type="submit"
         disabled={disabled}
-        className="h-10 rounded-xl bg-[#50683f] px-4 text-sm font-semibold text-white hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="h-10 rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {submitLabel}
       </button>
@@ -121,7 +121,7 @@ export function DialogActions({ onCancel, submitLabel, disabled }: { onCancel: (
 }
 
 export const inputClass =
-  'h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-[#50683f] focus:bg-white focus:ring-4 focus:ring-[#50683f]/10'
+  'h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return (

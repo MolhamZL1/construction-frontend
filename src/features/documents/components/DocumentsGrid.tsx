@@ -20,7 +20,7 @@ export function DocumentsGrid({
   if (!documents.length) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#50683f]/10 text-[#50683f]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
           <DocumentIcon name="document" className="h-8 w-8" />
         </div>
         <h2 className="mt-5 text-xl font-black text-slate-900">

@@ -4,6 +4,7 @@ import { LoadingState } from '@/components/ui'
 import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemsPageHeader } from '../components/WorkItemsPageHeader'
 import { WorkItemsTable } from '../components/WorkItemsTable'
+import { AddWorkItemExpenseDialog } from '../components/expenses/AddWorkItemExpenseDialog'
 import {
   getWorkItemsErrorMessage,
   useCompleteWorkItem,
@@ -21,6 +22,7 @@ export function ProjectWorkItemsPage() {
   const { id } = useParams<{ id: string }>()
   const projectId = id ?? ''
   const [search, setSearch] = useState('')
+  const [expenseItem, setExpenseItem] = useState<WorkItem | null>(null)
 
   const summaryQuery = useProjectSummary(projectId)
   const itemsQuery = useWorkItems(projectId)
@@ -49,7 +51,7 @@ export function ProjectWorkItemsPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
             العودة لتفاصيل المشروع
           </Link>
         </div>
@@ -66,6 +68,7 @@ export function ProjectWorkItemsPage() {
             projectStatus={projectStatus}
             items={filteredItems}
             isMutating={isMutating}
+            onAddExpense={setExpenseItem}
             onInlineUpdate={(item, payload) => {
               if (projectStatus !== 'planned') return
               updateMutation.mutate({ projectId, workItemId: item.id, payload })
@@ -87,6 +90,15 @@ export function ProjectWorkItemsPage() {
           />
         )}
       </div>
+
+      <AddWorkItemExpenseDialog
+        open={Boolean(expenseItem)}
+        projectId={projectId}
+        workItems={items.filter((item) => item.isActive)}
+        initialWorkItemId={expenseItem?.id ?? ''}
+        lockWorkItem
+        onClose={() => setExpenseItem(null)}
+      />
     </section>
   )
 }

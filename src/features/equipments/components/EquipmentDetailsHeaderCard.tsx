@@ -16,7 +16,7 @@ export function EquipmentDetailsHeaderCard({ equipment }: EquipmentDetailsHeader
   const projectsCount = new Set(equipment.bookingHistory.map((item) => item.project).filter(Boolean)).size
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
       <div dir="ltr" className="flex flex-col gap-5 sm:flex-row sm:items-start">
   <div className="flex shrink-0 justify-start">
     <StatusBadge status={equipment.status} />
@@ -25,7 +25,7 @@ export function EquipmentDetailsHeaderCard({ equipment }: EquipmentDetailsHeader
   <div className="hidden sm:block sm:flex-1" />
 
   <div dir="rtl" className="flex min-w-0 items-start gap-4 text-right">
-    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#eef1ed] text-[#50683f]">
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
       <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M4 17V7h10v10H4ZM14 11h3l3 4v2h-6v-6Z" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />

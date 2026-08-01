@@ -36,7 +36,7 @@ export function ProjectDocumentsPage() {
         <div className="flex justify-start">
           <Link
             to={`/projects/${id}`}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f] active:scale-[0.98]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)] active:scale-[0.98]"
           >
             <DocumentIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
             العودة إلى تفاصيل المشروع

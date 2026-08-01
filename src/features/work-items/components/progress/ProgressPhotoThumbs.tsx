@@ -49,7 +49,7 @@ export function ProgressPhotoThumbs({ photos }: ProgressPhotoThumbsProps) {
             target="_blank"
             rel="noreferrer"
             title="اضغط لفتح الصورة"
-            className="group relative block h-14 w-14 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 transition hover:scale-105 hover:ring-2 hover:ring-[#50683f] focus:outline-none focus:ring-2 focus:ring-[#50683f]"
+            className="group relative block h-14 w-14 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 transition hover:scale-105 hover:ring-2 hover:ring-[var(--color-brand-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-gold)]"
           >
             <img src={url} alt={label} loading="lazy" className="h-full w-full object-cover transition group-hover:brightness-95" />
           </a>

@@ -26,9 +26,9 @@ export function ProjectDocumentDetailsPage() {
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-5xl space-y-6">
         <nav className="flex flex-wrap items-center justify-end gap-2 text-sm font-bold text-slate-500">
-          <Link to="/projects" className="transition hover:text-[#50683f]">المشاريع</Link>
+          <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">المشاريع</Link>
           <DocumentIcon name="arrow" className="h-4 w-4 rotate-180" />
-          <Link to={`/projects/${id}/documents`} className="transition hover:text-[#50683f]">المستندات</Link>
+          <Link to={`/projects/${id}/documents`} className="transition hover:text-[var(--color-brand-ink)]">المستندات</Link>
           <DocumentIcon name="arrow" className="h-4 w-4 rotate-180" />
           <span className="text-slate-800">تفاصيل المستند</span>
         </nav>
@@ -42,7 +42,7 @@ export function ProjectDocumentDetailsPage() {
           </div>
         ) : document ? (
           <>
-            <header className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-8">
+            <header className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] md:p-8">
               <div className="flex flex-col-reverse gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="flex flex-wrap justify-start gap-2">
                   <Link
@@ -65,7 +65,7 @@ export function ProjectDocumentDetailsPage() {
                     <h1 className="text-3xl font-black text-slate-900 md:text-4xl">{document.title}</h1>
                     <p className="mt-2 text-sm font-semibold text-slate-500">{document.category}</p>
                   </div>
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-[#50683f]/10 text-[#50683f]">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
                     <DocumentIcon name="document" className="h-8 w-8" />
                   </div>
                 </div>
@@ -89,7 +89,7 @@ export function ProjectDocumentDetailsPage() {
               {document.latestVersion ? (
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
                   <div className="inline-flex items-center gap-2 text-sm font-bold text-slate-500">
-                    <DocumentIcon name="file" className="h-5 w-5 text-[#50683f]" />
+                    <DocumentIcon name="file" className="h-5 w-5 text-[var(--color-brand-ink)]" />
                     الملف الحالي: {getFileExtensionFromUrl(document.latestVersion.fileUrl ?? document.latestVersion.filePath)}
                   </div>
                   <button

@@ -22,7 +22,7 @@ export function StatusBadge({ status }: { status?: string }) {
       className={
         isActive
           ? 'inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600'
-          : 'inline-flex rounded-full bg-[#FF5630]/10 px-3 py-1 text-xs font-semibold text-[#FF5630]'
+          : 'inline-flex rounded-full bg-[rgb(var(--color-danger-rgb)/0.1)] px-3 py-1 text-xs font-semibold text-[var(--color-danger)]'
       }
     >
       {getStatusLabel(status)}

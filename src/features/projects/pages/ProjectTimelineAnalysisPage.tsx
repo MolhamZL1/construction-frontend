@@ -31,13 +31,13 @@ export function ProjectTimelineAnalysisPage() {
   return (
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
               <ProjectDetailIcon name="timeline" className="h-6 w-6" />
             </span>
             <div>
-              <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 transition hover:text-[#50683f]">
+              <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
                 <ProjectDetailIcon name="arrow" className="h-4 w-4 rtl:rotate-180" />
                 تفاصيل المشروع
               </Link>

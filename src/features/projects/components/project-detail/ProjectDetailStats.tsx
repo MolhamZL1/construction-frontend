@@ -1,7 +1,9 @@
+
 import { Link } from 'react-router-dom'
 import { ProjectDetailIcon, type ProjectDetailIconName } from './ProjectDetailIcons'
-import { projectDetailAccentClasses, type ProjectDetailAccent } from './project-detail-theme'
-
+ 
+export type ProjectDetailAccent = 'cyan' | 'blue' | 'green' | 'orange' | 'purple'
+ 
 export interface ProjectDetailStatItem {
   key: string
   label: string
@@ -13,58 +15,68 @@ export interface ProjectDetailStatItem {
   meta?: string
   isActive?: boolean
 }
-
+ 
 interface ProjectDetailStatsProps {
   items: ProjectDetailStatItem[]
 }
-
+ 
+// ألوان الأيقونة وزوايا التأطير والـ shadow لكل أداة، بدل ألوان بطاقات جاهزة
+const accentClasses: Record<ProjectDetailAccent, { icon: string; bracket: string; glow: string }> = {
+  cyan: { icon: 'text-cyan-600', bracket: 'border-cyan-500', glow: 'bg-cyan-500/30' },
+  blue: { icon: 'text-blue-600', bracket: 'border-blue-500', glow: 'bg-blue-500/30' },
+  green: { icon: 'text-[var(--color-brand-ink)]', bracket: 'border-[var(--color-brand-ink)]', glow: 'bg-[rgb(var(--color-brand-ink-rgb)/0.3)]' },
+  orange: { icon: 'text-orange-600', bracket: 'border-orange-500', glow: 'bg-orange-500/30' },
+  purple: { icon: 'text-purple-600', bracket: 'border-purple-500', glow: 'bg-purple-500/30' },
+}
+ 
 export function ProjectDetailStats({ items }: ProjectDetailStatsProps) {
   return (
-    <section className="space-y-4 text-right">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-xl font-extrabold text-slate-900">أدوات المشروع</h2>
-          <p className="mt-1 text-sm font-semibold text-slate-500">أدوات مختصرة لمتابعة التنفيذ والتقدير.</p>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+    <section className="space-y-6 text-right">
+       
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
         {items.map((item) => {
-          const accent = projectDetailAccentClasses[item.accent]
+          const accent = accentClasses[item.accent]
+ 
           const content = (
             <>
-              <div className="flex items-start justify-between gap-3">
-                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${accent.iconBox}`}>
-                  <ProjectDetailIcon name={item.icon} className="h-5 w-5" />
-                </span>
-
+              <div className="relative flex h-14 w-14 items-center justify-center">
+                <span
+                  aria-hidden="true"
+                  className={`absolute h-9 w-9 rounded-full blur-lg transition-opacity duration-150 ${accent.glow} ${
+                     'opacity-100'
+                  }`}
+                />
+               
+            
                 <ProjectDetailIcon
-                  name="arrow"
-                  className={`mt-1 h-4 w-4 rotate-180 text-slate-300 transition group-hover:text-slate-500 ${item.isActive ? '-rotate-90 text-slate-500' : ''}`}
+                  name={item.icon}
+                  className={`relative h-7 w-7 transition-transform duration-150 group-hover:scale-110 ${accent.icon}`}
                 />
               </div>
-
-              <div className="mt-4">
-                <h3 className="text-base font-extrabold text-slate-900">{item.label}</h3>
-                <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{item.description}</p>
-              </div>
-
-              {item.meta ? <p className={`mt-4 text-[11px] font-extrabold ${accent.text}`}>{item.meta}</p> : null}
+ 
+              <p className="text-center text-[13px] font-bold text-slate-900">{item.label}</p>
             </>
           )
-
-          const className = `group flex min-h-[136px] flex-col justify-between rounded-3xl border border-slate-200 bg-white p-4 text-right shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 ${accent.border} ${item.isActive ? 'border-[#50683f]/40 ring-4 ring-[#50683f]/10' : ''}`
-
+ 
+          const className =
+            'group flex flex-col items-center gap-3.5 rounded-xl px-2 py-5 text-right transition hover:bg-slate-50'
+ 
           if (item.onClick) {
             return (
-              <button key={item.key} type="button" onClick={item.onClick} className={className}>
+              <button
+                key={item.key}
+                type="button"
+                onClick={item.onClick}
+                title={item.description}
+                className={className}
+              >
                 {content}
               </button>
             )
           }
-
+ 
           return (
-            <Link key={item.key} to={item.to ?? '#'} className={className}>
+            <Link key={item.key} to={item.to ?? '#'} title={item.description} className={className}>
               {content}
             </Link>
           )

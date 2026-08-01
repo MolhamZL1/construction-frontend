@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useSearchParams } from 'react-router-dom'
 import { CreateEquipmentForm } from '../components/CreateEquipmentForm'
 import { CreateMaintenanceForm } from '../components/CreateMaintenanceForm'
 import { EquipmentPageHeader } from '../components/EquipmentPageHeader'
@@ -34,11 +35,22 @@ function getTodayDateInputValue() {
 }
 
 export function EquipmentsPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [status, setStatus] = useState<EquipmentStatusFilter>('all')
   const [search, setSearch] = useState('')
   const [showCreateEquipment, setShowCreateEquipment] = useState(false)
   const [maintenanceEquipment, setMaintenanceEquipment] = useState<Equipment | null>(null)
   const [closingMaintenanceEquipment, setClosingMaintenanceEquipment] = useState<Equipment | null>(null)
+
+  useEffect(() => {
+    if (searchParams.get('create') !== '1') return
+
+    setShowCreateEquipment(true)
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('create')
+    setSearchParams(nextParams, { replace: true })
+  }, [searchParams, setSearchParams])
   const equipmentsQuery = useEquipments(status)
   const equipments = equipmentsQuery.data ?? []
   const filteredEquipments = useMemo(() => {
@@ -201,7 +213,7 @@ function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogPr
 
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">تاريخ الإغلاق</span>
-            <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="date" {...register('endDate')} />
+            <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" type="date" {...register('endDate')} />
             {errors.endDate ? <span className="block text-sm text-rose-600">{errors.endDate.message}</span> : null}
           </label>
 
@@ -220,7 +232,7 @@ function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogPr
             <button
               type="submit"
               disabled={closeMaintenanceMutation.isPending}
-              className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="rounded-lg bg-[var(--color-brand-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               {closeMaintenanceMutation.isPending ? 'جاري الإغلاق...' : 'إغلاق الصيانة'}
             </button>

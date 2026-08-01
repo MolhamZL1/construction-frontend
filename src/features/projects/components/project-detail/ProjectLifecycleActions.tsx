@@ -15,7 +15,7 @@ export function ProjectLifecycleActions({ project, isPending = false, onActionCl
         type="button"
         onClick={() => onActionClick('start')}
         disabled={isPending}
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[#50683f] px-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]"
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[var(--color-brand-ink)] px-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]"
       >
         <PlayIcon />
         {isPending ? 'جاري التنفيذ...' : 'بدء المشروع'}

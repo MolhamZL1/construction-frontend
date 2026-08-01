@@ -28,7 +28,7 @@ export function InvoiceMaterialsCard({
   onUpdateRow,
 }: InvoiceMaterialsCardProps) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.07)]">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgb(var(--color-brand-ink-rgb)/0.07)]">
       <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><InvoiceIcon name="box" /></span>
@@ -95,7 +95,7 @@ export function InvoiceMaterialsCard({
                     <select
                       value={row.materialId}
                       onChange={(event) => onUpdateRow(row.uid, { materialId: event.target.value })}
-                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                     >
                       <option value="">اختر المادة</option>
                       {materials.map((linkedMaterial) => (
@@ -117,12 +117,12 @@ export function InvoiceMaterialsCard({
                       step="0.01"
                       value={row.quantity}
                       onChange={(event) => onUpdateRow(row.uid, { quantity: event.target.value })}
-                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                     />
                   </label>
 
                   <label className="space-y-2 text-right">
-                    <span className="text-sm font-extrabold text-slate-700">سعر الوحدة *</span>
+                    <span className="text-sm font-extrabold text-slate-700">سعر الوحدة ($) *</span>
                     <input
                       type="number"
                       min="0"
@@ -130,7 +130,7 @@ export function InvoiceMaterialsCard({
                       value={row.unitPrice}
                       onChange={(event) => onUpdateRow(row.uid, { unitPrice: event.target.value })}
                       placeholder="0.00"
-                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                      className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                     />
                   </label>
 

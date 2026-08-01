@@ -18,7 +18,7 @@ const typeStyle: Record<string, { icon: SpaceIconName; badge: string }> = {
   bathroom: { icon: 'bathroom', badge: 'bg-blue-100 text-blue-700' },
   toilet: { icon: 'toilet', badge: 'bg-cyan-100 text-cyan-700' },
   corridor: { icon: 'home', badge: 'bg-emerald-100 text-emerald-700' },
-  entrance: { icon: 'home', badge: 'bg-[#50683f]/10 text-[#50683f]' },
+  entrance: { icon: 'home', badge: 'bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]' },
   shed: { icon: 'shed', badge: 'bg-amber-100 text-amber-700' },
   storage: { icon: 'home', badge: 'bg-slate-100 text-slate-700' },
 }
@@ -38,14 +38,14 @@ export function SpaceCard({ projectId, space, canManage, isDeleting = false, onD
   const isShed = isShedSpace(space.type)
 
   return (
-    <article className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_10px_28px_rgba(15,23,42,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(15,23,42,0.09)]">
+    <article className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgb(var(--color-brand-ink-rgb)/0.09)]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           {canManage ? (
             <>
               <Link
                 to={`/projects/${projectId}/spaces/${space.id}/edit`}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#50683f] transition hover:bg-[#50683f]/10"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                 title="تعديل الفراغ"
                 aria-label="تعديل الفراغ"
               >

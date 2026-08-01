@@ -27,7 +27,7 @@ interface DocumentUploadFormProps {
 }
 
 const fieldClassName =
-  'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-right text-sm font-bold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:bg-white focus:ring-4 focus:ring-[#50683f]/10'
+  'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-right text-sm font-bold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:bg-white focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
 export function DocumentUploadForm({
   submitLabel,
@@ -127,7 +127,7 @@ export function DocumentUploadForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-7 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-7 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <DocumentIcon name="upload" className="h-5 w-5" />
           {isSubmitting ? 'جاري الرفع...' : submitLabel}

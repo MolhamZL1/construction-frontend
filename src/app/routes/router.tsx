@@ -219,6 +219,10 @@ export const router = createBrowserRouter([
             element: <ProjectTimelineAnalysisPage />,
           },
           {
+            path: '/projects/:id/budget',
+            element: <ProjectMaterialEstimatePage />,
+          },
+          {
             path: '/projects/:id/material-estimate',
             element: <ProjectMaterialEstimatePage />,
           },

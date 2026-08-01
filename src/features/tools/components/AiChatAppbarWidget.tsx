@@ -216,24 +216,23 @@ export function AiChatAppbarWidget() {
   }
 
   return (
-    <div className="relative" dir="rtl">
+    <div className="fixed bottom-5 left-5 z-[90] print:hidden" dir="rtl">
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#50683f]/15 bg-white text-[#50683f] shadow-sm transition hover:border-[#50683f]/30 hover:bg-[#eef4eb]"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full border border-[rgb(var(--color-brand-gold-rgb)/0.35)] bg-[var(--color-brand-ink)] text-white shadow-[0_18px_45px_rgb(var(--color-brand-ink-rgb)/0.32)] transition hover:-translate-y-0.5 hover:bg-[var(--color-brand-ink-soft)] focus:outline-none focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.2)]"
         aria-label="مساعد النظام"
         title="مساعد النظام"
       >
-        <RobotIcon />
-        <span className="absolute -left-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+        <RobotIcon className="h-6 w-6" />
       </button>
 
       {isOpen ? (
-        <section className="fixed left-4 right-4 top-20 z-50 flex h-[min(620px,calc(100vh-6rem))] flex-col overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white text-right shadow-[0_24px_80px_rgba(15,23,42,0.22)] sm:left-6 sm:right-auto sm:w-[390px]">
+        <section className="fixed bottom-24 left-4 right-4 z-[90] flex h-[min(620px,calc(100vh-7rem))] flex-col overflow-hidden rounded-[1.8rem] border border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white/95 text-right shadow-[0_28px_90px_rgb(var(--color-brand-ink-deep-rgb)/0.30)] backdrop-blur-2xl sm:left-5 sm:right-auto sm:w-[410px]">
           <header className="border-b border-slate-100 bg-white px-4 py-3">
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef4eb] text-[#50683f]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
                   <RobotIcon className="h-5 w-5" />
                 </span>
 
@@ -247,7 +246,7 @@ export function AiChatAppbarWidget() {
                 <button
                   type="button"
                   onClick={openHistory}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-50 hover:text-[#50683f]"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]"
                   aria-label="المحادثات"
                   title="المحادثات"
                 >
@@ -257,7 +256,7 @@ export function AiChatAppbarWidget() {
                 <button
                   type="button"
                   onClick={startNewConversation}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-50 hover:text-[#50683f]"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]"
                   aria-label="محادثة جديدة"
                   title="محادثة جديدة"
                 >
@@ -284,7 +283,7 @@ export function AiChatAppbarWidget() {
                 <button
                   type="button"
                   onClick={loadConversations}
-                  className="text-[11px] font-black text-[#50683f]"
+                  className="text-[11px] font-black text-[var(--color-brand-ink)]"
                   disabled={isLoadingHistory}
                 >
                   تحديث
@@ -302,7 +301,7 @@ export function AiChatAppbarWidget() {
                       key={conversation.id}
                       type="button"
                       onClick={() => openConversation(conversation.id)}
-                      className="block w-full rounded-2xl bg-white px-3 py-2 text-right transition hover:bg-[#eef4eb]"
+                      className="block w-full rounded-2xl bg-white px-3 py-2 text-right transition hover:bg-[var(--color-brand-gold-surface)]"
                     >
                       <span className="block truncate text-xs font-black text-slate-800">{conversation.title}</span>
                       <span className="mt-0.5 block text-[11px] font-bold text-slate-400">
@@ -319,7 +318,7 @@ export function AiChatAppbarWidget() {
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center text-center">
                 <div className="max-w-xs">
-                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-[#eef4eb] text-[#50683f]">
+                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
                     <RobotIcon className="h-7 w-7" />
                   </span>
                   <p className="mt-3 text-sm font-black text-slate-900">اسأل عن بيانات النظام</p>
@@ -356,13 +355,13 @@ export function AiChatAppbarWidget() {
                 onChange={(event) => setQuestion(event.target.value)}
                 disabled={isSubmitting}
                 placeholder="اكتب سؤالك..."
-                className="h-11 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+                className="h-11 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)] disabled:cursor-not-allowed disabled:bg-slate-50"
               />
 
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#50683f] text-white shadow-sm transition hover:bg-[#425734] disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="إرسال"
                 title="إرسال"
               >
@@ -380,7 +379,7 @@ function ChatBubble({ message }: { message: UiMessage }) {
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[86%] whitespace-pre-wrap rounded-3xl rounded-bl-lg border border-[#50683f]/20 bg-[#eef4eb] px-4 py-3 text-sm font-bold leading-7 text-slate-800 shadow-sm">
+        <div className="max-w-[86%] whitespace-pre-wrap rounded-3xl rounded-bl-lg border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[var(--color-brand-gold-surface)] px-4 py-3 text-sm font-bold leading-7 text-slate-800 shadow-sm">
           {message.content}
         </div>
       </div>
@@ -411,9 +410,9 @@ function TypingBubble() {
     <div className="flex justify-start">
       <div className="rounded-3xl rounded-br-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#50683f]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#50683f] [animation-delay:120ms]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#50683f] [animation-delay:240ms]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-brand-ink)]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-brand-ink)] [animation-delay:120ms]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-brand-ink)] [animation-delay:240ms]" />
         </div>
       </div>
     </div>

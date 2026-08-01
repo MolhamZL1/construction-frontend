@@ -55,7 +55,7 @@ export function AddWorkItemExpensePage() {
     <ExpensesPageShell size="narrow">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#50683f]">مصاريف الورشات</p>
+          <p className="text-sm font-bold text-[var(--color-brand-ink)]">مصاريف الورشات</p>
           <h1 className="mt-1 text-2xl font-black text-slate-950">إضافة مصروف ورشة</h1>
           <p className="mt-2 text-sm font-medium text-slate-500">اختر البند وأدخل قيمة المصروف وملاحظته.</p>
         </div>

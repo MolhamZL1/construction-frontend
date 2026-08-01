@@ -39,7 +39,7 @@ export function DurationExtensionReviewDialog({
         <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-[#50683f]">طلبات تمديد الوقت</p>
+              <p className="text-xs font-black uppercase tracking-wide text-[var(--color-brand-ink)]">طلبات تمديد الوقت</p>
               <h2 className="mt-1 text-xl font-black text-slate-950">{title}</h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{description}</p>
             </div>
@@ -69,7 +69,7 @@ export function DurationExtensionReviewDialog({
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 rows={4}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
                 placeholder="مثال: السبب غير كافٍ أو يمكن إنهاء البند ضمن المدة الحالية..."
               />
             </label>
@@ -97,7 +97,7 @@ export function DurationExtensionReviewDialog({
             onClick={() => onConfirm(comment)}
             disabled={isSubmitting || (isReject && !comment.trim())}
             className={`inline-flex h-10 items-center justify-center rounded-xl px-5 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              isReject ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#50683f] hover:bg-[#405633]'
+              isReject ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[var(--color-brand-ink)] hover:bg-[var(--color-brand-ink)]'
             }`}
           >
             {isSubmitting ? 'جاري الحفظ...' : isReject ? 'رفض الطلب' : 'قبول الطلب'}

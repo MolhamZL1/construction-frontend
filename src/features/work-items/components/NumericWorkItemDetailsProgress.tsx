@@ -18,14 +18,14 @@ export function NumericWorkItemDetailsProgress({ item }: NumericWorkItemDetailsP
   const percent = total > 0 ? Math.round((completed / total) * 100) : Math.round(item.progressPercent || 0)
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.07)]">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-5 py-4">
         <div>
-          <p className="text-xs font-black text-[#50683f]">ملخص الإنجاز العددي</p>
+          <p className="text-xs font-black text-[var(--color-brand-ink)]">ملخص الإنجاز العددي</p>
           <h2 className="mt-1 text-lg font-black text-slate-900">الأعداد المطلوبة لهذا البند</h2>
         </div>
 
-        <div className="rounded-2xl bg-[#50683f]/10 px-5 py-3 text-center text-[#50683f]">
+        <div className="rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-5 py-3 text-center text-[var(--color-brand-ink)]">
           <p className="text-2xl font-black">{formatCount(percent)}%</p>
           <p className="text-xs font-black">نسبة الإنجاز</p>
         </div>
@@ -39,7 +39,7 @@ export function NumericWorkItemDetailsProgress({ item }: NumericWorkItemDetailsP
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-xl bg-white px-2 py-3 ring-1 ring-slate-100">
                 <p className="text-[11px] font-bold text-slate-400">المنجز</p>
-                <p className="mt-1 text-lg font-black text-[#50683f]">{formatCount(counter.completed)}</p>
+                <p className="mt-1 text-lg font-black text-[var(--color-brand-ink)]">{formatCount(counter.completed)}</p>
               </div>
 
               <div className="rounded-xl bg-white px-2 py-3 ring-1 ring-slate-100">

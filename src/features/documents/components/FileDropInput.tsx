@@ -21,7 +21,7 @@ function formatFileSize(size: number) {
 
 export function FileDropInput({ file, onChange, accept = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg', disabled = false }: FileDropInputProps) {
   return (
-    <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center transition hover:border-[#50683f]/40 hover:bg-[#50683f]/5">
+    <label className="group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center transition hover:border-[rgb(var(--color-brand-ink-rgb)/0.4)] hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)]">
       <input
         type="file"
         accept={accept}
@@ -29,7 +29,7 @@ export function FileDropInput({ file, onChange, accept = '.pdf,.doc,.docx,.xls,.
         className="sr-only"
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
       />
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#50683f] shadow-sm transition group-hover:scale-105">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[var(--color-brand-ink)] shadow-sm transition group-hover:scale-105">
         <DocumentIcon name="upload" className="h-7 w-7" />
       </span>
       <span className="mt-4 text-base font-black text-slate-900">{file ? file.name : 'اختر ملف المستند'}</span>

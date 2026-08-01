@@ -26,13 +26,13 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
   const canCreate = projectStatus === 'planned'
 
   return (
-    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
       <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
-            <Link to="/projects" className="transition hover:text-[#50683f]">المشاريع</Link>
+            <Link to="/projects" className="transition hover:text-[var(--color-brand-ink)]">المشاريع</Link>
             <span className="text-slate-300">←</span>
-            <Link to={`/projects/${projectId}`} className="transition hover:text-[#50683f]">تفاصيل المشروع</Link>
+            <Link to={`/projects/${projectId}`} className="transition hover:text-[var(--color-brand-ink)]">تفاصيل المشروع</Link>
             <span className="text-slate-300">←</span>
             <span className="text-slate-800">بنود العمل</span>
           </div>
@@ -47,20 +47,20 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to={`/projects/${projectId}/work-items/pending-updates`}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]"
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
           >
             طلبات التحديث
           </Link>
           <Link
             to={`/projects/${projectId}/work-items/inactive`}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]"
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
           >
             البنود غير المفعلة
           </Link>
           {canCreate ? (
             <Link
               to={`/projects/${projectId}/work-items/create`}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#405633] active:scale-[0.98]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
             >
               <span className="text-lg leading-none">+</span>
               إضافة بند عمل

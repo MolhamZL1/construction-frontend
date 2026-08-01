@@ -19,7 +19,7 @@ export function InvoiceSubmitCard({
   submitError,
 }: InvoiceSubmitCardProps) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_38px_rgba(15,23,42,0.06)]">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_38px_rgb(var(--color-brand-ink-rgb)/0.06)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-right">
           <p className="text-sm font-bold text-slate-500">إجمالي الفاتورة</p>
@@ -31,7 +31,7 @@ export function InvoiceSubmitCard({
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className="rounded-2xl bg-[#50683f] px-6 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#405233] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-2xl bg-[var(--color-brand-ink)] px-6 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
           </button>

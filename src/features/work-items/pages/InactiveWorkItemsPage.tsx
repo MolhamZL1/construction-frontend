@@ -15,12 +15,12 @@ export function InactiveWorkItemsPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
             العودة إلى بنود العمل
           </Link>
         </div>
 
-        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.07)]">
+        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
           <h1 className="text-3xl font-black text-slate-900">البنود غير المفعلة</h1>
           <p className="mt-2 text-sm font-semibold text-slate-500">يمكن إعادة تفعيل البنود التي تم إلغاؤها من المشروع.</p>
         </header>
@@ -46,7 +46,7 @@ export function InactiveWorkItemsPage() {
                 type="button"
                 onClick={() => activateMutation.mutate({ projectId, workItemId: item.id })}
                 disabled={activateMutation.isPending}
-                className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-[#50683f] px-4 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:opacity-60"
+                className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:opacity-60"
               >
                 إعادة التفعيل
               </button>

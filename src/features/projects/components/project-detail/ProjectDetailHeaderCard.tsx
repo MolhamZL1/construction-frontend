@@ -2,11 +2,12 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { Project } from '../../models/project.model'
+import { useProjectReview } from '../../hooks/useProjectReviews'
 import { ProjectStatusBadge } from '../ProjectStatusBadge'
 import { formatMeasurement, formatProjectDate } from '../../utils/projects-formatters'
 import { ProjectDetailIcon } from './ProjectDetailIcons'
-import { ProjectDetailMetricBox } from './ProjectDetailMetricBox'
 import { ProjectDetailProgressBar } from './ProjectDetailProgressBar'
+import { ProjectOwnerReview } from './ProjectOwnerReview'
 
 interface ProjectDetailHeaderCardProps {
   project: Project
@@ -20,17 +21,17 @@ export function ProjectDetailHeaderCard({
   lifecycleActions,
 }: ProjectDetailHeaderCardProps) {
   const canEditProject = project.status === 'planned'
+  const isCompleted = String(project.status).toLowerCase() === 'completed'
+  const reviewQuery = useProjectReview(project.id, isCompleted)
 
   return (
     <article
       dir="rtl"
-      className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f] sm:h-16 sm:w-16">
-            <ProjectDetailIcon name="building" className="h-7 w-7 sm:h-8 sm:w-8" />
-          </div>
+          <ProjectDetailProgressBar value={project.progressPercent} compact />
 
           <div className="min-w-0 flex-1 pt-1">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -49,6 +50,18 @@ export function ProjectDetailHeaderCard({
                     <ProjectDetailIcon name="calendar" className="h-4 w-4 text-slate-400" />
                     تاريخ الإنشاء: {formatProjectDate(project.createdAt)}
                   </span>
+
+                  <span className="inline-flex items-center gap-1.5">
+                    <ProjectDetailIcon name="ruler" className="h-4 w-4 text-slate-400" />
+                    <span>مساحة الشقة:</span>
+                    <span dir="ltr">{formatMeasurement(project.apartmentArea)} م²</span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1.5">
+                    <ProjectDetailIcon name="building" className="h-4 w-4 text-slate-400" />
+                    <span>الارتفاع:</span>
+                    <span dir="ltr">{formatMeasurement(project.height)} م</span>
+                  </span>
                 </div>
               </div>
 
@@ -58,7 +71,7 @@ export function ProjectDetailHeaderCard({
                 {canEditProject ? (
                   <Link
                     to={editTo}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 text-sm font-bold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f] active:scale-[0.98]"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 text-sm font-bold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)] active:scale-[0.98]"
                   >
                     <ProjectDetailIcon name="edit" className="h-4 w-4" />
                     تعديل
@@ -72,25 +85,13 @@ export function ProjectDetailHeaderCard({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-stretch">
-        <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:gap-4">
-          <ProjectDetailMetricBox
-            icon="ruler"
-            label="مساحة الشقة"
-            value={`${formatMeasurement(project.apartmentArea)} م²`}
-          />
+      {isCompleted ? (
+        <ProjectOwnerReview
+          review={reviewQuery.data ?? null}
+          isLoading={reviewQuery.isLoading}
+        />
+      ) : null}
 
-          <ProjectDetailMetricBox
-            icon="building"
-            label="الارتفاع"
-            value={`${formatMeasurement(project.height)} م`}
-          />
-        </div>
-
-        <div className="flex shrink-0 items-center justify-center rounded-3xl border border-[#50683f]/10 bg-[#50683f]/5 px-5 py-4 lg:w-56">
-          <ProjectDetailProgressBar value={project.progressPercent} />
-        </div>
-      </div>
     </article>
   )
 }

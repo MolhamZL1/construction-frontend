@@ -1,4 +1,7 @@
 import { useState } from 'react'
+
+import { useAuthStore } from '@/stores/authStore'
+
 import type { WorkItemProgressRequest } from '../../models/work-item-progress-request.model'
 import {
   describeProgressRequestPayload,
@@ -21,11 +24,14 @@ interface ProgressRequestsPanelProps {
   onReject?: (request: WorkItemProgressRequest) => void
 }
 
+function isEngineerRole(role?: string | null) {
+  return role === 'project_manager' || role === 'engineer'
+}
+
 function formatDateTime(date?: string | null) {
   if (!date) return 'غير محدد'
-
   const value = new Date(date)
-  if (Number.isNaN(value.getTime())) return 'غير محدد'
+  if (Number.isNaN(value.getTime())) return date
 
   return value.toLocaleString('ar-SY', {
     year: 'numeric',
@@ -49,37 +55,17 @@ function RequestStatusBadge({ status }: { status: string }) {
   return <span className={`rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ${className}`}>{label}</span>
 }
 
-function RobotMiniIcon() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-      <path d="M12 3v3" strokeLinecap="round" />
-      <path d="M8 6h8a4 4 0 0 1 4 4v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-5a4 4 0 0 1 4-4Z" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 13h.01M15 13h.01" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9.5 17h5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function MetaRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null
-
-  return (
-    <div className="flex items-center justify-between gap-3 text-xs">
-      <span className="shrink-0 font-bold text-slate-400">{label}</span>
-      <span className="truncate font-black text-slate-700">{value}</span>
-    </div>
-  )
-}
-
 function RequestCard({
   request,
   canReview,
+  canAiInspect,
   onApprove,
   onReject,
   onAiInspect,
 }: {
   request: WorkItemProgressRequest
   canReview?: boolean
+  canAiInspect?: boolean
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
   onAiInspect?: (request: WorkItemProgressRequest) => void
@@ -87,7 +73,6 @@ function RequestCard({
   const isPending = isPendingProgressRequest(request)
   const isApproved = isApprovedProgressRequest(request)
   const isRejected = isRejectedProgressRequest(request)
-  const hasPhotos = (request.photos ?? []).length > 0
   const cardClass = isPending
     ? 'border-amber-100 bg-amber-50/50'
     : isApproved
@@ -100,7 +85,7 @@ function RequestCard({
     <article className={`rounded-2xl border p-4 text-right ${cardClass}`}>
       <div className="space-y-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <RequestStatusBadge status={request.status} />
               <p className="text-sm font-black text-slate-800">{describeProgressRequestPayload(request)}</p>
@@ -109,34 +94,33 @@ function RequestCard({
 
           {isPending ? (
             <div className="flex shrink-0 flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  onAiInspect?.(request)
-                }}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-violet-100 bg-violet-50 px-3 text-xs font-extrabold text-violet-700 transition hover:bg-violet-100"
-                title="تحليل طلب الإنجاز بالذكاء الاصطناعي"
-              >
-                <RobotMiniIcon />
-                تحليل AI
-              </button>
+              {canAiInspect ? (
+                <button
+                  type="button"
+                  data-ai-inspection-action="true"
+                  onMouseDown={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                  }}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    onAiInspect?.(request)
+                  }}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[var(--color-brand-gold-surface)] px-3 text-xs font-black text-[var(--color-brand-ink)] transition hover:-translate-y-0.5 hover:shadow-sm"
+                  title="فحص جودة طلب الإنجاز بالذكاء الاصطناعي"
+                >
+                  <RobotMiniIcon />
+                  فحص الجودة
+                </button>
+              ) : null}
 
               {canReview ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => onApprove?.(request)}
-                    className="inline-flex h-9 items-center justify-center rounded-xl bg-[#50683f] px-3 text-xs font-extrabold text-white transition hover:bg-[#405633]"
-                  >
+                  <button type="button" onClick={() => onApprove?.(request)} className="inline-flex h-9 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-3 text-xs font-extrabold text-white transition hover:bg-[var(--color-brand-ink-soft)]">
                     اعتماد
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onReject?.(request)}
-                    className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-white px-3 text-xs font-extrabold text-rose-600 transition hover:bg-rose-50"
-                  >
+                  <button type="button" onClick={() => onReject?.(request)} className="inline-flex h-9 items-center justify-center rounded-xl border border-rose-100 bg-white px-3 text-xs font-extrabold text-rose-600 transition hover:bg-rose-50">
                     رفض
                   </button>
                 </>
@@ -163,7 +147,7 @@ function RequestCard({
           </div>
         ) : null}
 
-        {hasPhotos ? (
+        {request.photos.length > 0 ? (
           <div className="space-y-2">
             <p className="text-xs font-black text-slate-500">صور الطلب</p>
             <ProgressPhotoThumbs photos={request.photos} />
@@ -176,17 +160,17 @@ function RequestCard({
 
 function RequestGroup({
   title,
-  count,
   requests,
   canReview,
+  canAiInspect,
   onApprove,
   onReject,
   onAiInspect,
 }: {
   title: string
-  count: number
   requests: WorkItemProgressRequest[]
   canReview?: boolean
+  canAiInspect?: boolean
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
   onAiInspect?: (request: WorkItemProgressRequest) => void
@@ -197,11 +181,19 @@ function RequestGroup({
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-black text-slate-700">{title}</h3>
-        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-500 ring-1 ring-slate-100">{count}</span>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-500 ring-1 ring-slate-100">{requests.length}</span>
       </div>
       <div className="space-y-3">
         {requests.map((request) => (
-          <RequestCard key={request.id} request={request} canReview={canReview} onApprove={onApprove} onReject={onReject} onAiInspect={onAiInspect} />
+          <RequestCard
+            key={request.id}
+            request={request}
+            canReview={canReview}
+            canAiInspect={canAiInspect}
+            onApprove={onApprove}
+            onReject={onReject}
+            onAiInspect={onAiInspect}
+          />
         ))}
       </div>
     </div>
@@ -219,6 +211,8 @@ export function ProgressRequestsPanel({
   onApprove,
   onReject,
 }: ProgressRequestsPanelProps) {
+  const role = useAuthStore((state) => state.user?.role)
+  const canAiInspect = isEngineerRole(role)
   const [aiInspectionRequest, setAiInspectionRequest] = useState<WorkItemProgressRequest | null>(null)
   const pendingRequests = requests.filter(isPendingProgressRequest)
   const approvedRequests = showHistory ? requests.filter(isApprovedProgressRequest) : []
@@ -229,30 +223,23 @@ export function ProgressRequestsPanel({
     return (
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="h-4 w-44 animate-pulse rounded-full bg-slate-200" />
-        <div className="mt-4 space-y-3">
-          {[1, 2].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-100" />)}
-        </div>
+        <div className="mt-4 space-y-3">{[1, 2].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-100" />)}</div>
       </section>
     )
   }
 
-  if (errorMessage) {
-    return <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{errorMessage}</div>
-  }
-
-  if (visibleRequestsCount === 0) {
-    return <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">{emptyMessage}</div>
-  }
+  if (errorMessage) return <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{errorMessage}</div>
+  if (visibleRequestsCount === 0) return <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">{emptyMessage}</div>
 
   return (
     <>
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-black text-[#50683f]">مراجعة الطلبات</p>
+            <p className="text-xs font-black text-[var(--color-brand-gold)]">مراجعة الطلبات</p>
             <h2 className="mt-1 text-xl font-black text-slate-900">{title}</h2>
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
-              الطلبات المعلقة تحتاج قرار. زر تحليل AI يرسل رقم طلب الإنجاز فقط للـ API الجديد، بدون اختيار صورة أو إرسال رابط من الواجهة.
+              راجع تفاصيل الإنجاز والصور، ويمكن للمهندس تشغيل فحص جودة ذكي قبل اتخاذ القرار.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -263,25 +250,22 @@ export function ProgressRequestsPanel({
         </div>
 
         <div className="space-y-5">
-          <RequestGroup
-            title="الطلبات المعلّقة"
-            count={pendingRequests.length}
-            requests={pendingRequests}
-            canReview={canReview}
-            onApprove={onApprove}
-            onReject={onReject}
-            onAiInspect={setAiInspectionRequest}
-          />
-          {showHistory ? <RequestGroup title="الطلبات المقبولة" count={approvedRequests.length} requests={approvedRequests} /> : null}
-          {showHistory ? <RequestGroup title="الطلبات المرفوضة" count={rejectedRequests.length} requests={rejectedRequests} /> : null}
+          <RequestGroup title="الطلبات المعلّقة" requests={pendingRequests} canReview={canReview} canAiInspect={canAiInspect} onApprove={onApprove} onReject={onReject} onAiInspect={setAiInspectionRequest} />
+          {showHistory ? <RequestGroup title="الطلبات المقبولة" requests={approvedRequests} /> : null}
+          {showHistory ? <RequestGroup title="الطلبات المرفوضة" requests={rejectedRequests} /> : null}
         </div>
       </section>
 
-      <ProgressRequestAiInspectionDialog
-        request={aiInspectionRequest}
-        isOpen={Boolean(aiInspectionRequest)}
-        onClose={() => setAiInspectionRequest(null)}
-      />
+      <ProgressRequestAiInspectionDialog request={aiInspectionRequest} isOpen={Boolean(aiInspectionRequest)} onClose={() => setAiInspectionRequest(null)} />
     </>
   )
+}
+
+function MetaRow({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null
+  return <div className="flex items-center justify-between gap-3 text-xs"><span className="shrink-0 font-bold text-slate-400">{label}</span><span className="truncate font-black text-slate-700">{value}</span></div>
+}
+
+function RobotMiniIcon() {
+  return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 3v3M8 6h8a4 4 0 0 1 4 4v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-5a4 4 0 0 1 4-4Z" strokeLinecap="round" strokeLinejoin="round" /><path d="M9 13h.01M15 13h.01M9.5 17h5" strokeLinecap="round" /></svg>
 }

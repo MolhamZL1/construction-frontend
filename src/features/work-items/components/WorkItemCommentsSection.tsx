@@ -28,7 +28,7 @@ export function WorkItemCommentsSection({ projectId, item }: WorkItemCommentsSec
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-sm sm:p-6">
       <div className="mb-5 flex items-center gap-2">
-        <WorkItemIcon name="comment" className="h-5 w-5 text-[#50683f]" />
+        <WorkItemIcon name="comment" className="h-5 w-5 text-[var(--color-brand-ink)]" />
         <h2 className="text-xl font-black text-slate-900">تعليقات البند</h2>
       </div>
 
@@ -48,12 +48,12 @@ export function WorkItemCommentsSection({ projectId, item }: WorkItemCommentsSec
           onChange={(event) => setBody(event.target.value)}
           placeholder="أضف تعليقاً على البند..."
           rows={3}
-          className="min-h-[90px] flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-2 focus:ring-[#50683f]/10"
+          className="min-h-[90px] flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-2 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
         />
         <button
           type="submit"
           disabled={!body.trim() || addCommentMutation.isPending}
-          className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#50683f] px-5 text-sm font-black text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 md:self-end"
+          className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 md:self-end"
         >
           {addCommentMutation.isPending ? 'جاري الإضافة...' : 'إضافة تعليق'}
         </button>

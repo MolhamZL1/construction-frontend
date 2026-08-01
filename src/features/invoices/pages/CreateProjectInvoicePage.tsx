@@ -101,7 +101,7 @@ export function CreateProjectInvoicePage() {
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-col gap-3 text-right">
-          <Link to={`/projects/${projectId}/invoices`} className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/invoices`} className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
             <InvoiceIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
             العودة إلى الفواتير
           </Link>

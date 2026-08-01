@@ -127,11 +127,11 @@ export function ProjectDurationExtensionsPage() {
           <BackButton to={`/projects/${projectId}`} label="العودة لتفاصيل المشروع" />
         </div>
 
-        <header className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.07)]">
+        <header className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
           <div className="bg-slate-50/70 px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#50683f]/10 px-3 py-1 text-xs font-black text-[#50683f]">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-3 py-1 text-xs font-black text-[var(--color-brand-ink)]">
                   <ProjectDetailIcon name="calendar" className="h-4 w-4" />
                   تمديد الوقت
                 </div>
@@ -147,7 +147,7 @@ export function ProjectDurationExtensionsPage() {
 
               <Link
                 to={`/projects/${projectId}/work-items`}
-                className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
               >
                 فتح بنود العمل
               </Link>
@@ -244,8 +244,8 @@ function FilterButton({
       onClick={() => onClick(value)}
       className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-black transition ${
         isActive
-          ? 'bg-[#50683f] text-white shadow-sm'
-          : 'border border-slate-200 bg-white text-slate-600 hover:border-[#50683f]/30 hover:text-[#50683f]'
+          ? 'bg-[var(--color-brand-ink)] text-white shadow-sm'
+          : 'border border-slate-200 bg-white text-slate-600 hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]'
       }`}
     >
       {label}

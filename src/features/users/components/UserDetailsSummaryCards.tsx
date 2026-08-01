@@ -60,8 +60,8 @@ export function UserDetailsSummaryCards({ projects }: UserDetailsSummaryCardsPro
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-[#637381]">{card.label}</p>
-              <p className="mt-2 text-2xl font-bold leading-none text-[#111827]">
+              <p className="text-sm font-medium text-[var(--color-brand-stone)]">{card.label}</p>
+              <p className="mt-2 text-2xl font-bold leading-none text-[var(--color-brand-ink)]">
                 {card.value.toLocaleString('ar-SY')}
               </p>
             </div>
@@ -82,14 +82,14 @@ export function UserDetailsSummaryCards({ projects }: UserDetailsSummaryCardsPro
 
 function getIconClass(tone: 'slate' | 'cyan' | 'emerald') {
   if (tone === 'cyan') {
-    return 'bg-[#00B8D9]/10 text-[#00B8D9]'
+    return 'bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-gold)]'
   }
 
   if (tone === 'emerald') {
     return 'bg-emerald-50 text-emerald-500'
   }
 
-  return 'bg-[#EEF0EC] text-[#4A5C3F]'
+  return 'bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]'
 }
 
 function SummaryIcon({ name }: { name: 'total' | 'active' | 'completed' }) {

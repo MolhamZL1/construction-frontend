@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
+import { EXTERNAL_SERVICES } from '@/config/design-system'
+
+const MAP_CONFIG = EXTERNAL_SERVICES.maps
 
 const defaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: MAP_CONFIG.markerIconUrl,
+  iconRetinaUrl: MAP_CONFIG.markerRetinaIconUrl,
+  shadowUrl: MAP_CONFIG.markerShadowUrl,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -66,7 +69,7 @@ export function LocationPickerMap({
 
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+          `${MAP_CONFIG.reverseGeocodeUrl}?format=jsonv2&lat=${lat}&lon=${lng}`
         )
 
         if (!response.ok) {
@@ -127,7 +130,7 @@ export function LocationPickerMap({
 
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`
+        `${MAP_CONFIG.searchUrl}?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`
       )
 
       if (!response.ok) {
@@ -155,7 +158,7 @@ export function LocationPickerMap({
   }
 
   const center: [number, number] =
-    value.lat !== 0 && value.lng !== 0 ? [value.lat, value.lng] : [24.7136, 46.6753]
+    value.lat !== 0 && value.lng !== 0 ? [value.lat, value.lng] : [MAP_CONFIG.defaultCenter[0], MAP_CONFIG.defaultCenter[1]]
 
   const hasMarker = value.lat !== 0 || value.lng !== 0
 
@@ -164,7 +167,7 @@ export function LocationPickerMap({
       <div className="flex gap-2">
         <input
           type="text"
-          className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+          className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
           placeholder="ابحث عن موقع المشروع"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
@@ -179,7 +182,7 @@ export function LocationPickerMap({
           type="button"
           onClick={() => void handleSearch()}
           disabled={isSearching}
-          className="inline-flex h-10 shrink-0 items-center rounded-xl bg-[#50683f] px-4 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="inline-flex h-10 shrink-0 items-center rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           {isSearching ? 'جاري البحث...' : 'بحث'}
         </button>
@@ -188,15 +191,15 @@ export function LocationPickerMap({
       <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm" style={{ height }}>
         <MapContainer
           center={center}
-          zoom={hasMarker ? 14 : 6}
+          zoom={hasMarker ? MAP_CONFIG.selectedZoom : MAP_CONFIG.defaultZoom}
           scrollWheelZoom={true}
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
+            attribution={MAP_CONFIG.attributionHtml}
+            url={MAP_CONFIG.tileUrl}
           />
-          <MapViewUpdater center={center} zoom={hasMarker ? 14 : 6} />
+          <MapViewUpdater center={center} zoom={hasMarker ? MAP_CONFIG.selectedZoom : MAP_CONFIG.defaultZoom} />
           <ClickHandler onChange={selectLocation} />
           {hasMarker ? <Marker position={[value.lat, value.lng]} icon={defaultIcon} /> : null}
         </MapContainer>

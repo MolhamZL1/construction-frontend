@@ -25,6 +25,7 @@ interface WorkItemsTableProps {
   onComplete: (item: WorkItem, delayReason?: string) => void
   onDeactivate: (item: WorkItem) => void
   onDelete: (item: WorkItem) => void
+  onAddExpense: (item: WorkItem) => void
 }
 
 export function WorkItemsTable({
@@ -39,6 +40,7 @@ export function WorkItemsTable({
   onComplete,
   onDeactivate,
   onDelete,
+  onAddExpense,
 }: WorkItemsTableProps) {
   const [completeItem, setCompleteItem] = useState<WorkItem | null>(null)
   const [delayReason, setDelayReason] = useState('')
@@ -72,7 +74,7 @@ export function WorkItemsTable({
 
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.07)]">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.07)]">
         <div className="hidden grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] border-b border-slate-100 bg-slate-50/70 px-5 py-4 text-sm font-black text-slate-700 lg:grid">
           <span>البند</span>
           <span className="text-center">الترتيب</span>
@@ -98,6 +100,7 @@ export function WorkItemsTable({
               onRequestComplete={setCompleteItem}
               onDeactivate={onDeactivate}
               onDelete={onDelete}
+              onAddExpense={onAddExpense}
             />
           ))}
         </div>
@@ -126,7 +129,7 @@ export function WorkItemsTable({
             <textarea
               value={delayReason}
               onChange={(event) => setDelayReason(event.target.value)}
-              className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#50683f] focus:bg-white"
+              className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white"
               placeholder="مثال: تأخر توريد المواد أو ظروف الطقس..."
             />
           </label>
@@ -149,6 +152,7 @@ interface WorkItemRowProps {
   onRequestComplete: (item: WorkItem) => void
   onDeactivate: (item: WorkItem) => void
   onDelete: (item: WorkItem) => void
+  onAddExpense: (item: WorkItem) => void
 }
 
 function WorkItemRow({
@@ -164,6 +168,7 @@ function WorkItemRow({
   onRequestComplete,
   onDeactivate,
   onDelete,
+  onAddExpense,
 }: WorkItemRowProps) {
   const [durationDays, setDurationDays] = useState(item.durationDays?.toString() ?? '')
   const [qualityLevel, setQualityLevel] = useState<WorkItemQualityLevel>(item.qualityLevel)
@@ -201,7 +206,7 @@ function WorkItemRow({
         <div className="flex items-start gap-3">
           <span className={`mt-1 h-4 w-4 rounded-full border-2 ${item.status === 'completed' ? 'border-emerald-500 bg-emerald-50' : item.status === 'ongoing' ? 'border-cyan-500 bg-cyan-50' : 'border-slate-400'}`} />
           <div className="min-w-0">
-            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block truncate text-base font-black text-slate-900 transition hover:text-[#50683f]">
+            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block truncate text-base font-black text-slate-900 transition hover:text-[var(--color-brand-ink)]">
               {item.name}
             </Link>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
@@ -220,14 +225,14 @@ function WorkItemRow({
           value={sortOrder}
           onChange={(event) => setSortOrder(event.target.value)}
           disabled={!canReorder || disabled}
-          className="h-10 w-20 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[#50683f] disabled:bg-slate-50 disabled:text-slate-400"
+          className="h-10 w-20 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
         />
         {hasOrderChanges && canReorder && !disabled ? (
           <button
             type="button"
             onClick={saveOrder}
             title="حفظ الترتيب"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[#50683f] transition hover:bg-[#50683f]/10"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]"
           >
             <WorkItemIcon name="save" className="h-4 w-4" />
           </button>
@@ -241,7 +246,7 @@ function WorkItemRow({
           value={durationDays}
           onChange={(event) => setDurationDays(event.target.value)}
           disabled={!canEditInline || disabled}
-          className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[#50683f] disabled:bg-slate-50 disabled:text-slate-400"
+          className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
         />
       </div>
 
@@ -250,7 +255,7 @@ function WorkItemRow({
           value={qualityLevel}
           onChange={(event) => setQualityLevel(event.target.value as WorkItemQualityLevel)}
           disabled={!canEditInline || disabled}
-          className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-[#50683f] disabled:bg-slate-50 disabled:text-slate-400"
+          className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
         >
           <option value="basic">{workItemQualityLabels.basic}</option>
           <option value="good">{workItemQualityLabels.good}</option>
@@ -261,7 +266,7 @@ function WorkItemRow({
             type="button"
             onClick={saveInlineChanges}
             title="حفظ المدة والجودة"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[#50683f] transition hover:bg-[#50683f]/10"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]"
           >
             <WorkItemIcon name="save" className="h-4 w-4" />
           </button>
@@ -276,6 +281,7 @@ function WorkItemRow({
 
       <div className="flex flex-wrap items-center gap-2 lg:justify-center">
         <ActionLink to={`/projects/${projectId}/work-items/${item.id}`} icon="info" label="تفاصيل البند" />
+        <ActionButton icon="add" label="إضافة تكلفة أو أجرة ورشة" onClick={() => onAddExpense(item)} disabled={disabled} tone="green" />
         <ActionLink to={`/projects/${projectId}/work-items/${item.id}/progress`} icon="reload" label="تحديث الإنجاز" disabled={!canOpenProgress} tone="progress" />
         {item.status === 'ongoing' ? <ActionLink to={`/projects/${projectId}/work-items/${item.id}/equipment`} icon="equipment" label="معدات البند" /> : null}
 
@@ -306,7 +312,7 @@ function ActionLink({ to, icon, label, disabled = false, tone = 'default' }: { t
 
   const className = tone === 'progress'
     ? 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-100 bg-cyan-50 text-cyan-700 transition hover:border-cyan-200 hover:bg-cyan-100'
-    : 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]'
+    : 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]'
 
   return (
     <Link to={to} title={label} aria-label={label} className={className}>

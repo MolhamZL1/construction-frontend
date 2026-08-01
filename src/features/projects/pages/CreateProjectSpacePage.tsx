@@ -62,9 +62,9 @@ export function CreateProjectSpacePage() {
           <BackButton to={`/projects/${projectId}/spaces`} label="العودة للفراغات" />
         </div>
 
-        <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6 md:p-7">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
           <div className="flex items-start gap-4">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
               <SpaceIcon name="plus" className="h-7 w-7" />
             </span>
             <div>
@@ -91,14 +91,14 @@ export function CreateProjectSpacePage() {
 function GuardMessage({ projectId, title, description }: { projectId: string; title: string; description: string }) {
   return (
     <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-white px-5 py-7 text-center" dir="rtl">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.08)]">
         <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-50 text-amber-600">
           <SpaceIcon name="lock" className="h-9 w-9" />
         </span>
         <h1 className="text-xl font-black text-slate-900">{title}</h1>
         <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{description}</p>
         <div className="mt-5 flex justify-center">
-          <Link to={`/projects/${projectId}/spaces`} className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#435834]">
+          <Link to={`/projects/${projectId}/spaces`} className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)]">
             العودة للفراغات
           </Link>
         </div>

@@ -1,3 +1,4 @@
+import { formatUsdCurrency } from '@/utils/currency'
 export function getTodayDateInputValue() {
   const now = new Date()
   const year = now.getFullYear()
@@ -24,12 +25,7 @@ export function getDateInputValueFromApiDate(value?: string | null) {
 }
 
 export function formatCurrency(value?: number | string | null) {
-  const numericValue = Number(value ?? 0)
-  const safeValue = Number.isFinite(numericValue) ? numericValue : 0
-
-  return `${new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 0,
-  }).format(safeValue)} ل.س`
+  return formatUsdCurrency(value ?? 0)
 }
 
 export function formatExpenseDate(value?: string | null) {

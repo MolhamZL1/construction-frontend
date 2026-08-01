@@ -30,12 +30,12 @@ interface PlannedWorkItem extends WorkItem {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
-const COLOR_PLANNED = '#94a3b8'
-const COLOR_ACTUAL = '#50683f'
-const COLOR_DELAY = '#f97316'
-const COLOR_RISK = '#fbbf24'
-const COLOR_COMPLETED = '#16a34a'
-const COLOR_ONGOING = '#0ea5e9'
+const COLOR_PLANNED = 'var(--color-brand-stone)'
+const COLOR_ACTUAL = 'var(--color-brand-ink)'
+const COLOR_DELAY = 'var(--color-orange)'
+const COLOR_RISK = 'var(--color-warning)'
+const COLOR_COMPLETED = 'var(--color-success)'
+const COLOR_ONGOING = 'var(--color-info)'
 
 function parseDate(value?: string | null) {
   if (!value) return null
@@ -237,12 +237,12 @@ function GanttChart({ schedule }: { schedule: PlannedWorkItem[] }) {
           barSize={18}
           barGap={2}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-neutral300)" />
           <XAxis
             type="number"
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: '#94a3b8', fontFamily: 'Cairo' }}
+            tick={{ fontSize: 11, fill: 'var(--color-brand-stone)', fontFamily: 'Cairo' }}
             tickFormatter={(v) => `${v}ي`}
             domain={[0, 'dataMax + 5']}
           />
@@ -252,9 +252,9 @@ function GanttChart({ schedule }: { schedule: PlannedWorkItem[] }) {
             width={140}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: '#475569', fontFamily: 'Cairo', fontWeight: 700, textAnchor: 'end' }}
+            tick={{ fontSize: 11, fill: 'var(--color-brand-stone)', fontFamily: 'Cairo', fontWeight: 700, textAnchor: 'end' }}
           />
-          <Tooltip content={<GanttTooltip />} cursor={{ fill: 'rgba(148,163,184,0.08)' }} />
+          <Tooltip content={<GanttTooltip />} cursor={{ fill: 'rgb(var(--color-legacy-rgb94-a3-b8-rgb)/0.08)' }} />
           <Bar dataKey="offsetDays" stackId="gantt" fill="transparent" radius={0} isAnimationActive={false} legendType="none" />
           <Bar dataKey="barDuration" stackId="gantt" radius={[6, 6, 6, 6]} isAnimationActive={true} legendType="none">
             {data.map((entry) => (
@@ -328,12 +328,12 @@ function BaselineChart({ schedule }: { schedule: PlannedWorkItem[] }) {
           barCategoryGap="30%"
           barGap={3}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-neutral300)" />
           <XAxis
             type="number"
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: '#94a3b8', fontFamily: 'Cairo' }}
+            tick={{ fontSize: 11, fill: 'var(--color-brand-stone)', fontFamily: 'Cairo' }}
             tickFormatter={(v) => `${v}ي`}
             domain={[0, 'dataMax + 3']}
           />
@@ -343,9 +343,9 @@ function BaselineChart({ schedule }: { schedule: PlannedWorkItem[] }) {
             width={140}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 11, fill: '#475569', fontFamily: 'Cairo', fontWeight: 700, textAnchor: 'end' }}
+            tick={{ fontSize: 11, fill: 'var(--color-brand-stone)', fontFamily: 'Cairo', fontWeight: 700, textAnchor: 'end' }}
           />
-          <Tooltip content={<BaselineTooltip />} cursor={{ fill: 'rgba(148,163,184,0.08)' }} />
+          <Tooltip content={<BaselineTooltip />} cursor={{ fill: 'rgb(var(--color-legacy-rgb94-a3-b8-rgb)/0.08)' }} />
           <Legend
             iconType="circle"
             iconSize={10}
@@ -367,7 +367,7 @@ function BaselineChart({ schedule }: { schedule: PlannedWorkItem[] }) {
             ))}
           </Bar>
           <Bar dataKey="delay" name="delay" fill={COLOR_DELAY} radius={[0, 6, 6, 0]} opacity={0.85} />
-          <ReferenceLine x={0} stroke="#cbd5e1" strokeWidth={1} />
+          <ReferenceLine x={0} stroke="var(--color-neutral400)" strokeWidth={1} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -420,10 +420,10 @@ export function ProjectScheduleCharts({ project, workItems }: ProjectScheduleCha
   if (schedule.length === 0) return null
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-7" dir="rtl">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] md:p-7" dir="rtl">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-xs font-black text-[#50683f]">مخططات الجدول الزمني</p>
+          <p className="text-xs font-black text-[var(--color-brand-ink)]">مخططات الجدول الزمني</p>
           <h2 className="mt-1 text-2xl font-extrabold text-slate-900">تحليل التقدم والتأخير</h2>
           <p className="mt-2 max-w-xl text-sm font-semibold leading-6 text-slate-500">
             يتنبأ النظام بالتأخير في بنود &quot;قيد التنفيذ&quot; بناءً على معدل الإنجاز الفعلي مقارنةً بالمخطط.
@@ -434,9 +434,9 @@ export function ProjectScheduleCharts({ project, workItems }: ProjectScheduleCha
             <p className="text-[11px] font-black text-slate-400">الانتهاء المخطط</p>
             <p className="mt-1 text-sm font-black text-slate-900">{formatDate(plannedFinish)}</p>
           </div>
-          <div className="rounded-2xl bg-[#50683f]/10 px-4 py-3">
-            <p className="text-[11px] font-black text-[#50683f]">الانتهاء المتوقع</p>
-            <p className="mt-1 text-sm font-black text-[#405633]">{formatDate(expectedFinish)}</p>
+          <div className="rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-4 py-3">
+            <p className="text-[11px] font-black text-[var(--color-brand-ink)]">الانتهاء المتوقع</p>
+            <p className="mt-1 text-sm font-black text-[var(--color-brand-ink)]">{formatDate(expectedFinish)}</p>
           </div>
           <div className={`rounded-2xl px-4 py-3 ${maxDelay > 0 ? 'bg-orange-50' : 'bg-emerald-50'}`}>
             <p className={`text-[11px] font-black ${maxDelay > 0 ? 'text-orange-600' : 'text-emerald-600'}`}>التأخير المتوقع</p>
@@ -466,7 +466,7 @@ export function ProjectScheduleCharts({ project, workItems }: ProjectScheduleCha
             onClick={() => setActiveTab(key)}
             className={`rounded-xl px-4 py-2 text-sm font-extrabold transition ${
               activeTab === key
-                ? 'bg-[#50683f] text-white shadow-md'
+                ? 'bg-[var(--color-brand-ink)] text-white shadow-md'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >

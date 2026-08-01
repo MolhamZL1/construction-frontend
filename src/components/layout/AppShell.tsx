@@ -1,15 +1,18 @@
+import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
+import { BrandLogo } from '@/components/brand/BrandLogo'
 import { useSignOut } from '@/features/auth/hooks/useLoginCompany'
-import { isInternalUser } from '@/features/auth/utils/auth-navigation'
+import { isCompanyAdmin, isInternalUser, isProjectManager } from '@/features/auth/utils/auth-navigation'
 import { NotificationsMenu, NotificationToastViewport } from '@/features/notifications'
-import { useInAppNotificationCards } from '@/features/notifications/hooks/useNotifications'
 import { useFcmTokenRegistration } from '@/features/notifications/hooks/useFcmTokenRegistration'
+import { useInAppNotificationCards } from '@/features/notifications/hooks/useNotifications'
 import { AiChatAppbarWidget, AiInspectionFloatingWidget } from '@/features/tools'
 import { queryClient } from '@/lib/query-client'
 import { useAuthStore } from '@/stores/authStore'
 
 import { Sidebar } from './Sidebar'
+import { APP_CONFIG } from '@/config/design-system'
 
 function getAppbarRoleLabel(role?: string) {
   if (role === 'project_manager') return 'المهندس'
@@ -21,17 +24,30 @@ function getAppbarRoleLabel(role?: string) {
 }
 
 function UserAvatar({ name }: { name: string }) {
-  const initials = name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
+  return (
+    <span
+      className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[var(--color-brand-paper)] shadow-sm sm:flex"
+      aria-label={name}
+      title={name}
+    >
+      <BrandLogo variant="mark" className="h-7 w-7" />
+    </span>
+  )
+}
+
+function LogoutIcon({ pending = false }: { pending?: boolean }) {
+  if (pending) {
+    return <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+  }
 
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#50683f] text-sm font-black text-white shadow-sm">
-      {initials || 'م'}
-    </span>
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+      <path
+        d="M15 17l5-5-5-5M20 12H9M11 20H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
@@ -41,19 +57,22 @@ export function AppShell() {
   const user = useAuthStore((state) => state.user)
   const signOutMutation = useSignOut()
   const notificationCards = useInAppNotificationCards()
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   useFcmTokenRegistration()
 
   const hideSidebar = isInternalUser(user)
   const displayName = user?.name?.trim() || 'مستخدم النظام'
   const roleLabel = getAppbarRoleLabel(user?.role)
-  const showUserSummary = Boolean(user && hideSidebar)
 
   async function handleLogout() {
+    if (signOutMutation.isPending) return
+
     try {
       await signOutMutation.mutateAsync()
     } catch {
-      // Local logout is still required if the server session is already expired.
+      // تسجيل الخروج محلياً مطلوب حتى لو انتهت جلسة الخادم.
     } finally {
+      setLogoutDialogOpen(false)
       logout()
       queryClient.clear()
       navigate('/login', { replace: true })
@@ -61,71 +80,49 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 lg:flex-row" dir="rtl">
+    <div className="flex min-h-screen flex-col bg-[var(--color-brand-paper)] lg:flex-row" dir="rtl">
       {hideSidebar ? null : <Sidebar />}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header
-          className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 shadow-[0_1px_4px_rgba(15,23,42,0.08)] sm:px-6"
+          className="relative z-[70] flex h-[72px] items-center border-b border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white/95 px-4 shadow-[0_1px_4px_rgb(var(--color-brand-ink-rgb)/0.07)] backdrop-blur-xl sm:px-6"
           dir="rtl"
         >
-          <div className="min-w-0 flex-1">
-            {showUserSummary ? (
-              <div className="flex min-w-0 items-center gap-3 text-right">
-                <UserAvatar name={displayName} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-slate-950">{displayName}</p>
-                  <p className="mt-0.5 truncate text-xs font-bold text-[#50683f]">{roleLabel}</p>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="flex shrink-0 items-center gap-3" dir="ltr">
+          <div
+            className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 sm:left-6"
+            dir="ltr"
+          >
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={() => setLogoutDialogOpen(true)}
               disabled={signOutMutation.isPending}
-              className="flex h-10 items-center gap-2 rounded-xl bg-[#eef4eb] px-3 text-sm font-medium text-[#50683f] transition hover:bg-[#e1ebdc] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white text-[var(--color-brand-ink)] shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
               aria-label="تسجيل الخروج"
               title="تسجيل الخروج"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path
-                  d="M15 17l5-5-5-5M20 12H9M11 20H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span>{signOutMutation.isPending ? 'جاري الخروج...' : 'تسجيل الخروج'}</span>
+              <LogoutIcon pending={signOutMutation.isPending} />
             </button>
 
-            <button
-              type="button"
-              className="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 sm:flex"
-              aria-label="الإعدادات"
-              title="الإعدادات"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-                <path
-                  d="M19 12a7.5 7.5 0 0 0-.1-1.1l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.9-1.1L14.3 3h-4l-.4 2.9A8 8 0 0 0 8 7L5.6 6l-2 3.4 2 1.5A7.5 7.5 0 0 0 5.5 12c0 .4 0 .8.1 1.1l-2 1.5 2 3.4L8 17a8 8 0 0 0 1.9 1.1l.4 2.9h4l.4-2.9a8 8 0 0 0 1.9-1.1l2.4 1 2-3.4-2-1.5c.1-.3.1-.7.1-1.1Z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+            <div dir="rtl">
+              <NotificationsMenu />
+            </div>
+          </div>
 
-            <NotificationsMenu />
-            <AiChatAppbarWidget />
+          <div className="absolute right-4 top-1/2 flex max-w-[calc(100%-8.5rem)] -translate-y-1/2 items-center gap-3 text-right sm:right-6 sm:max-w-[55vw]">
+            <UserAvatar name={displayName} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black text-[var(--color-brand-ink)] sm:text-[15px]">{displayName}</p>
+              <p className="mt-0.5 truncate text-[11px] font-bold text-[var(--color-brand-stone)] sm:text-xs">{roleLabel}</p>
+            </div>
           </div>
         </header>
 
-        <main className="min-h-0 flex-1 bg-slate-50">
+        <main className="relative z-0 min-h-0 flex-1 bg-[var(--color-brand-paper)]">
           <Outlet />
         </main>
 
-        <AiInspectionFloatingWidget />
+        {isProjectManager(user) ? <AiInspectionFloatingWidget /> : null}
+        {isCompanyAdmin(user) ? <AiChatAppbarWidget /> : null}
 
         <NotificationToastViewport
           toasts={notificationCards.toasts}
@@ -136,6 +133,55 @@ export function AppShell() {
           }}
         />
       </div>
+
+      {logoutDialogOpen ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgb(var(--color-brand-ink-deep-rgb)/0.45)] p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target && !signOutMutation.isPending) {
+              setLogoutDialogOpen(false)
+            }
+          }}
+        >
+          <section
+            className="w-full max-w-sm rounded-[2rem] border border-white/70 bg-white/95 p-5 text-right shadow-[0_28px_90px_rgb(var(--color-brand-ink-deep-rgb)/0.28)] backdrop-blur-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-dialog-title"
+          >
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+              <LogoutIcon />
+            </span>
+            <h2 id="logout-dialog-title" className="mt-4 text-lg font-black text-[var(--color-brand-ink)]">
+              تسجيل الخروج من {APP_CONFIG.name}؟
+            </h2>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-brand-stone)]">
+              رح تحتاج تدخل بيانات حسابك مرة ثانية للرجوع إلى النظام.
+            </p>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setLogoutDialogOpen(false)}
+                disabled={signOutMutation.isPending}
+                className="h-11 rounded-2xl border border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white text-sm font-black text-[var(--color-brand-ink)] transition hover:bg-[var(--color-brand-paper)] disabled:opacity-60"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={signOutMutation.isPending}
+                className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-rose-600 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <LogoutIcon pending={signOutMutation.isPending} />
+                {signOutMutation.isPending ? 'جاري الخروج' : 'تأكيد الخروج'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   )
 }

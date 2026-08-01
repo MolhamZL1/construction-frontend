@@ -28,10 +28,10 @@ export const projectDetailAccentClasses: Record<
     border: 'hover:border-emerald-200',
   },
   green: {
-    text: 'text-[#50683f]',
-    iconBox: 'bg-[#50683f]/10 text-[#50683f]',
-    softBox: 'bg-[#50683f]/5 text-[#50683f]',
-    border: 'hover:border-[#50683f]/30',
+    text: 'text-[var(--color-brand-ink)]',
+    iconBox: 'bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]',
+    softBox: 'bg-[rgb(var(--color-brand-gold-rgb)/0.05)] text-[var(--color-brand-ink)]',
+    border: 'hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)]',
   },
   orange: {
     text: 'text-orange-600',

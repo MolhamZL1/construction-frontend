@@ -52,11 +52,11 @@ export function WorkItemEquipmentPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
             <WorkItemIcon name="arrow" className="h-4 w-4" />
             العودة إلى بنود العمل
           </Link>
-          <Link to="/equipments" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-extrabold text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]">
+          <Link to="/equipments" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]">
             <WorkItemIcon name="equipment" className="h-4 w-4" />
             صفحة المعدات
           </Link>

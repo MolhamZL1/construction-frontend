@@ -26,14 +26,14 @@ export function UsersToolbar({
   return (
     <div
       dir="rtl"
-      className="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.10)]"
+      className="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-[0_1px_3px_rgb(var(--color-brand-ink-rgb)/0.10)]"
     >
       <div className="flex w-full justify-start">
         <div className="w-full sm:max-w-md">
           <SearchInput
             value={search}
             onChange={onSearchChange}
-            className="h-11 w-full rounded-xl bg-[#F4F6F8] text-right"
+            className="h-11 w-full rounded-xl bg-[var(--color-brand-paper)] text-right"
             placeholder="ابحث عن مستخدم..."
           />
         </div>
@@ -55,8 +55,8 @@ export function UsersToolbar({
               onClick={() => onRoleChange(item.value)}
               className={
                 isActive
-                  ? 'rounded-xl bg-[#4A5C3F] px-4 py-2 text-sm font-semibold text-white shadow-sm'
-                  : 'rounded-xl bg-[#F4F6F8] px-4 py-2 text-sm font-semibold text-[#1A2027] transition hover:text-[#4A5C3F]'
+                  ? 'rounded-xl bg-[var(--color-brand-ink)] px-4 py-2 text-sm font-semibold text-white shadow-sm'
+                  : 'rounded-xl bg-[var(--color-brand-paper)] px-4 py-2 text-sm font-semibold text-[var(--color-brand-ink)] transition hover:text-[var(--color-brand-ink)]'
               }
             >
               {label}

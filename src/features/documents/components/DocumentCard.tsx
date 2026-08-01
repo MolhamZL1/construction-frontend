@@ -14,14 +14,14 @@ export function DocumentCard({ projectId, document }: DocumentCardProps) {
   const latestVersionLabel = getLatestVersionLabel(document)
 
   return (
-    <article className="group flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_10px_28px_rgba(15,23,42,0.07)] transition hover:-translate-y-1 hover:border-[#50683f]/30 hover:shadow-[0_18px_36px_rgba(15,23,42,0.1)]">
+    <article className="group flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.07)] transition hover:-translate-y-1 hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:shadow-[0_18px_36px_rgb(var(--color-brand-ink-rgb)/0.1)]">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
           <DocumentIcon name="document" className="h-7 w-7" />
         </div>
 
         <div className="min-w-0 flex-1">
-          <Link to={`/projects/${projectId}/documents/${document.id}`} className="block transition hover:text-[#50683f]">
+          <Link to={`/projects/${projectId}/documents/${document.id}`} className="block transition hover:text-[var(--color-brand-ink)]">
             <h2 className="truncate text-lg font-black text-slate-900">{document.title}</h2>
           </Link>
           <p className="mt-1 text-sm font-extrabold text-slate-500">
@@ -58,7 +58,7 @@ export function DocumentCard({ projectId, document }: DocumentCardProps) {
 
         <Link
           to={`/projects/${projectId}/documents/${document.id}`}
-          className="inline-flex h-10 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-[#50683f]/30 hover:bg-[#50683f]/10 hover:text-[#50683f]"
+          className="inline-flex h-10 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)] hover:text-[var(--color-brand-ink)]"
           aria-label="عرض تفاصيل المستند"
           title="عرض التفاصيل"
         >

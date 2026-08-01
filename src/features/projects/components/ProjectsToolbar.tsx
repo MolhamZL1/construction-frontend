@@ -41,7 +41,7 @@ export function ProjectsToolbar({
   const canCreateProject = user?.role === 'company_admin'
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
       <div className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center">
         <SearchInput
           value={search}
@@ -55,7 +55,7 @@ export function ProjectsToolbar({
           <select
             value={selectedStatus}
             onChange={(event) => onStatusChange(event.target.value as ProjectStatusFilter)}
-            className="h-12 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+            className="h-12 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
             aria-label="تصفية المشاريع حسب الحالة"
           >
             {statusOptions.map((option) => (
@@ -69,7 +69,7 @@ export function ProjectsToolbar({
         </div>{canCreateProject ? (
           <Link
                     to="/projects/create"
-                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#435834] active:scale-[0.98]"
+                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M12 5v14M5 12h14" strokeLinecap="round" />

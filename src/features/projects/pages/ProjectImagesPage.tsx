@@ -109,7 +109,7 @@ export function ProjectImagesPage() {
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]">
+            <Link to={`/projects/${id}`} className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
               <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
               العودة إلى تفاصيل المشروع
             </Link>
@@ -123,7 +123,7 @@ export function ProjectImagesPage() {
         </div>
 
         <section className="grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-          <form onSubmit={handleSubmit} className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.07)]">
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)]">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900">إضافة صورة</h2>
               <p className="mt-1 text-sm font-semibold text-slate-500">ارفع صورة واضحة واكتب اسم الفراغ مثل صالون، مطبخ، غرفة نوم.</p>
@@ -135,7 +135,7 @@ export function ProjectImagesPage() {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="مثال: صالون"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
               />
             </label>
 
@@ -149,7 +149,7 @@ export function ProjectImagesPage() {
                   setSelectedFile(event.target.files?.[0] ?? null)
                   setFormError(null)
                 }}
-                className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm font-bold text-slate-600 file:ml-4 file:rounded-xl file:border-0 file:bg-[#50683f] file:px-4 file:py-2 file:text-sm file:font-extrabold file:text-white"
+                className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm font-bold text-slate-600 file:ml-4 file:rounded-xl file:border-0 file:bg-[var(--color-brand-ink)] file:px-4 file:py-2 file:text-sm file:font-extrabold file:text-white"
               />
             </label>
 
@@ -172,7 +172,7 @@ export function ProjectImagesPage() {
             <button
               type="submit"
               disabled={uploadMutation.isPending}
-              className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {uploadMutation.isPending ? 'جاري رفع الصورة...' : 'رفع الصورة'}
             </button>
@@ -197,7 +197,7 @@ export function ProjectImagesPage() {
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
                 {images.map((image) => (
-                  <article key={image.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+                  <article key={image.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_30px_rgb(var(--color-brand-ink-rgb)/0.07)]">
                     <a href={image.imageUrl} target="_blank" rel="noreferrer" className="block bg-slate-100">
                       <img src={image.imageUrl} alt={image.name} className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02]" />
                     </a>

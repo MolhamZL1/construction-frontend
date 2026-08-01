@@ -18,7 +18,7 @@ const maintenanceTypeLabels: Record<string, string> = {
 export function EquipmentHistoryTables({ bookingHistory, maintenanceHistory }: EquipmentHistoryTablesProps) {
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
         <TableHeader title="تاريخ الحجوزات" subtitle="جميع المشاريع التي استخدمت هذه المعدة" />
         <div className="overflow-x-auto">
           <table className="min-w-full text-right text-sm">

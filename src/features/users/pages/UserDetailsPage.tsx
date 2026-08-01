@@ -26,7 +26,7 @@ export function UserDetailsPage() {
 
   if (userQuery.isLoading) {
     return (
-      <section dir="rtl" className="min-h-screen bg-[#F9FAFB] px-4 py-6 sm:px-6 lg:px-8">
+      <section dir="rtl" className="min-h-screen bg-[var(--color-brand-paper)] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <LoadingState label="جاري تحميل تفاصيل المستخدم..." />
         </div>
@@ -36,7 +36,7 @@ export function UserDetailsPage() {
 
   if (userQuery.isError) {
     return (
-      <section dir="rtl" className="min-h-screen bg-[#F9FAFB] px-4 py-6 sm:px-6 lg:px-8">
+      <section dir="rtl" className="min-h-screen bg-[var(--color-brand-paper)] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-5">
           <DetailsBackLink />
           <UsersErrorState message={getUsersErrorMessage(userQuery.error)} />
@@ -47,7 +47,7 @@ export function UserDetailsPage() {
 
   if (!user) {
     return (
-      <section dir="rtl" className="min-h-screen bg-[#F9FAFB] px-4 py-6 sm:px-6 lg:px-8">
+      <section dir="rtl" className="min-h-screen bg-[var(--color-brand-paper)] px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-5">
           <DetailsBackLink />
           <div className="rounded-2xl border border-slate-200 bg-white px-5 py-12 text-center text-sm font-semibold text-slate-600 shadow-sm">
@@ -59,7 +59,7 @@ export function UserDetailsPage() {
   }
 
   return (
-    <section dir="rtl" className="min-h-screen bg-[#F9FAFB] px-4 py-6 text-right sm:px-6 lg:px-8">
+    <section dir="rtl" className="min-h-screen bg-[var(--color-brand-paper)] px-4 py-6 text-right sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-6">
         <DetailsBackLink />
 
@@ -67,10 +67,10 @@ export function UserDetailsPage() {
          
 
           <div>
-            <h1 className="text-2xl font-bold text-[#1A2027] sm:text-3xl">
+            <h1 className="text-2xl font-bold text-[var(--color-brand-ink)] sm:text-3xl">
               تفاصيل المستخدم
             </h1>
-            <p className="mt-2 text-sm font-medium leading-6 text-[#637381]">
+            <p className="mt-2 text-sm font-medium leading-6 text-[var(--color-brand-stone)]">
               معلومات مفصلة عن المستخدم ومشاريعه
             </p>
           </div>
@@ -97,7 +97,7 @@ function DetailsBackLink() {
     <div className="flex justify-start">
       <Link
         to="/users"
-        className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[#4A5C3F] shadow-sm transition hover:border-[#4A5C3F]/40 hover:bg-[#F4F6F8]"
+        className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-[var(--color-brand-ink)] shadow-sm transition hover:border-[rgb(var(--color-brand-ink-rgb)/0.4)] hover:bg-[var(--color-brand-paper)]"
       >
         <svg
           className="h-4 w-4"

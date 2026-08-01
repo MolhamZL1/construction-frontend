@@ -19,9 +19,9 @@ export function LoadingState({ label = 'جاري تحميل البيانات...'
     >
       <div className="flex flex-col items-center gap-3">
         <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-full border-4 border-[#50683f]/10" />
-          <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[#50683f] border-l-[#50683f]" />
-          <div className="absolute inset-3 rounded-full bg-[#50683f]/10" />
+          <div className="absolute inset-0 rounded-full border-4 border-[rgb(var(--color-brand-ink-rgb)/0.1)]" />
+          <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[var(--color-brand-ink)] border-l-[var(--color-brand-ink)]" />
+          <div className="absolute inset-3 rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)]" />
         </div>
         <p className="text-sm font-medium text-slate-600">{label}</p>
       </div>

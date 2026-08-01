@@ -22,7 +22,7 @@ export function ProjectsEmptyState({ hasFilters, onClearFilters }: ProjectsEmpty
           <button
             type="button"
             onClick={onClearFilters}
-            className="mt-4 rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-[#50683f] transition hover:bg-[#eef4eb]"
+            className="mt-4 rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-[var(--color-brand-ink)] transition hover:bg-[var(--color-brand-gold-surface)]"
           >
             مسح الفلاتر
           </button>

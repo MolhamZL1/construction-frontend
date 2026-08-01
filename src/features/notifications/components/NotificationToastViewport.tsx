@@ -41,11 +41,11 @@ export function NotificationToastViewport({ toasts, onDismiss, onOpen }: Notific
           tabIndex={onOpen ? 0 : undefined}
           onClick={() => onOpen?.(toast)}
           onKeyDown={(event) => handleKeyDown(event, toast)}
-          className="pointer-events-auto overflow-hidden rounded-2xl border border-slate-200 bg-white text-right shadow-[0_20px_60px_rgba(15,23,42,0.18)] outline-none transition hover:-translate-y-0.5 hover:border-[#50683f]/30 hover:shadow-[0_22px_70px_rgba(15,23,42,0.22)] focus:ring-2 focus:ring-[#50683f]/20"
+          className="pointer-events-auto overflow-hidden rounded-2xl border border-slate-200 bg-white text-right shadow-[0_20px_60px_rgb(var(--color-brand-ink-rgb)/0.18)] outline-none transition hover:-translate-y-0.5 hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:shadow-[0_22px_70px_rgb(var(--color-brand-ink-rgb)/0.22)] focus:ring-2 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.2)]"
           title={onOpen ? 'فتح الإشعار' : undefined}
         >
           <div className="flex gap-3 px-4 py-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef4eb] text-[#50683f]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
               <BellIcon />
             </span>
 
@@ -55,7 +55,7 @@ export function NotificationToastViewport({ toasts, onDismiss, onOpen }: Notific
                 {onOpen ? <span className="shrink-0 text-slate-300"><OpenIcon /></span> : null}
               </div>
               {toast.body ? <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{toast.body}</p> : null}
-              {onOpen ? <p className="mt-1.5 text-[11px] font-bold text-[#50683f]">اضغط لفتح التفاصيل</p> : null}
+              {onOpen ? <p className="mt-1.5 text-[11px] font-bold text-[var(--color-brand-ink)]">اضغط لفتح التفاصيل</p> : null}
             </div>
 
             <button
@@ -72,7 +72,7 @@ export function NotificationToastViewport({ toasts, onDismiss, onOpen }: Notific
               </svg>
             </button>
           </div>
-          <div className="h-1 bg-[#50683f]" />
+          <div className="h-1 bg-[var(--color-brand-ink)]" />
         </div>
       ))}
     </div>

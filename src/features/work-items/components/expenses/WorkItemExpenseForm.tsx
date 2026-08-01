@@ -36,7 +36,7 @@ export function WorkItemExpenseForm({ workItems, value, onChange, onSubmit, isSu
       />
 
       <label className="flex flex-col gap-2 text-sm font-semibold text-slate-700">
-        المبلغ
+        المبلغ ($)
         <input
           type="number"
           min="0"
@@ -45,7 +45,7 @@ export function WorkItemExpenseForm({ workItems, value, onChange, onSubmit, isSu
           disabled={isSubmitting}
           onChange={(event) => onChange({ ...value, amount: event.target.value })}
           placeholder="مثلاً: 45000"
-          className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+          className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)] disabled:cursor-not-allowed disabled:bg-slate-50"
         />
       </label>
 
@@ -55,9 +55,9 @@ export function WorkItemExpenseForm({ workItems, value, onChange, onSubmit, isSu
           value={value.description}
           disabled={isSubmitting}
           onChange={(event) => onChange({ ...value, description: event.target.value })}
-          placeholder="اكتب سبب المصروف أو ملاحظته"
+          placeholder="مثال: أجرة الورشة أو طعام العمال"
           rows={5}
-          className="resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10 disabled:cursor-not-allowed disabled:bg-slate-50"
+          className="resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)] disabled:cursor-not-allowed disabled:bg-slate-50"
         />
       </label>
 
@@ -66,7 +66,7 @@ export function WorkItemExpenseForm({ workItems, value, onChange, onSubmit, isSu
       <button
         type="submit"
         disabled={!canSubmit}
-        className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-6 text-sm font-black text-white shadow-sm transition hover:bg-[#415735] disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-6 text-sm font-black text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {isSubmitting ? 'جاري الحفظ...' : 'حفظ المصروف'}
       </button>

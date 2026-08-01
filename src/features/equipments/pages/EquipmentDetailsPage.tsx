@@ -53,7 +53,7 @@ export function EquipmentDetailsPage() {
 
 function BackLink() {
   return (
-    <Link to="/equipments" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-[#50683f]">
+    <Link to="/equipments" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-[var(--color-brand-ink)]">
       <svg className="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
       </svg>

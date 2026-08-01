@@ -14,7 +14,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#EEF0EC] text-[#4A5C3F]">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
             <svg className="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M20 21a8 8 0 0 0-16 0" strokeLinecap="round" />
               <circle cx="12" cy="8" r="4" />
@@ -22,16 +22,16 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           </div>
 
           <div className="min-w-0">
-            <h2 className="truncate text-2xl font-bold leading-tight text-[#1A2027]">
+            <h2 className="truncate text-2xl font-bold leading-tight text-[var(--color-brand-ink)]">
               {user.name ?? '—'}
             </h2>
 
-            <p className="mt-2 truncate text-sm font-medium text-[#637381]" dir="ltr">
+            <p className="mt-2 truncate text-sm font-medium text-[var(--color-brand-stone)]" dir="ltr">
               {user.internal_id ?? '—'}
             </p>
 
             {user.email ? (
-              <p className="mt-1 truncate text-sm font-medium text-[#637381]" dir="ltr">
+              <p className="mt-1 truncate text-sm font-medium text-[var(--color-brand-stone)]" dir="ltr">
                 {user.email}
               </p>
             ) : null}
@@ -43,7 +43,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-[#637381] sm:min-w-72">
+        <div className="grid gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-[var(--color-brand-stone)] sm:min-w-72">
           <InfoRow label="تاريخ الانضمام" value={formatNumericArabicDate(user.created_at)} />
           <InfoRow label="آخر تحديث" value={formatNumericArabicDate(user.updated_at)} />
           <InfoRow label="المعرف الداخلي" value={user.internal_id ?? '—'} ltr />
@@ -65,7 +65,7 @@ function InfoRow({
   return (
     <div className="flex items-center justify-between gap-4">
       <span>{label}</span>
-      <span className="text-[#1A2027]" dir={ltr ? 'ltr' : 'rtl'}>
+      <span className="text-[var(--color-brand-ink)]" dir={ltr ? 'ltr' : 'rtl'}>
         {value}
       </span>
     </div>

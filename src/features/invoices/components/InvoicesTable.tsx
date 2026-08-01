@@ -24,7 +24,7 @@ export function InvoicesTable({ projectId, invoices, archived = false, onArchive
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_14px_38px_rgba(15,23,42,0.06)]">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_14px_38px_rgb(var(--color-brand-ink-rgb)/0.06)]">
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-full divide-y divide-slate-100 text-right">
           <thead className="bg-slate-100/80">
@@ -50,7 +50,7 @@ export function InvoicesTable({ projectId, invoices, archived = false, onArchive
                       <p className="font-extrabold text-slate-950">{invoice.invoiceNumber}</p>
                       {invoice.notes ? <p className="mt-1 max-w-72 truncate text-xs font-medium text-slate-400">{invoice.notes}</p> : null}
                     </div>
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef4eb] text-[#50683f]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
                       <InvoiceIcon name="file" className="h-4 w-4" />
                     </span>
                   </div>
@@ -72,7 +72,7 @@ export function InvoicesTable({ projectId, invoices, archived = false, onArchive
                   <div className="flex items-center justify-end gap-2">
                     <Link
                       to={`/projects/${projectId}/invoices/${invoice.id}`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]"
                       title="تفاصيل الفاتورة"
                     >
                       <InvoiceIcon name="details" className="h-4 w-4" />

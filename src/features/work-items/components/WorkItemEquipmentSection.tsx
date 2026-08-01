@@ -115,7 +115,7 @@ export function WorkItemEquipmentSection({ projectId, item, canManage = true, di
       {finishMutation.isSuccess ? <NoticeBox tone="success" message="تم إنهاء الحجز بنجاح." /> : null}
 
       <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
           <SectionTitle
             title="المعدات المحجوزة للبند"
             description="تعرض هذه الصفحة حجوزات هذا البند مع تواريخ الحجز المقروءة من تفاصيل المعدة."
@@ -147,7 +147,7 @@ export function WorkItemEquipmentSection({ projectId, item, canManage = true, di
           )}
         </div>
 
-        <form onSubmit={handleBook} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+        <form onSubmit={handleBook} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
           <SectionTitle
             title="إضافة حجز معدة"
             description="اختر معدة من القائمة المتاحة وحدد تاريخ بداية الحجز."
@@ -162,7 +162,7 @@ export function WorkItemEquipmentSection({ projectId, item, canManage = true, di
                 onChange={(event) => setEquipmentId(event.target.value)}
                 required
                 disabled={!canManage || availableEquipmentsQuery.isLoading}
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
               >
                 <option value="">اختر معدة</option>
                 {availableEquipments.map((equipment) => (
@@ -187,7 +187,7 @@ export function WorkItemEquipmentSection({ projectId, item, canManage = true, di
                 onChange={(event) => setStartDate(event.target.value)}
                 required
                 disabled={!canManage}
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
               />
             </label>
 
@@ -198,13 +198,13 @@ export function WorkItemEquipmentSection({ projectId, item, canManage = true, di
                 onChange={(event) => setNotes(event.target.value)}
                 disabled={!canManage}
                 placeholder="ملاحظات اختيارية للحجز"
-                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-[#50683f] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
+                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-[var(--color-brand-gold)] focus:bg-white disabled:bg-slate-100 disabled:text-slate-400"
               />
             </label>
 
             <button
               disabled={!canManage || bookMutation.isPending || !equipmentId || !startDate}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-4 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-4 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
             >
               <WorkItemIcon name="equipment" className="h-4 w-4" />
               {bookMutation.isPending ? 'جاري الحجز...' : 'حجز المعدة'}
@@ -274,14 +274,14 @@ function BookingCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {booking.equipmentId ? (
-          <Link to={`/equipments/${booking.equipmentId}`} className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-extrabold text-slate-600 transition hover:border-[#50683f]/40 hover:text-[#50683f]">
+          <Link to={`/equipments/${booking.equipmentId}`} className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-ink-rgb)/0.4)] hover:text-[var(--color-brand-ink)]">
             <WorkItemIcon name="info" className="h-4 w-4" />
             فتح المعدة
           </Link>
         ) : null}
 
         {!isEnding ? (
-          <button type="button" onClick={onStartEnding} disabled={!canManage} className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-3 text-xs font-extrabold text-white transition hover:bg-[#405633] disabled:bg-slate-200 disabled:text-slate-500">
+          <button type="button" onClick={onStartEnding} disabled={!canManage} className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-3 text-xs font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:bg-slate-200 disabled:text-slate-500">
             <WorkItemIcon name="check" className="h-4 w-4" />
             إنهاء الحجز
           </button>
@@ -298,7 +298,7 @@ function BookingCard({
               value={endDate}
               onChange={(event) => onEndDateChange(event.target.value)}
               disabled={!canManage || isFinishing}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold outline-none focus:border-[#50683f]"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold outline-none focus:border-[var(--color-brand-gold)]"
             />
           </label>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -323,7 +323,7 @@ function InfoCell({ label, value }: { label: string; value: string }) {
 function SectionTitle({ title, description, icon }: { title: string; description: string; icon: Parameters<typeof WorkItemIcon>[0]['name'] }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#50683f]/10 text-[#50683f]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] text-[var(--color-brand-ink)]">
         <WorkItemIcon name={icon} className="h-5 w-5" />
       </span>
       <div>

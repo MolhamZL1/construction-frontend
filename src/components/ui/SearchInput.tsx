@@ -25,7 +25,7 @@ export function SearchInput({
     <div
       dir="rtl"
       className={cn(
-        'flex h-11 min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-500 transition focus-within:border-[#50683f] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#50683f]/10',
+        'flex h-11 min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-500 transition focus-within:border-[var(--color-brand-gold)] focus-within:bg-white focus-within:ring-4 focus-within:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]',
         disabled && 'opacity-70',
         className
       )}

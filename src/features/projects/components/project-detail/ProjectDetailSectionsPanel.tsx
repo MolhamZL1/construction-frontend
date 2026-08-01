@@ -20,7 +20,7 @@ export function ProjectDetailSectionsPanel({
   const canViewDurationExtensions = role === 'project_manager' || role === 'engineer'
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgba(15,23,42,0.07)] md:p-7">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.07)] md:p-7">
       <div className="mb-6 flex flex-col gap-1">
         <h2 className="text-2xl font-extrabold text-slate-900">أقسام المشروع</h2>
         <p className="text-sm font-medium text-slate-500">الأقسام التشغيلية الأساسية للمشروع</p>
@@ -43,7 +43,7 @@ export function ProjectDetailSectionsPanel({
         />
         <ProjectDetailSectionCard
           title="صور قبل الإكساء"
-          description="معرض صور الشقة قبل بدء التنفيذ"
+          description=" صور الشقة قبل التنفيذ"
           icon="home"
           accent="cyan"
           to={`/projects/${projectId}/images`}
@@ -56,8 +56,8 @@ export function ProjectDetailSectionsPanel({
           to={`/projects/${projectId}/work-items`}
         />
         <ProjectDetailSectionCard
-          title="مصاريف الورشات"
-          description="تسجيل ومتابعة المصاريف"
+          title="تكاليف وأجور الورشات"
+          description="تسجيل أجور الورش والتكاليف المرتبطة بها"
           icon="invoice"
           accent="green"
           to={`/projects/${projectId}/expenses`}

@@ -1,6 +1,8 @@
+import { DESIGN_SYSTEM } from './design-system'
+
 export const env = {
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api',
-  APP_NAME: import.meta.env.VITE_APP_NAME ?? 'نظام إدارة مشاريع الإكساء',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL ?? DESIGN_SYSTEM.app.defaultApiBaseUrl,
+  APP_NAME: import.meta.env.VITE_APP_NAME ?? DESIGN_SYSTEM.app.title,
 
   FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
   FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? '',

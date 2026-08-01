@@ -4,6 +4,11 @@ export function isCompanyAdmin(user: AuthUser | null | undefined) {
   return user?.role === 'company_admin'
 }
 
+export function isProjectManager(user: AuthUser | null | undefined) {
+  const role = String(user?.role ?? '').toLowerCase()
+  return role === 'project_manager' || role === 'engineer'
+}
+
 export function isInternalUser(user: AuthUser | null | undefined) {
   return Boolean(user?.role) && !isCompanyAdmin(user)
 }

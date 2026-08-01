@@ -27,13 +27,13 @@ export function ProjectDetailSectionCard({ title, description, icon, accent, to,
           <p className="mt-1 text-sm font-medium text-slate-500">{description}</p>
         </div>
       </div>
-      <span className="mr-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition group-hover:bg-slate-50 group-hover:text-[#50683f]">
+      <span className="mr-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition group-hover:bg-slate-50 group-hover:text-[var(--color-brand-ink)]">
         <ProjectDetailIcon name="arrow" className="h-5 w-5" />
       </span>
     </>
   )
 
-  const className = `group flex min-h-[112px] items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)] ${accentClasses.border}`
+  const className = `group flex min-h-[112px] items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgb(var(--color-brand-ink-rgb)/0.08)] ${accentClasses.border}`
 
   if (to) {
     return (

@@ -46,11 +46,11 @@ export function CreateEquipmentForm({ onCreated }: CreateEquipmentFormProps) {
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم المعدة" error={errors.name?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="text" placeholder="Excavator ZX200" {...register('name')} />
+          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" type="text" placeholder="Excavator ZX200" {...register('name')} />
         </Field>
 
         <Field label="النوع" error={errors.type?.message}>
-          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10" type="text" placeholder="Excavator" {...register('type')} />
+          <input className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]" type="text" placeholder="Excavator" {...register('type')} />
         </Field>
       </div>
 
@@ -61,7 +61,7 @@ export function CreateEquipmentForm({ onCreated }: CreateEquipmentFormProps) {
       <button
         type="submit"
         disabled={createEquipmentMutation.isPending}
-        className="rounded-lg bg-[#50683f] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#435834] disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="rounded-lg bg-[var(--color-brand-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400"
       >
         {createEquipmentMutation.isPending ? 'جاري الإضافة...' : 'حفظ المعدة'}
       </button>

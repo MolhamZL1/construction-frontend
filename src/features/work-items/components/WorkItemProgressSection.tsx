@@ -169,8 +169,8 @@ function clampNumberText(value: string, max?: number) {
   return value
 }
 
-function canReviewProgressRequests(role?: string) {
-  return role === 'company_admin' || role === 'project_manager'
+function canReviewProgressRequests(role?: string | null) {
+  return role === 'project_manager' || role === 'engineer'
 }
 
 function NumericProgressSummary({ counters }: { counters: ReturnType<typeof getWorkItemProgressCounters> }) {
@@ -184,7 +184,7 @@ function NumericProgressSummary({ counters }: { counters: ReturnType<typeof getW
           <p className="mt-1 text-lg font-black text-slate-900">
             {counter.completed} / {counter.total}
           </p>
-          <p className="mt-1 text-xs font-bold text-[#50683f]">المتبقي: {counter.remaining}</p>
+          <p className="mt-1 text-xs font-bold text-[var(--color-brand-ink)]">المتبقي: {counter.remaining}</p>
         </div>
       ))}
     </div>
@@ -197,9 +197,14 @@ function hasSpace(spaces: WorkItemProgressSpace[], spaceId: string) {
 
 export function WorkItemProgressSection({ projectId, item, projectStatus }: WorkItemProgressSectionProps) {
   const userRole = useAuthStore((state) => state.user?.role)
+  const isCompanyAdmin = userRole === 'company_admin'
   const canReviewRequests = canReviewProgressRequests(userRole)
   const progressMutation = useUpdateWorkItemProgress(projectId)
-  const progressRequestsQuery = useWorkItemProgressRequests(projectId, item.id)
+  const progressRequestsQuery = useWorkItemProgressRequests(
+    projectId,
+    item.id,
+    canReviewRequests,
+  )
   const approveRequestMutation = useApproveProgressRequest(projectId, item.id)
   const rejectRequestMutation = useRejectProgressRequest(projectId, item.id)
   const [selectedSpaceId, setSelectedSpaceId] = useState('')
@@ -225,7 +230,17 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
   const spacesProgressQuery = useWorkItemSpacesProgress(projectId, item.id, Boolean(config.needsSpace))
   const unfinishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.unfinished ?? [], config), [config, spacesProgressQuery.data?.unfinished])
   const finishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.finished ?? [], config), [config, spacesProgressQuery.data?.finished])
-  const pendingSpaceRequestIds = useMemo(() => new Set((progressRequestsQuery.data ?? []).filter((request) => request.status === 'pending').map((request) => String(request.payload.space_id ?? request.payload.spaceId ?? '')).filter(Boolean)), [progressRequestsQuery.data])
+  const pendingSpaceRequestIds = useMemo(
+    () => canReviewRequests
+      ? new Set(
+          (progressRequestsQuery.data ?? [])
+            .filter((request) => request.status === 'pending')
+            .map((request) => String(request.payload.space_id ?? request.payload.spaceId ?? ''))
+            .filter(Boolean),
+        )
+      : new Set<string>(),
+    [canReviewRequests, progressRequestsQuery.data],
+  )
   const selectableUnfinishedSpaces = useMemo(() => unfinishedSpaces.filter((space) => !pendingSpaceRequestIds.has(space.id)), [pendingSpaceRequestIds, unfinishedSpaces])
 
   useEffect(() => {
@@ -246,10 +261,14 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
   const isItemOngoing = item.status === 'ongoing'
   const canUpdateProgress = isProjectOngoing && isItemOngoing
   const spacesProgressError = config.needsSpace && spacesProgressQuery.isError ? getWorkItemsErrorMessage(spacesProgressQuery.error) : ''
-  const progressRequestsError = progressRequestsQuery.isError ? getWorkItemsErrorMessage(progressRequestsQuery.error) : ''
+  const progressRequestsError = canReviewRequests && progressRequestsQuery.isError
+    ? getWorkItemsErrorMessage(progressRequestsQuery.error)
+    : ''
   const pendingProgressRequests = useMemo(
-    () => (progressRequestsQuery.data ?? []).filter((request) => request.status === 'pending'),
-    [progressRequestsQuery.data]
+    () => canReviewRequests
+      ? (progressRequestsQuery.data ?? []).filter((request) => request.status === 'pending')
+      : [],
+    [canReviewRequests, progressRequestsQuery.data],
   )
   const isSpacesProgressLoading = Boolean(config.needsSpace && spacesProgressQuery.isLoading)
   const hasNoUnfinishedSpaces = Boolean(config.needsSpace && !isSpacesProgressLoading && !spacesProgressError && selectableUnfinishedSpaces.length === 0)
@@ -316,6 +335,14 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLElement | null
+
+    if (submitter?.closest('[data-ai-inspection-action="true"]')) {
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+
     event.preventDefault()
     setValidationError('')
 
@@ -382,21 +409,21 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
           setSelectedSpaceId('')
           setSelectedImagesCount(0)
           if (config.needsSpace) void spacesProgressQuery.refetch()
-          void progressRequestsQuery.refetch()
+          if (canReviewRequests) void progressRequestsQuery.refetch()
         },
       }
     )
   }
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black text-[#50683f]">طلب تحديث إنجاز</p>
+          <p className="text-xs font-black text-[var(--color-brand-ink)]">طلب تحديث إنجاز</p>
           <h2 className="mt-1 text-xl font-black text-slate-900">{config.title}</h2>
           <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">{config.helper}</p>
         </div>
-        <div className="rounded-2xl bg-[#50683f]/10 px-5 py-3 text-center text-[#50683f]">
+        <div className="rounded-2xl bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-5 py-3 text-center text-[var(--color-brand-ink)]">
           <p className="text-2xl font-black">{Math.round(item.progressPercent)}%</p>
           <p className="text-xs font-black">الإنجاز الحالي</p>
         </div>
@@ -405,7 +432,7 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
       {!canUpdateProgress ? <div className="mb-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-700">{disabledReason}</div> : null}
       {validationError ? <div className="mb-5 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold leading-6 text-amber-700">{validationError}</div> : null}
       {progressMutation.isError ? <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{getWorkItemsErrorMessage(progressMutation.error)}</div> : null}
-      {approveRequestMutation.isError || rejectRequestMutation.isError ? <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{getWorkItemsErrorMessage(approveRequestMutation.error ?? rejectRequestMutation.error)}</div> : null}
+      {canReviewRequests && (approveRequestMutation.isError || rejectRequestMutation.isError) ? <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{getWorkItemsErrorMessage(approveRequestMutation.error ?? rejectRequestMutation.error)}</div> : null}
       {progressMutation.isSuccess ? <div className="mb-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">تم إرسال طلب تحديث الإنجاز بنجاح.</div> : null}
 
       <NumericProgressSummary counters={progressCounters} />
@@ -418,16 +445,18 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
             selectedSpaceId={selectedSpaceId}
             onSelect={setSelectedSpaceId}
             disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
-            isLoading={isSpacesProgressLoading || progressRequestsQuery.isLoading}
-            errorMessage={spacesProgressError || progressRequestsError}
-            progressRequests={progressRequestsQuery.data ?? []}
+            isLoading={isSpacesProgressLoading || (canReviewRequests && progressRequestsQuery.isLoading)}
+            errorMessage={spacesProgressError || (canReviewRequests ? progressRequestsError : '')}
+            progressRequests={canReviewRequests ? (progressRequestsQuery.data ?? []) : []}
             canReviewRequests={canReviewRequests}
+            showPendingRequests={!isCompanyAdmin}
+            showPendingSpacesAsUnfinished={isCompanyAdmin}
             onApproveRequest={openApproveDialog}
             onRejectRequest={openRejectDialog}
           />
         ) : null}
 
-        {!config.needsSpace ? (
+        {!config.needsSpace && canReviewRequests ? (
           <ProgressRequestsPanel
             requests={pendingProgressRequests}
             isLoading={progressRequestsQuery.isLoading}
@@ -456,7 +485,7 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
                           checked={Boolean(value)}
                           onChange={(event) => updateField(field, event)}
                           disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
-                          className="h-5 w-5 rounded border-slate-300 text-[#50683f] focus:ring-[#50683f]"
+                          className="h-5 w-5 rounded border-slate-300 text-[var(--color-brand-ink)] focus:ring-[var(--color-brand-gold)]"
                         />
                         <span>{field.label}</span>
                       </label>
@@ -475,7 +504,7 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
                         value={typeof value === 'string' ? value : ''}
                         onChange={(event) => updateField(field, event)}
                         disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
-                        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-2 focus:ring-[#50683f]/10 disabled:bg-slate-50 disabled:text-slate-400"
+                        className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-2 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)] disabled:bg-slate-50 disabled:text-slate-400"
                       />
                       {field.helper ? <span className="mt-1 block text-xs font-semibold text-slate-400">{field.helper}</span> : null}
                     </label>
@@ -500,7 +529,7 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
             <button
               type="submit"
               disabled={!canUpdateProgress || progressMutation.isPending || isSpacesProgressLoading || Boolean(spacesProgressError) || (config.needsSpace && !selectedSpaceId)}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#50683f] px-5 text-sm font-extrabold text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
             >
               <WorkItemIcon name={progressMutation.isPending ? 'reload' : 'send'} className="h-4 w-4" />
               <span>{progressMutation.isPending ? 'جاري إرسال الطلب...' : 'إرسال طلب تحديث الإنجاز'}</span>

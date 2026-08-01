@@ -1,0 +1,127 @@
+:root {
+  font-family: var(--font-family-brand);
+  color: var(--color-brand-ink);
+  color-scheme: light;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+
+  --surface-page: var(--color-brand-paper);
+  --surface-card: var(--color-white);
+  --surface-soft: var(--color-brand-gold-surface);
+  --text-primary: var(--color-brand-ink);
+  --text-secondary: var(--color-brand-stone);
+  --border-default: rgb(var(--color-brand-stone-rgb) / 0.24);
+  --focus-ring: rgb(var(--color-brand-gold-rgb) / 0.28);
+  --shadow-soft: 0 12px 36px rgb(var(--color-brand-ink-rgb) / 0.06);
+  --shadow-card: 0 18px 50px rgb(var(--color-brand-ink-rgb) / 0.08);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--surface-page);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  direction: rtl;
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 10% 0%, rgb(var(--color-brand-gold-rgb) / 0.09), transparent 28rem),
+    var(--surface-page);
+}
+
+::selection {
+  color: var(--text-primary);
+  background: rgb(var(--color-brand-gold-rgb) / 0.28);
+}
+
+*:focus-visible {
+  outline-color: rgb(var(--color-brand-gold-rgb) / 0.9);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+[class~='bg-slate-50'] { background-color: var(--surface-page) !important; }
+[class~='bg-slate-50/80'] { background-color: rgb(var(--color-brand-paper-rgb) / 0.8) !important; }
+[class~='bg-slate-50/70'] { background-color: rgb(var(--color-brand-paper-rgb) / 0.7) !important; }
+[class~='bg-slate-50/60'] { background-color: rgb(var(--color-brand-paper-rgb) / 0.6) !important; }
+[class~='bg-slate-100'] { background-color: var(--color-neutral-100) !important; }
+[class~='bg-slate-200'] { background-color: var(--color-neutral-200) !important; }
+[class~='text-slate-950'],
+[class~='text-slate-900'],
+[class~='text-slate-800'],
+[class~='text-slate-700'] { color: var(--text-primary) !important; }
+[class~='text-slate-600'],
+[class~='text-slate-500'] { color: var(--text-secondary) !important; }
+[class~='text-slate-400'] { color: var(--color-brand-stone-soft) !important; }
+[class~='text-slate-300'] { color: var(--color-neutral-500) !important; }
+[class~='border-slate-100'] { border-color: rgb(var(--color-brand-stone-rgb) / 0.15) !important; }
+[class~='border-slate-200'] { border-color: var(--border-default) !important; }
+[class~='border-slate-300'] { border-color: rgb(var(--color-brand-stone-rgb) / 0.36) !important; }
+[class~='ring-slate-100'],
+[class~='ring-slate-200'] { --tw-ring-color: rgb(var(--color-brand-gold-rgb) / 0.18) !important; }
+[class~='hover:bg-slate-50']:hover,
+[class~='hover:bg-slate-50/80']:hover { background-color: rgb(var(--color-brand-gold-rgb) / 0.08) !important; }
+[class~='hover:bg-slate-100']:hover { background-color: rgb(var(--color-brand-gold-rgb) / 0.13) !important; }
+[class~='hover:text-slate-700']:hover { color: var(--text-primary) !important; }
+
+.mutqin-surface {
+  border: 1px solid var(--border-default);
+  background: rgb(var(--color-white-rgb) / 0.94);
+  box-shadow: var(--shadow-card);
+}
+
+.mutqin-brand-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--color-brand-gold-rgb) / 0.6), transparent);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--color-brand-stone-rgb) / 0.55) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-track { background: transparent; }
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgb(var(--color-brand-stone-rgb) / 0.5);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--color-brand-gold-rgb) / 0.72);
+}
+
+/* MUTQIN_AUTH_AUTOFILL_START */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-brand-ink) !important;
+  caret-color: var(--color-brand-ink);
+  -webkit-box-shadow:
+    inset 0 0 0 1000px rgb(var(--color-white-rgb) / 0.76),
+    inset 0 1px 0 rgb(var(--color-white-rgb) / 0.95),
+    0 10px 30px rgb(var(--color-brand-ink-rgb) / 0.045) !important;
+  transition: background-color 9999s ease-out 0s;
+}
+/* MUTQIN_AUTH_AUTOFILL_END */

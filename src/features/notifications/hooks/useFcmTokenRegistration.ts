@@ -4,9 +4,10 @@ import { env } from '@/config/env'
 import { useAuthStore } from '@/stores/authStore'
 
 import { sendFcmToken } from '../api/fcm-token.api'
+import { EXTERNAL_SERVICES } from '@/config/design-system'
 
-const FIREBASE_APP_URL = 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'
-const FIREBASE_MESSAGING_URL = 'https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging.js'
+const FIREBASE_APP_URL = EXTERNAL_SERVICES.firebaseSdk.appScriptUrl
+const FIREBASE_MESSAGING_URL = EXTERNAL_SERVICES.firebaseSdk.messagingScriptUrl
 const STORAGE_PREFIX = 'cladding-system:fcm-token:last-sent'
 
 type FirebaseAppModule = {

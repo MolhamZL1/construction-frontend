@@ -40,9 +40,9 @@ export function MaterialForm({ mode, initialMaterial, unitOptions, isSubmitting,
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
+    <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_35px_rgb(var(--color-brand-ink-rgb)/0.06)]">
       <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-5">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef4eb] text-[#50683f]">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--color-brand-gold-surface)] text-[var(--color-brand-ink)]">
           <MaterialIcon name="box" />
         </span>
         <div>
@@ -58,7 +58,7 @@ export function MaterialForm({ mode, initialMaterial, unitOptions, isSubmitting,
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="مثال: Cement"
-            className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+            className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
           />
         </label>
 
@@ -67,7 +67,7 @@ export function MaterialForm({ mode, initialMaterial, unitOptions, isSubmitting,
           <select
             value={unit}
             onChange={(event) => setUnit(event.target.value)}
-            className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+            className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-semibold text-slate-700 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
           >
             <option value="">اختر وحدة القياس</option>
             {options.map((option) => (
@@ -84,7 +84,7 @@ export function MaterialForm({ mode, initialMaterial, unitOptions, isSubmitting,
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#50683f] px-5 py-3 text-sm font-black text-white transition hover:bg-[#405433] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-ink)] px-5 py-3 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <MaterialIcon name="save" className="h-4 w-4" />
           {isSubmitting ? 'جاري الحفظ...' : mode === 'create' ? 'حفظ المادة' : 'حفظ التعديل'}

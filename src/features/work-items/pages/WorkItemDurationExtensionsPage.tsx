@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 
 import { BackButton, LoadingState } from '@/components/ui'
 import { useAuthStore } from '@/stores/authStore'
@@ -120,22 +120,7 @@ export function WorkItemDurationExtensionsPage() {
   }
 
   if (!canView) {
-    return (
-      <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-amber-100 bg-amber-50 px-6 py-10 text-center">
-          <p className="text-lg font-black text-amber-900">طلبات تمديد الوقت متاحة للمهندس فقط</p>
-          <p className="mt-2 text-sm font-semibold leading-6 text-amber-700">
-            لا تظهر هذه الصفحة للمدير أو الأدمن. يمكن للمهندس إنشاء الطلبات واعتمادها أو رفضها.
-          </p>
-          <Link
-            to={`/projects/${projectId}/work-items/${currentWorkItemId}`}
-            className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-white px-4 text-sm font-black text-amber-700 ring-1 ring-amber-100 transition hover:bg-amber-100"
-          >
-            العودة لتفاصيل البند
-          </Link>
-        </div>
-      </section>
-    )
+    return <Navigate replace to={`/projects/${projectId}/work-items/${currentWorkItemId}`} />
   }
 
   if (itemsQuery.isLoading) {
@@ -249,7 +234,7 @@ function HeaderCard({
   onCreateClick: () => void
 }) {
   return (
-    <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] sm:p-6">
+    <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700 ring-1 ring-amber-100">
@@ -269,7 +254,7 @@ function HeaderCard({
           <button
             type="button"
             onClick={onCreateClick}
-            className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-black text-white shadow-sm transition hover:bg-[#405633] active:scale-[0.98]"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
           >
             إنشاء طلب تمديد
           </button>
@@ -344,7 +329,7 @@ function CreateDurationExtensionDialog({
         <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-[#50683f]">طلب تمديد وقت</p>
+              <p className="text-xs font-black uppercase tracking-wide text-[var(--color-brand-ink)]">طلب تمديد وقت</p>
               <h2 className="mt-1 text-xl font-black text-slate-950">إنشاء طلب تمديد للبند</h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
                 حدد عدد الأيام المطلوبة واكتب سبب التأخير بشكل مختصر وواضح.
@@ -371,7 +356,7 @@ function CreateDurationExtensionDialog({
               min={1}
               value={requestedDays}
               onChange={(event) => setRequestedDays(event.target.value)}
-              className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-black text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+              className="mt-2 h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-sm font-black text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
             />
           </label>
 
@@ -381,7 +366,7 @@ function CreateDurationExtensionDialog({
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               rows={4}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#50683f] focus:ring-4 focus:ring-[#50683f]/10"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]"
               placeholder="مثال: تأخر توريد المواد أو انتظار اعتماد من المالك..."
             />
           </label>
@@ -407,7 +392,7 @@ function CreateDurationExtensionDialog({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-black text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
           </button>

@@ -49,7 +49,7 @@ function CountField({
   placeholder: string
 }) {
   return (
-    <label className="block rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,0.04)] transition focus-within:border-[#50683f] focus-within:ring-4 focus-within:ring-[#50683f]/10">
+    <label className="block rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgb(var(--color-brand-ink-rgb)/0.04)] transition focus-within:border-[var(--color-brand-gold)] focus-within:ring-4 focus-within:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]">
       <span className="mb-3 block text-sm font-black text-slate-800">{label}</span>
       <input
         type="number"
@@ -156,10 +156,10 @@ export function ProjectInitialWorkItemDetailsPage() {
   return (
     <section className="min-h-screen bg-slate-50 px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-5xl space-y-6">
-        <header className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+        <header className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgb(var(--color-brand-ink-rgb)/0.06)]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <span className="inline-flex rounded-full bg-[#50683f]/10 px-3 py-1 text-xs font-black text-[#50683f]">
+              <span className="inline-flex rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.1)] px-3 py-1 text-xs font-black text-[var(--color-brand-ink)]">
                 خطوة إعداد أولية
               </span>
               <h1 className="text-3xl font-black text-slate-950">تحديد عدد الأبواب والنوافذ</h1>
@@ -186,7 +186,7 @@ export function ProjectInitialWorkItemDetailsPage() {
         ) : null}
 
         {!projectQuery.isLoading && !projectQuery.isError ? (
-          <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+          <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_44px_rgb(var(--color-brand-ink-rgb)/0.06)]">
             <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-xl font-black text-slate-950">أعداد أبواب ونوافذ المشروع</h2>
@@ -230,7 +230,7 @@ export function ProjectInitialWorkItemDetailsPage() {
               <button
                 type="submit"
                 disabled={updateMutation.isPending || !targetWorkItem}
-                className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#50683f] px-7 text-sm font-black text-white transition hover:bg-[#405633] disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-7 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 {updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ ومتابعة'}
               </button>

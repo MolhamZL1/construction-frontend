@@ -8,11 +8,11 @@ interface InvoiceDetailsMetaProps {
 
 export function InvoiceDetailsMeta({ invoice }: InvoiceDetailsMetaProps) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-[0_10px_34px_rgba(15,23,42,0.05)]">
+    <section className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-[0_10px_34px_rgb(var(--color-brand-ink-rgb)/0.05)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#eef4eb] px-3 py-1 text-xs font-black text-[#50683f]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-gold-surface)] px-3 py-1 text-xs font-black text-[var(--color-brand-ink)]">
               <InvoiceIcon name="file" className="h-4 w-4" />
               {invoice.invoiceNumber}
             </span>

@@ -22,7 +22,7 @@ export function DurationExtensionRequestCard({
   const workItemName = request.workItem?.name ?? (request.workItemId ? `بند #${request.workItemId}` : 'بند غير محدد')
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+    <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.06)]">
       <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
@@ -45,7 +45,7 @@ export function DurationExtensionRequestCard({
           {request.workItemId ? (
             <Link
               to={`/projects/${projectId}/work-items/${request.workItemId}/duration-extensions`}
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:border-[#50683f]/30 hover:text-[#50683f]"
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
             >
               تفاصيل البند
             </Link>
@@ -80,7 +80,7 @@ export function DurationExtensionRequestCard({
             <button
               type="button"
               onClick={() => onApprove?.(request)}
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-black text-white transition hover:bg-[#405633] active:scale-[0.98]"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
             >
               قبول التمديد
             </button>

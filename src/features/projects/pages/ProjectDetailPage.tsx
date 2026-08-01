@@ -60,15 +60,34 @@ export function ProjectDetailPage() {
 
     return [
       {
-        key: 'weather',
-        label: 'طقس المشروع',
-        description: 'حالة الطقس وتأثيرها على العمل.',
-        to: `/projects/${id}/weather`,
-        icon: 'cloud',
-        accent: 'cyan',
-        meta: temperature,
+        key: 'ai-visualizations',
+        label: 'التصاميم الذكية',
+        description: 'توليد وتعديل تصاميم الإكساء.',
+        to: `/projects/${id}/ai-visualizations`,
+        icon: 'home',
+        accent: 'purple',
+        meta: 'AI',
       },
+     
       {
+        key: 'crew-cost',
+        label: 'حساب أجور الورش',
+        description: 'حساب أجور اللياسة والدهان والبلاط.',
+        to: `/projects/${id}/crew-cost`,
+        icon: 'calculator',
+        accent: 'green',
+        meta: 'حساب',
+      },
+
+      {
+        key: 'budget',
+        label: 'تقدير الميزانية',
+        description: 'تقدير المواد وأجور الورش والتكلفة الكلية.',
+        to: `/projects/${id}/budget`,
+        icon: 'materials',
+        accent: 'orange',
+        meta: 'تقدير',
+      }, {
         key: 'timeline-analysis',
         label: 'التحليل الزمني',
         description: 'مخططات التنفيذ والتأخير المتوقع.',
@@ -78,31 +97,13 @@ export function ProjectDetailPage() {
         meta: 'مخططات',
       },
       {
-        key: 'crew-cost',
-        label: 'تقدير أجور الورش',
-        description: 'حساب أجور اللياسة والدهان والبلاط.',
-        to: `/projects/${id}/crew-cost`,
-        icon: 'calculator',
-        accent: 'green',
-        meta: 'حساب',
-      },
-      {
-        key: 'material-estimate',
-        label: 'تقدير المواد',
-        description: 'كميات تقريبية حسب مساحة المشروع.',
-        to: `/projects/${id}/material-estimate`,
-        icon: 'materials',
-        accent: 'orange',
-        meta: 'كميات',
-      },
-      {
-        key: 'ai-visualizations',
-        label: 'التصاميم الذكية',
-        description: 'توليد وتعديل تصاميم الإكساء.',
-        to: `/projects/${id}/ai-visualizations`,
-        icon: 'home',
-        accent: 'purple',
-        meta: 'AI',
+        key: 'weather',
+        label: 'طقس المشروع',
+        description: 'حالة الطقس وتأثيرها على العمل.',
+        to: `/projects/${id}/weather`,
+        icon: 'cloud',
+        accent: 'cyan',
+        meta: temperature,
       },
     ]
   }, [id, weatherQuery.data?.currentWeather?.temperature, weatherQuery.isError, weatherQuery.isLoading])
@@ -167,7 +168,7 @@ export function ProjectDetailPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[#50683f]"
+            className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-500 transition hover:text-[var(--color-brand-ink)]"
           >
             <ProjectDetailIcon name="arrow" className="h-5 w-5 rtl:rotate-180" />
             العودة إلى المشاريع

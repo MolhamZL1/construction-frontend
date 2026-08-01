@@ -16,7 +16,7 @@ export function DeleteSpaceDialog({ space, isOpen, isDeleting, errorMessage, onC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4" dir="rtl" role="dialog" aria-modal="true">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-[0_24px_70px_rgb(var(--color-brand-ink-rgb)/0.25)]">
         <div className="mb-4 flex items-start gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
             <SpaceIcon name="warning" className="h-6 w-6" />

@@ -31,9 +31,9 @@ export function ServerUnavailablePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[#eef4eb] px-5 py-8 text-right" dir="rtl">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[var(--color-brand-gold-surface)] px-5 py-8 text-right" dir="rtl">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-4xl items-center justify-center">
-        <section className="w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
+        <section className="w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.12)]">
           <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5 sm:px-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ export function ServerUnavailablePage() {
               <button
                 type="button"
                 onClick={handleRetry}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#50683f] px-5 text-sm font-black text-white transition hover:bg-[#405633]"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)]"
               >
                 إعادة المحاولة
               </button>

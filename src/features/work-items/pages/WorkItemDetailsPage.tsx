@@ -2,14 +2,24 @@ import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { LoadingState } from '@/components/ui'
+import { useAuthStore } from '@/stores/authStore'
 
+import { WorkItemDurationExtensionsInlineSection } from '../components/duration-extensions/WorkItemDurationExtensionsInlineSection'
 import { WorkItemCommentsSection } from '../components/WorkItemCommentsSection'
 import { WorkItemFinishedSpacesSection } from '../components/WorkItemFinishedSpacesSection'
 import { WorkItemSpecCard } from '../components/WorkItemSpecCard'
 import { getWorkItemsErrorMessage, useWorkItems } from '../hooks/useWorkItems'
 
+function isEngineerRole(role?: string | null) {
+  const normalizedRole = String(role ?? '').trim()
+
+  return normalizedRole === 'project_manager' || normalizedRole === 'engineer'
+}
+
 export function WorkItemDetailsPage() {
   const { id, workItemId } = useParams<{ id: string; workItemId: string }>()
+  const role = useAuthStore((state) => state.user?.role)
+  const canViewEngineerTools = isEngineerRole(role)
   const projectId = id ?? ''
   const itemsQuery = useWorkItems(projectId)
   const item = useMemo(() => (itemsQuery.data ?? []).find((candidate) => candidate.id === workItemId), [itemsQuery.data, workItemId])
@@ -48,7 +58,7 @@ export function WorkItemDetailsPage() {
         <div className="flex justify-start">
           <Link
             to={`/projects/${projectId}/work-items`}
-            className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[#50683f]"
+            className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]"
           >
             العودة إلى بنود العمل
           </Link>
@@ -56,34 +66,15 @@ export function WorkItemDetailsPage() {
 
         <WorkItemSpecCard item={item} />
 
-        <DurationExtensionEntryCard projectId={projectId} workItemId={item.id} />
+        {canViewEngineerTools ? (
+          <>
+            <WorkItemDurationExtensionsInlineSection projectId={projectId} workItemId={item.id} workItemName={item.name} />
+            <WorkItemFinishedSpacesSection projectId={projectId} item={item} />
+          </>
+        ) : null}
 
-        <WorkItemFinishedSpacesSection projectId={projectId} item={item} />
         <WorkItemCommentsSection projectId={projectId} item={item} />
       </div>
     </section>
-  )
-}
-
-function DurationExtensionEntryCard({ projectId, workItemId }: { projectId: string; workItemId: string }) {
-  return (
-    <div className="overflow-hidden rounded-3xl border border-amber-100 bg-amber-50/60 text-right shadow-sm">
-      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-wide text-amber-700">تمديد الوقت</p>
-          <h2 className="mt-1 text-lg font-black text-slate-950">طلبات تمديد مدة البند</h2>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-            عند تأخر البند، يمكن للمساعد إرسال طلب تمديد، ويقوم المهندس بقبوله أو رفضه.
-          </p>
-        </div>
-
-        <Link
-          to={`/projects/${projectId}/work-items/${workItemId}/duration-extensions`}
-          className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#50683f] px-5 text-sm font-black text-white shadow-sm transition hover:bg-[#405633] active:scale-[0.98]"
-        >
-          فتح طلبات التمديد
-        </Link>
-      </div>
-    </div>
   )
 }
