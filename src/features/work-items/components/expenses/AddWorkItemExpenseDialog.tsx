@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
 import { getWorkItemExpensesErrorMessage } from '../../api/work-item-expenses.api'
 import { useCreateWorkItemExpense } from '../../hooks/useWorkItemExpenses'
@@ -33,12 +33,6 @@ export function AddWorkItemExpenseDialog({
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const createExpenseMutation = useCreateWorkItemExpense()
-
-  const selectedWorkItem = useMemo(
-    () => workItems.find((item) => item.id === workItemId) ?? null,
-    [workItemId, workItems],
-  )
-
   useEffect(() => {
     if (!open) return
 

@@ -11,7 +11,7 @@ import {
   type AiConversation,
 } from '../api/ai-chat.api'
 
-type UiMessage = AiChatMessage & {
+type UiMessage = Omit<AiChatMessage, 'role'> & {
   id: string
   role: 'user' | 'assistant' | 'error'
 }

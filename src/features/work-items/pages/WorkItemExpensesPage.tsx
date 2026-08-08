@@ -65,8 +65,6 @@ export function WorkItemExpensesPage() {
   )
 
   const expensesSummary = expensesQuery.data
-  const selectedWorkItem = workItems.find((item) => item.id === selectedWorkItemId)
-
   function handleWorkItemChange(value: string) {
     setSelectedWorkItemId(value)
     setSearchParams(value ? { workItemId: value } : {})
