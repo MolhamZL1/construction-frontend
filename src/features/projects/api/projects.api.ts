@@ -2,6 +2,16 @@ import { api } from '@/lib/axios'
 import type {
   AssignEngineerInput, CreateProjectInput, CreateSpaceInput, CreateWorkItemInput, FinishType, Project, ProjectEngineer, ProjectEngineerRole, ProjectSpace, ProjectStatus, ProjectSummary, ProjectWeather, ProjectWeatherByDate, QualityLevel, ReorderWorkItemsInput, SpaceType, ToiletType, UpdateWorkItemInput, UpdateProjectInput, UpdateSpaceInput, UpdateWorkItemDetailsInput, WorkItem, WorkItemDetail } from '../models/project.model'
 
+interface ProjectOwnerDto {
+  id: number | string
+  name: string
+  email?: string | null
+  internal_id?: string | null
+  status?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
 interface ProjectDto {
   id: number | string
   name: string
@@ -22,6 +32,7 @@ interface ProjectDto {
   percent?: number | string | null
   created_at?: string
   updated_at?: string
+  owner?: ProjectOwnerDto | null
 }
 
 interface WorkItemDto {
@@ -166,6 +177,17 @@ function mapProject(dto: ProjectDto): Project {
     projectManagerId: toNullableString(dto.project_manager_id),
     assistantEngineerId: toNullableString(dto.assistant_engineer_id),
     ownerId: toNullableString(dto.owner_id),
+    owner: dto.owner
+      ? {
+          id: String(dto.owner.id),
+          name: dto.owner.name,
+          email: dto.owner.email ?? null,
+          internalId: dto.owner.internal_id ?? null,
+          status: dto.owner.status ?? null,
+          createdAt: dto.owner.created_at,
+          updatedAt: dto.owner.updated_at,
+        }
+      : null,
     createdBy: toNullableString(dto.created_by),
     updatedBy: toNullableString(dto.updated_by),
     startedAt: dto.started_at ?? null,

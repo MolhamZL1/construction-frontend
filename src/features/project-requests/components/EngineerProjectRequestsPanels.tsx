@@ -110,7 +110,7 @@ function ProgressRequestsPanel({ requests }: { requests: ProjectProgressRequest[
       icon="progress"
     >
       {requests.length === 0 ? (
-        <EmptyRequests label="ما في طلبات تحديث إنجاز معلقة." />
+        <EmptyRequests label="لا يوجد طلبات تحديث إنجاز معلقة." />
       ) : (
         <div className="max-h-[290px] divide-y divide-slate-100 overflow-y-auto">
           {requests.slice(0, 8).map((request) => (
@@ -153,7 +153,7 @@ function DurationRequestsPanel({ requests }: { requests: ProjectDurationExtensio
       icon="clock"
     >
       {requests.length === 0 ? (
-        <EmptyRequests label="ما في طلبات تمديد وقت معلقة." />
+        <EmptyRequests label="لا يوجد طلبات تمديد وقت معلقة." />
       ) : (
         <div className="max-h-[290px] divide-y divide-slate-100 overflow-y-auto">
           {requests.slice(0, 8).map((request) => (

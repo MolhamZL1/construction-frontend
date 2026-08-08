@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { LoadingState } from '@/components/ui'
+import { useAuthStore } from '@/stores/authStore'
 import { useProjectDocuments } from '@/features/documents/hooks/useDocuments'
 
 import { ProjectDetailErrorState } from '../components/project-detail/ProjectDetailErrorState'
@@ -10,6 +11,7 @@ import { ProjectDetailIcon } from '../components/project-detail/ProjectDetailIco
 import { ProjectDetailSectionsPanel } from '../components/project-detail/ProjectDetailSectionsPanel'
 import { ProjectDetailStats, type ProjectDetailStatItem } from '../components/project-detail/ProjectDetailStats'
 import { ProjectLifecycleActions } from '../components/project-detail/ProjectLifecycleActions'
+import { ProjectOwnerDialog } from '../components/project-detail/ProjectOwnerDialog'
 import {
   ProjectLifecycleConfirmDialog,
   type ProjectLifecycleAction,
@@ -18,6 +20,7 @@ import {
   getProjectsErrorMessage,
   useCompleteProject,
   useProjectEngineers,
+  useProjects,
   useProjectSummary,
   useProjectWeather,
   useProjectWorkItems,
@@ -27,8 +30,12 @@ import {
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [lifecycleAction, setLifecycleAction] = useState<ProjectLifecycleAction | null>(null)
+  const [isOwnerDialogOpen, setIsOwnerDialogOpen] = useState(false)
+  const currentUserRole = useAuthStore((state) => String(state.user?.role ?? '').trim().toLowerCase())
+  const canManageProjectOwner = currentUserRole === 'company_admin'
 
   const summaryQuery = useProjectSummary(id)
+  const projectsQuery = useProjects()
   const workItemsQuery = useProjectWorkItems(id)
   const engineersQuery = useProjectEngineers(id)
   const weatherQuery = useProjectWeather(id)
@@ -39,7 +46,19 @@ export function ProjectDetailPage() {
   const project = summaryQuery.data?.project
   const spaces = summaryQuery.data?.spaces ?? []
   const workItems = workItemsQuery.data ?? summaryQuery.data?.workItems ?? []
-  const engineers = engineersQuery.data ?? []
+  const projectMembers = engineersQuery.data ?? []
+  const ownerAssignment = projectMembers.find((member) => member.role === 'project_owner') ?? null
+  const engineers = projectMembers.filter((member) => member.role !== 'project_owner')
+  const projectFromList = projectsQuery.data?.find((item) => item.id === id)
+  const owner = project?.owner ?? projectFromList?.owner ?? (ownerAssignment?.user
+    ? {
+        id: ownerAssignment.user.id,
+        name: ownerAssignment.user.name,
+        email: ownerAssignment.user.email ?? null,
+        internalId: ownerAssignment.user.internalId ?? null,
+        status: ownerAssignment.user.status ?? null,
+      }
+    : null)
   const documents = documentsQuery.data?.documents ?? []
 
   const isLifecyclePending = startProjectMutation.isPending || completeProjectMutation.isPending
@@ -178,6 +197,8 @@ export function ProjectDetailPage() {
         <ProjectDetailHeaderCard
           project={project}
           editTo={`/projects/${id}/edit`}
+          ownerName={owner?.name ?? null}
+          onOwnerClick={canManageProjectOwner ? () => setIsOwnerDialogOpen(true) : undefined}
           lifecycleActions={
             <ProjectLifecycleActions
               project={project}
@@ -206,6 +227,16 @@ export function ProjectDetailPage() {
         onCancel={closeLifecycleDialog}
         onConfirm={confirmLifecycleAction}
       />
+
+      {canManageProjectOwner ? (
+        <ProjectOwnerDialog
+          projectId={id}
+          isOpen={isOwnerDialogOpen}
+          currentOwner={owner ?? null}
+          currentOwnerAssignmentId={ownerAssignment?.id ?? null}
+          onClose={() => setIsOwnerDialogOpen(false)}
+        />
+      ) : null}
     </section>
   )
 }

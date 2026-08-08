@@ -9,5 +9,4 @@ export const projectTeamRoleLabels: Record<ProjectEngineerRole, string> = {
 export const projectTeamRoleOptions: Array<{ value: ProjectEngineerRole; label: string }> = [
   { value: 'project_manager', label: projectTeamRoleLabels.project_manager },
   { value: 'assistant', label: projectTeamRoleLabels.assistant },
-  { value: 'project_owner', label: projectTeamRoleLabels.project_owner },
 ]

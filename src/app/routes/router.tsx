@@ -39,6 +39,7 @@ import {
   WorkItemProgressPage,
 } from '@/features/work-items'
 import { ArchivedProjectInvoicesPage, CreateProjectInvoicePage, ProjectInvoiceDetailsPage, ProjectInvoicesPage } from '@/features/invoices'
+import { CreateProjectReturnInvoicePage, ProjectReturnInvoiceDetailsPage, ProjectReturnInvoicesPage } from '@/features/returns'
 import { WorkItemDurationExtensionsPage } from '@/features/work-items/pages/WorkItemDurationExtensionsPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { NotificationsPage } from '@/features/notifications'
@@ -104,6 +105,18 @@ export const router = createBrowserRouter([
           {
             path: '/projects/:id/invoices',
             element: <ProjectInvoicesPage />,
+          },
+          {
+            path: '/projects/:id/returns/create',
+            element: <CreateProjectReturnInvoicePage />,
+          },
+          {
+            path: '/projects/:id/returns/:returnId',
+            element: <ProjectReturnInvoiceDetailsPage />,
+          },
+          {
+            path: '/projects/:id/returns',
+            element: <ProjectReturnInvoicesPage />,
           },
           {
             path: '/projects/:id/duration-extensions',

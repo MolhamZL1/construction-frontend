@@ -92,6 +92,13 @@ export function ProjectDetailSectionsPanel({
           accent="pink"
           to={`/projects/${projectId}/invoices`}
         />
+        <ProjectDetailSectionCard
+          title="المسترجعات"
+          description="المواد والكميات المعادة إلى الموردين"
+          icon="invoice"
+          accent="orange"
+          to={`/projects/${projectId}/returns`}
+        />
       </div>
     </section>
   )

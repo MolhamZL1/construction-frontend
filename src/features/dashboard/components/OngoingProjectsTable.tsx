@@ -8,6 +8,9 @@ import { DashboardIcon } from './DashboardIcon'
 
 interface OngoingProjectsTableProps {
   projects: DashboardOngoingProject[]
+  isLoading?: boolean
+  isError?: boolean
+  onRetry?: () => void
 }
 
 const statusDetails: Record<DashboardProjectHealthStatus, { label: string; className: string }> = {
@@ -29,7 +32,51 @@ function clampPercentage(value: number) {
   return Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0))
 }
 
-export function OngoingProjectsTable({ projects }: OngoingProjectsTableProps) {
+function RemainingDays({ value }: { value: number }) {
+  const isOverdue = value < 0
+
+  return (
+    <span className={`inline-flex items-center gap-2 text-xs font-black ${isOverdue ? 'text-rose-700' : 'text-slate-700'}`}>
+      <DashboardIcon name="clock" className={`h-4 w-4 ${isOverdue ? 'text-rose-400' : 'text-slate-400'}`} />
+      {isOverdue ? (
+        <>
+          <span>متأخر</span>
+          <span className="tabular-nums">{Math.abs(value)}</span>
+          <span className="text-rose-400">يوم</span>
+        </>
+      ) : (
+        <>
+          <span className="tabular-nums">{value}</span>
+          <span className="text-slate-400">يوم</span>
+        </>
+      )}
+    </span>
+  )
+}
+
+function LoadingRows() {
+  return (
+    <div className="space-y-3 px-5 py-5 sm:px-6" aria-label="جاري تحميل المشاريع">
+      {[0, 1, 2].map((row) => (
+        <div key={row} className="grid min-w-[760px] grid-cols-[1.45fr_1fr_.7fr_.8fr_.8fr_.8fr] items-center gap-4 rounded-2xl border border-slate-100 px-4 py-4">
+          <div className="h-4 w-40 animate-pulse rounded-full bg-slate-200" />
+          <div className="h-2.5 w-full animate-pulse rounded-full bg-slate-200" />
+          <div className="h-4 w-16 animate-pulse rounded-full bg-slate-200" />
+          <div className="h-4 w-20 animate-pulse rounded-full bg-slate-200" />
+          <div className="h-4 w-20 animate-pulse rounded-full bg-slate-200" />
+          <div className="h-7 w-24 animate-pulse rounded-full bg-slate-200" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function OngoingProjectsTable({
+  projects,
+  isLoading = false,
+  isError = false,
+  onRetry,
+}: OngoingProjectsTableProps) {
   return (
     <section className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_35px_rgb(var(--color-brand-ink-rgb)/0.05)]">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
@@ -39,23 +86,50 @@ export function OngoingProjectsTable({ projects }: OngoingProjectsTableProps) {
           </span>
           <div className="min-w-0">
             <h2 className="truncate text-base font-black text-slate-950">المشاريع قيد التنفيذ</h2>
+            <p className="mt-1 text-xs font-semibold text-slate-500">متابعة التقدم والمدة والتكلفة الحالية لكل مشروع</p>
           </div>
         </div>
 
-        <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600">
-          {projects.length} مشاريع
-        </span>
+        {!isLoading && !isError ? (
+          <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600">
+            {projects.length} {projects.length === 1 ? 'مشروع' : 'مشاريع'}
+          </span>
+        ) : null}
       </header>
 
-      {projects.length === 0 ? (
+      {isLoading ? <LoadingRows /> : null}
+
+      {!isLoading && isError ? (
+        <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+            <DashboardIcon name="refresh" className="h-6 w-6" />
+          </span>
+          <h3 className="mt-4 text-base font-black text-slate-800">تعذر تحميل المشاريع</h3>
+          <p className="mt-2 text-sm font-semibold text-slate-500">تحقق من الاتصال بالخادم ثم حاول مرة أخرى.</p>
+          {onRetry ? (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-4 py-2.5 text-xs font-black text-white transition hover:opacity-90"
+            >
+              <DashboardIcon name="refresh" className="h-4 w-4" />
+              إعادة المحاولة
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {!isLoading && !isError && projects.length === 0 ? (
         <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
             <DashboardIcon name="project" className="h-6 w-6" />
           </span>
           <h3 className="mt-4 text-base font-black text-slate-800">لا توجد مشاريع قيد التنفيذ</h3>
-          <p className="mt-2 text-sm font-semibold text-slate-500">ستظهر المشاريع هنا عند توفر البيانات.</p>
+          <p className="mt-2 text-sm font-semibold text-slate-500">ستظهر المشاريع هنا عند وجود مشاريع جارية.</p>
         </div>
-      ) : (
+      ) : null}
+
+      {!isLoading && !isError && projects.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1040px] border-collapse text-right">
             <thead>
@@ -97,11 +171,7 @@ export function OngoingProjectsTable({ projects }: OngoingProjectsTableProps) {
                     </td>
 
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center gap-2 text-xs font-black text-slate-700">
-                        <DashboardIcon name="clock" className="h-4 w-4 text-slate-400" />
-                        <span className="tabular-nums">{project.remainingDays}</span>
-                        <span className="text-slate-400">يوم</span>
-                      </span>
+                      <RemainingDays value={project.remainingDays} />
                     </td>
 
                     <td className="px-4 py-4">
@@ -136,7 +206,7 @@ export function OngoingProjectsTable({ projects }: OngoingProjectsTableProps) {
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
     </section>
   )
 }

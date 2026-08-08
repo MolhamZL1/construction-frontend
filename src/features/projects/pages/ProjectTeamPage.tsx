@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BackButton, LoadingState, SearchInput } from '@/components/ui'
+import { useAuthStore } from '@/stores/authStore'
 import {
   getProjectsErrorMessage,
   useProjectEngineers,
@@ -15,13 +16,15 @@ export function ProjectTeamPage() {
   const projectId = id ?? ''
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const currentUserRole = useAuthStore((state) => String(state.user?.role ?? '').trim().toLowerCase())
+  const canAddTeamMember = currentUserRole === 'company_admin'
 
   const summaryQuery = useProjectSummary(projectId)
   const engineersQuery = useProjectEngineers(projectId)
   const removeMutation = useRemoveEngineer()
 
   const project = summaryQuery.data?.project
-  const members = engineersQuery.data ?? []
+  const members = (engineersQuery.data ?? []).filter((member) => member.role !== 'project_owner')
 
   const filteredMembers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
@@ -97,20 +100,22 @@ export function ProjectTeamPage() {
               </h1>
 
               <p className="mt-2 text-sm leading-6 text-slate-500 sm:text-base">
-                إدارة أعضاء فريق العمل المعينين لمشروع:{' '}
+                {canAddTeamMember ? 'إدارة' : 'عرض'} أعضاء فريق العمل المعينين لمشروع:{' '}
                 <span className="font-semibold text-slate-800">{project.name}</span>
               </p>
             </div>
 
-            <Link
-              to={`/projects/${projectId}/team/create`}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-              </svg>
-              إضافة عضو
-            </Link>
+            {canAddTeamMember ? (
+              <Link
+                to={`/projects/${projectId}/team/create`}
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                </svg>
+                إضافة عضو
+              </Link>
+            ) : null}
           </div>
 
           <SearchInput

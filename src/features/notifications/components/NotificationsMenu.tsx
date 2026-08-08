@@ -68,8 +68,7 @@ export function NotificationsMenu() {
                 </span>
                 <div>
                   <h2 className="text-sm font-black text-slate-900">الإشعارات</h2>
-                  <p className="mt-0.5 text-xs font-semibold text-slate-500">{notifications.length} إشعار في سجل المتابعة</p>
-                </div>
+              </div>
               </div>
 
               <button

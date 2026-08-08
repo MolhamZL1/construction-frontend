@@ -8,15 +8,17 @@ import { OnTimeDeliveryChart } from '../components/OnTimeDeliveryChart'
 import { DashboardAiInspectionPanel } from '../components/DashboardAiInspectionPanel'
 import { DashboardQuickActions } from '../components/DashboardQuickActions'
 import {
-  dashboardDeliveryPerformancePreview,
-  dashboardOngoingProjectsPreview,
-} from '../data/dashboard-overview.preview'
-import { useDashboardCustomerSatisfaction } from '../hooks/useDashboard'
+  useDashboardCustomerSatisfaction,
+  useDashboardDeliveryPerformance,
+  useDashboardOngoingProjects,
+} from '../hooks/useDashboard'
 
 export function DashboardPage() {
   const [userDialogOpen, setUserDialogOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const satisfactionQuery = useDashboardCustomerSatisfaction()
+  const ongoingProjectsQuery = useDashboardOngoingProjects()
+  const deliveryPerformanceQuery = useDashboardDeliveryPerformance()
 
   useEffect(() => {
     if (!successMessage) return
@@ -37,8 +39,18 @@ export function DashboardPage() {
         ) : null}
 
         <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(330px,0.55fr)]">
-          <OngoingProjectsTable projects={dashboardOngoingProjectsPreview} />
-          <OnTimeDeliveryChart data={dashboardDeliveryPerformancePreview} />
+          <OngoingProjectsTable
+            projects={ongoingProjectsQuery.data ?? []}
+            isLoading={ongoingProjectsQuery.isLoading}
+            isError={ongoingProjectsQuery.isError}
+            onRetry={() => ongoingProjectsQuery.refetch()}
+          />
+          <OnTimeDeliveryChart
+            data={deliveryPerformanceQuery.data}
+            isLoading={deliveryPerformanceQuery.isLoading}
+            isError={deliveryPerformanceQuery.isError}
+            onRetry={() => deliveryPerformanceQuery.refetch()}
+          />
         </div>
 
         <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(370px,0.62fr)_minmax(0,1.38fr)]">

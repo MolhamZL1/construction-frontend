@@ -1,5 +1,15 @@
 export type ProjectStatus = 'planned' | 'ongoing' | 'completed'
 export type ProjectEngineerRole = 'project_manager' | 'assistant' | 'project_owner'
+
+export interface ProjectOwner {
+  id: string
+  name: string
+  email?: string | null
+  internalId?: string | null
+  status?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
 export type SpaceType = 'room' | 'salon' | 'kitchen' | 'bathroom' | 'toilet' | 'corridor' | 'entrance' | 'shed' | 'storage' | string
 export type FinishType = 'paint' | 'ceramic' | 'gypsum' | 'none' | 'custom'
 export type ToiletType = 'none' | 'arabic' | 'western' | string
@@ -18,6 +28,7 @@ export interface Project {
   projectManagerId: string | null
   assistantEngineerId: string | null
   ownerId: string | null
+  owner?: ProjectOwner | null
   createdBy: string | null
   updatedBy: string | null
   startedAt: string | null

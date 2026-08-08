@@ -13,12 +13,16 @@ interface ProjectDetailHeaderCardProps {
   project: Project
   editTo: string
   lifecycleActions?: ReactNode
+  ownerName?: string | null
+  onOwnerClick?: () => void
 }
 
 export function ProjectDetailHeaderCard({
   project,
   editTo,
   lifecycleActions,
+  ownerName,
+  onOwnerClick,
 }: ProjectDetailHeaderCardProps) {
   const canEditProject = project.status === 'planned'
   const isCompleted = String(project.status).toLowerCase() === 'completed'
@@ -62,6 +66,30 @@ export function ProjectDetailHeaderCard({
                     <span>الارتفاع:</span>
                     <span dir="ltr">{formatMeasurement(project.height)} م</span>
                   </span>
+
+                  {onOwnerClick ? (
+                    <button
+                      type="button"
+                      onClick={onOwnerClick}
+                      className="group inline-flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-right transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.08)] hover:text-[var(--color-brand-ink)]"
+                      title="تحديد أو تغيير مالك المشروع"
+                    >
+                      <ProjectDetailIcon name="users" className="h-4 w-4 text-slate-400 transition group-hover:text-[var(--color-brand-ink)]" />
+                      <span>المالك:</span>
+                      <span className={ownerName ? 'font-bold text-slate-700' : 'font-semibold text-slate-400'}>
+                        {ownerName ?? 'لم يتم تحديد مالك للمشروع'}
+                      </span>
+                      <ProjectDetailIcon name="edit" className="h-3.5 w-3.5 text-slate-400 opacity-0 transition group-hover:opacity-100" />
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-1.5 py-1">
+                      <ProjectDetailIcon name="users" className="h-4 w-4 text-slate-400" />
+                      <span>المالك:</span>
+                      <span className={ownerName ? 'font-bold text-slate-700' : 'font-semibold text-slate-400'}>
+                        {ownerName ?? 'لم يتم تحديد مالك للمشروع'}
+                      </span>
+                    </span>
+                  )}
                 </div>
               </div>
 

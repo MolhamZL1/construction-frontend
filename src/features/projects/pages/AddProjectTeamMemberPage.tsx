@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { BackButton, LoadingState, SearchInput } from '@/components/ui'
+import { useAuthStore } from '@/stores/authStore'
 import { getUsersByRole } from '@/features/users/api/users.api'
 import { getUsersErrorMessage } from '@/features/users/hooks/useUsers'
 import type { User } from '@/features/users/types/user.types'
@@ -17,6 +18,8 @@ export function AddProjectTeamMemberPage() {
   const projectId = id ?? ''
   const [selectedRole, setSelectedRole] = useState<SelectableRole>('')
   const [search, setSearch] = useState('')
+  const currentUserRole = useAuthStore((state) => String(state.user?.role ?? '').trim().toLowerCase())
+  const canAddTeamMember = currentUserRole === 'company_admin'
 
   const summaryQuery = useProjectSummary(projectId)
   const engineersQuery = useProjectEngineers(projectId)
@@ -78,6 +81,10 @@ export function AddProjectTeamMemberPage() {
     } catch {
       return
     }
+  }
+
+  if (!canAddTeamMember) {
+    return <Navigate to={projectId ? `/projects/${projectId}/team` : '/projects'} replace />
   }
 
   if (summaryQuery.isLoading) {

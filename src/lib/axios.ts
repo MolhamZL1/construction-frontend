@@ -52,7 +52,14 @@ function isUnauthenticatedError(error: unknown) {
   const status = error.response?.status
   const message = getResponseMessage(error.response?.data).toLowerCase()
 
-  return status === 401 || message.includes('unauthenticated') || message.includes('غير مصرح')
+  // 401/419 تعني أن الجلسة أو التوكن لم يعد صالحاً.
+  if (status === 401 || status === 419) return true
+
+  // 403 تعني أن المستخدم مسجل دخول، لكنه لا يملك صلاحية العملية.
+  // لذلك لا نحذف الجلسة ولا ننفذ تسجيل خروج.
+  if (status === 403) return false
+
+  return status == null && message.includes('unauthenticated')
 }
 
 function isServerUnavailableError(error: unknown) {
