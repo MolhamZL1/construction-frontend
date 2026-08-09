@@ -61,8 +61,8 @@ export function CustomerSatisfactionChart({ data, isLoading, isError }: Customer
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-400">
             <DashboardIcon name="star" className="h-6 w-6" />
           </span>
-          <h3 className="mt-4 text-base font-black text-slate-800">ما في تقييمات كافية بعد</h3>
-          <p className="mt-2 text-sm font-semibold text-slate-500">المخطط بيتحدث تلقائياً بعد وصول تقييمات المشاريع.</p>
+          <h3 className="mt-4 text-base font-black text-slate-800">لا توجد تقييمات كافية حتى الآن</h3>
+          <p className="mt-2 text-sm font-semibold text-slate-500">يتم تحديث المخطط تلقائياً بعد وصول تقييمات المشاريع.</p>
         </div>
       ) : (
         <div className="grid gap-6 px-5 py-6 lg:grid-cols-[240px_minmax(0,1fr)_260px]">

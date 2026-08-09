@@ -31,7 +31,7 @@ function errorMessage(error: unknown) {
   if (error instanceof AxiosError) {
     const data = error.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined
     const validation = data?.errors ? Object.values(data.errors).flat()[0] : undefined
-    return validation || data?.message || 'تعذر تحليل الصورة. تأكد من الصورة ثم حاول مرة ثانية.'
+    return validation || data?.message || 'تعذر تحليل الصورة. تحقق من الصورة ثم حاول مرة أخرى.'
   }
 
   return error instanceof Error ? error.message : 'حدث خطأ أثناء تحليل الصورة.'
@@ -119,7 +119,7 @@ export function DashboardAiInspectionPanel() {
 
     if (!selected.type.startsWith('image/')) {
       clearImage()
-      setError('اختار ملف صورة فقط.')
+      setError('اختر ملف صورة فقط.')
       return
     }
 
@@ -181,7 +181,7 @@ export function DashboardAiInspectionPanel() {
 
       <div ref={conversationRef} className="h-[430px] space-y-4 overflow-y-auto bg-slate-50/70 px-4 py-4">
         <AssistantMessage>
-          <p>أرسل صورة واضحة من موقع العمل، وحدد نوع الفحص، وأنا بعرضلك النتيجة هون.</p>
+          <p>أرسل صورة واضحة من موقع العمل وحدد نوع الفحص، وسيتم عرض النتيجة هنا.</p>
         </AssistantMessage>
 
         {hasSent && preview ? (
@@ -203,7 +203,7 @@ export function DashboardAiInspectionPanel() {
         {!isSubmitting && error ? (
           <AssistantMessage tone="error">
             <p>{error}</p>
-            <p className="mt-1 text-[11px] opacity-75">عدّل الصورة أو نوع الفحص وجرب مرة ثانية.</p>
+            <p className="mt-1 text-[11px] opacity-75">عدّل الصورة أو نوع الفحص، ثم حاول مرة أخرى.</p>
           </AssistantMessage>
         ) : null}
       </div>

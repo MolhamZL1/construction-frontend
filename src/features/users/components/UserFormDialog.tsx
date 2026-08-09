@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -88,18 +89,29 @@ export function UserFormDialog({ open, onClose, onSuccess }: UserFormDialogProps
 }
 
 export function DialogShell({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4" role="dialog" aria-modal="true" dir="rtl">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[1px]"
+      role="dialog"
+      aria-modal="true"
+      dir="rtl"
+    >
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 text-right shadow-xl">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-950">{title}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-slate-100" aria-label="إغلاق">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-slate-100"
+            aria-label="إغلاق"
+          >
             إغلاق
           </button>
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

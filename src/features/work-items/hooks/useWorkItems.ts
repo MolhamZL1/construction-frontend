@@ -51,7 +51,7 @@ export function getWorkItemsErrorMessage(error: unknown) {
     if (message) return message
   }
 
-  return 'حدث خطأ غير متوقع، حاول مرة ثانية.'
+  return 'حدث خطأ غير متوقع، حاول مرة أخرى.'
 }
 
 function invalidateWorkItems(queryClient: ReturnType<typeof useQueryClient>, projectId?: string) {

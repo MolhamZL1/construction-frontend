@@ -33,7 +33,7 @@ export function getInvoicesErrorMessage(error: unknown) {
     if (message) return message
   }
 
-  return 'حدث خطأ غير متوقع، حاول مرة ثانية.'
+  return 'حدث خطأ غير متوقع، حاول مرة أخرى.'
 }
 
 export function useProjectInvoices(projectId?: string) {

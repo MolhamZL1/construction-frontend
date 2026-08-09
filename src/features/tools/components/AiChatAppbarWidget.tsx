@@ -188,7 +188,7 @@ export function AiChatAppbarWidget() {
         {
           id: makeMessageId(),
           role: response.success ? 'assistant' : 'error',
-          content: response.answer || response.message || 'لم يصل جواب واضح من مساعد النظام.',
+          content: response.answer || response.message || 'لم يتم استلام إجابة واضحة من مساعد النظام.',
           createdAt: response.createdAt,
         },
       ])

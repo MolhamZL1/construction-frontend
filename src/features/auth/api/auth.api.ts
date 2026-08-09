@@ -3,22 +3,18 @@ import { mapLoginResponse } from '../mappers/auth.mapper'
 import type { AuthSession, CompanyLoginFormValues, InternalLoginFormValues, LoginFormValues, LoginResponse } from '../types/auth.types'
 
 export async function loginCompany(payload: CompanyLoginFormValues): Promise<AuthSession> {
-  const { data } = await api.post<LoginResponse>('/auth/company/login', null, {
-    params: {
-      email: payload.email,
-      password: payload.password,
-    },
+  const { data } = await api.post<LoginResponse>('/auth/company/login', {
+    email: payload.email,
+    password: payload.password,
   })
 
   return mapLoginResponse(data)
 }
 
 export async function loginInternal(payload: InternalLoginFormValues): Promise<AuthSession> {
-  const { data } = await api.post<LoginResponse>('/auth/internal/login', null, {
-    params: {
-      internal_id: payload.internal_id,
-      password: payload.password,
-    },
+  const { data } = await api.post<LoginResponse>('/auth/internal/login', {
+    internal_id: payload.internal_id,
+    password: payload.password,
   })
 
   return mapLoginResponse(data)

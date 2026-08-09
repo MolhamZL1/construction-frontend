@@ -23,7 +23,7 @@ export function NotificationsErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-8 text-center">
       <p className="text-sm font-black text-rose-700">تعذر تحميل الإشعارات</p>
-      <p className="mt-2 text-xs font-semibold text-rose-600/80">تحقق من الاتصال وحاول مرة ثانية.</p>
+      <p className="mt-2 text-xs font-semibold text-rose-600/80">تحقق من الاتصال وحاول مرة أخرى.</p>
       <button type="button" onClick={onRetry} className="mt-5 h-10 rounded-xl bg-rose-600 px-4 text-xs font-black text-white transition hover:bg-rose-700">
         إعادة المحاولة
       </button>
@@ -38,7 +38,7 @@ export function NotificationsEmptyState({ filtered = false }: { filtered?: boole
         <NotificationIcon className="h-6 w-6" />
       </div>
       <p className="mt-4 text-sm font-black text-[var(--color-brand-ink)]">{filtered ? 'لا توجد إشعارات ضمن هذا التصنيف' : 'لا توجد إشعارات حالياً'}</p>
-      <p className="mt-2 text-xs font-semibold text-[var(--color-brand-stone)]">{filtered ? 'جرّب اختيار تصنيف آخر.' : 'ستظهر تحديثات المشاريع والطلبات الجديدة هنا.'}</p>
+      <p className="mt-2 text-xs font-semibold text-[var(--color-brand-stone)]">{filtered ? 'حاول اختيار تصنيف آخر.' : 'ستظهر تحديثات المشاريع والطلبات الجديدة هنا.'}</p>
     </div>
   )
 }

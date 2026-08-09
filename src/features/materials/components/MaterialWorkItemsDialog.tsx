@@ -95,7 +95,7 @@ export function MaterialWorkItemsDialog({
               <div>
                 <h3 className="text-base font-black text-slate-900">البنود المرتبطة حالياً</h3>
                 <p className="mt-1 text-xs font-bold text-slate-400">
-                  تظهر فوراً من بيانات الجدول، والتحديثات تتم بالخلفية بدون انتظار.
+                  تظهر مباشرةً من بيانات الجدول، وتتم التحديثات في الخلفية دون الحاجة إلى الانتظار.
                 </p>
               </div>
 

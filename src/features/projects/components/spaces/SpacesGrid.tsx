@@ -22,7 +22,7 @@ export function SpacesGrid({ projectId, spaces, canManage, isFiltering, isDeleti
           {isFiltering ? 'لا توجد فراغات مطابقة للبحث' : 'لا توجد فراغات بعد'}
         </h2>
         <p className="mt-2 text-sm font-semibold text-slate-500">
-          {isFiltering ? 'جرّب البحث بنوع فراغ أو نوع تشطيب آخر.' : 'ابدأ بإضافة فراغات المشروع قبل مرحلة التنفيذ.'}
+          {isFiltering ? 'حاول البحث باستخدام نوع فراغ أو نوع تشطيب آخر.' : 'ابدأ بإضافة فراغات المشروع قبل مرحلة التنفيذ.'}
         </p>
       </div>
     )

@@ -21,7 +21,7 @@ function getErrorMessage(error: unknown) {
     const data = error.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined
     const validationMessage = data?.errors ? Object.values(data.errors).flat()[0] : undefined
 
-    return validationMessage || data?.message || 'تعذر تحليل الصورة. تأكد من الصورة ثم حاول مرة ثانية.'
+    return validationMessage || data?.message || 'تعذر تحليل الصورة. تحقق من الصورة ثم حاول مرة أخرى.'
   }
 
   if (error instanceof Error) return error.message
@@ -74,7 +74,7 @@ export function AiInspectionFloatingWidget() {
     if (!selectedFile) return
 
     if (!selectedFile.type.startsWith('image/')) {
-      setErrorMessage('اختار ملف صورة فقط.')
+      setErrorMessage('اختر ملف صورة فقط.')
       event.target.value = ''
       return
     }
@@ -136,7 +136,7 @@ export function AiInspectionFloatingWidget() {
           <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[var(--color-brand-paper-warm)] px-4 py-4">
             <div className="flex justify-start">
               <div className="max-w-[90%] rounded-3xl rounded-br-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold leading-7 text-slate-700 shadow-sm">
-                اختار نوع الفحص وارفع صورة من الموقع، وأنا بعرضلك الملخص والعيوب والتوصيات.
+                اختر نوع الفحص وارفع صورة من الموقع، وسيتم عرض الملخص والعيوب والتوصيات.
               </div>
             </div>
 

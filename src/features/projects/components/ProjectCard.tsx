@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Project } from '../models/project.model'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
@@ -69,8 +69,34 @@ interface ProjectActionsMenuProps {
 }
 
 function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectActionsMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+
+      if (!(target instanceof Node)) {
+        return
+      }
+
+      if (!menuRef.current?.contains(target)) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [isOpen, onClose])
+
   return (
-    <div className="relative shrink-0">
+    <div ref={menuRef} className="relative shrink-0">
       <button
         type="button"
         onClick={onToggle}
@@ -84,18 +110,10 @@ function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectAct
       {isOpen ? (
         <div className="absolute left-0 top-11 z-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgb(var(--color-brand-ink-rgb)/0.18)]">
           <MenuLink to={`/projects/${projectId}`} icon="eye" label="عرض التفاصيل" onClick={onClose} />
-          <MenuLink to={`/projects/${projectId}`} icon="edit" label="تعديل" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/edit`} icon="edit" label="تعديل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/team`} icon="users" label="فريق العمل" onClick={onClose} />
-          <MenuLink to={`/projects/${projectId}`} icon="home" label="الفراغات" onClick={onClose} />
-          <MenuLink to={`/projects/${projectId}`} icon="checklist" label="بنود العمل" onClick={onClose} />
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-right text-rose-500 transition hover:bg-rose-50"
-          >
-            <Icon name="trash" className="h-4 w-4" />
-            حذف
-          </button>
+          <MenuLink to={`/projects/${projectId}/spaces`} icon="home" label="الفراغات" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/work-items`} icon="checklist" label="بنود العمل" onClick={onClose} />
         </div>
       ) : null}
     </div>

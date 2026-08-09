@@ -157,7 +157,7 @@ export function AppShell() {
               تسجيل الخروج من {APP_CONFIG.name}؟
             </h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-brand-stone)]">
-              رح تحتاج تدخل بيانات حسابك مرة ثانية للرجوع إلى النظام.
+              ستحتاج إلى إدخال بيانات حسابك مرة أخرى للعودة إلى النظام.
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-3">

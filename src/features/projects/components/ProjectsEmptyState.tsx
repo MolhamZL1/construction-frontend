@@ -16,7 +16,7 @@ export function ProjectsEmptyState({ hasFilters, onClearFilters }: ProjectsEmpty
           {hasFilters ? 'لا توجد مشاريع مطابقة للفلاتر الحالية' : 'لا توجد مشاريع حالياً'}
         </p>
         <p className="mt-1 text-xs font-medium text-slate-400">
-          {hasFilters ? 'جرّب تغيير البحث أو حالة المشروع.' : 'ابدأ بإضافة مشروع جديد.'}
+          {hasFilters ? 'حاول تغيير معايير البحث أو حالة المشروع.' : 'ابدأ بإضافة مشروع جديد.'}
         </p>
         {hasFilters ? (
           <button

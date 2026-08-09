@@ -164,7 +164,7 @@ export function ProjectInitialWorkItemDetailsPage() {
               </span>
               <h1 className="text-3xl font-black text-slate-950">تحديد عدد الأبواب والنوافذ</h1>
               <p className="max-w-2xl text-sm font-semibold leading-7 text-slate-500">
-                هون عم نحدد عدد أبواب الخشب وأبواب الألمنيوم والنوافذ للمشروع.
+                يتم هنا تحديد عدد الأبواب الخشبية وأبواب الألمنيوم والنوافذ الخاصة بالمشروع.
               </p>
             </div>
 

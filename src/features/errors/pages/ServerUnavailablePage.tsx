@@ -71,7 +71,7 @@ export function ServerUnavailablePage() {
 
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-100">
                   <p className="text-xs font-black text-slate-400">3</p>
-                  <p className="mt-1 text-sm font-black text-slate-800">جرّب إعادة المحاولة</p>
+                  <p className="mt-1 text-sm font-black text-slate-800">حاول مرة أخرى</p>
                 </div>
               </div>
             </div>

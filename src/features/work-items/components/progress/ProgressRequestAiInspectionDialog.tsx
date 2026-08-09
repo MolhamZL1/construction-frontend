@@ -22,7 +22,7 @@ function getErrorMessage(error: unknown) {
   const data = possibleError.response?.data
   const validationMessage = data?.errors ? Object.values(data.errors).flat()[0] : undefined
 
-  return validationMessage || data?.message || possibleError.message || 'تعذر فحص طلب الإنجاز. حاول مرة ثانية.'
+  return validationMessage || data?.message || possibleError.message || 'تعذر فحص طلب الإنجاز. حاول مرة أخرى.'
 }
 
 function formatDateTime(value?: string | null) {

@@ -27,7 +27,7 @@ export function DocumentsGrid({
           {isFiltering ? 'لا توجد نتائج مطابقة' : emptyTitle}
         </h2>
         <p className="mt-2 text-sm font-semibold text-slate-500">
-          {isFiltering ? 'جرّب كلمة بحث مختلفة أو امسح البحث الحالي.' : emptyDescription}
+          {isFiltering ? 'حاول استخدام كلمة بحث مختلفة أو امسح البحث الحالي.' : emptyDescription}
         </p>
       </div>
     )

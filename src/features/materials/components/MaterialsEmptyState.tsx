@@ -13,7 +13,7 @@ export function MaterialsEmptyState({ isFiltering }: MaterialsEmptyStateProps) {
       </div>
       <h2 className="mt-5 text-xl font-black text-slate-950">{isFiltering ? 'لا توجد نتائج مطابقة' : 'لا توجد مواد بعد'}</h2>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-7 text-slate-500">
-        {isFiltering ? 'جرّب تعديل كلمات البحث لعرض مواد أو بنود مرتبطة أخرى.' : 'ابدأ بإضافة أول مادة حتى تظهر ضمن هذا الجدول.'}
+        {isFiltering ? 'حاول تعديل كلمات البحث لعرض مواد أو بنود مرتبطة أخرى.' : 'ابدأ بإضافة أول مادة حتى تظهر ضمن هذا الجدول.'}
       </p>
       {!isFiltering ? (
         <Link
