@@ -1,109 +1,85 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+
+import { BrandLogo } from '@/components/brand/BrandLogo'
 
 type ServerUnavailableState = {
   from?: string
 } | null
 
-function ServerIcon() {
-  return (
-    <svg className="h-9 w-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v1A2.5 2.5 0 0 1 17.5 11h-11A2.5 2.5 0 0 1 4 8.5v-1Z" />
-      <path d="M4 15.5A2.5 2.5 0 0 1 6.5 13h11a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-1Z" />
-      <path d="M8 8h.01M8 16h.01M12 8h4M12 16h4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+const SERVER_ERROR_RETURN_PATH_KEY = 'mutqin:server-error-return-path'
+
+function normalizeReturnPath(value?: string | null) {
+  if (!value || value === '/server-error' || value.startsWith('/server-error?')) {
+    return '/'
+  }
+
+  return value
 }
 
-function getRetryPath(from?: string) {
-  if (!from) return '/'
-  if (from === '/server-error' || from.startsWith('/server-error?')) return '/'
-  return from
+function getNavigationType() {
+  const [entry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+  return entry?.type
 }
 
 export function ServerUnavailablePage() {
-  const navigate = useNavigate()
   const location = useLocation()
   const state = location.state as ServerUnavailableState
-  const retryPath = getRetryPath(state?.from)
+  const storedPath = window.sessionStorage.getItem(SERVER_ERROR_RETURN_PATH_KEY)
+  const retryPath = normalizeReturnPath(state?.from ?? storedPath)
+
+  useEffect(() => {
+    if (getNavigationType() !== 'reload') {
+      return
+    }
+
+    window.sessionStorage.removeItem(SERVER_ERROR_RETURN_PATH_KEY)
+    window.location.replace(retryPath)
+  }, [retryPath])
 
   function handleRetry() {
-    navigate(retryPath, { replace: true })
+    window.sessionStorage.removeItem(SERVER_ERROR_RETURN_PATH_KEY)
+    window.location.replace(retryPath)
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[var(--color-brand-gold-surface)] px-5 py-8 text-right" dir="rtl">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-4xl items-center justify-center">
-        <section className="w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.12)]">
-          <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5 sm:px-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-14 w-14 items-center justify-center rounded-3xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
-                  <ServerIcon />
-                </span>
-                <div>
-                  <p className="text-xs font-black text-amber-600">مشكلة اتصال بالسيرفر</p>
-                  <h1 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">السيرفر غير متاح حالياً</h1>
-                </div>
-              </div>
+    <main
+      className="grid min-h-screen place-items-center bg-[var(--color-brand-paper)] px-5 py-10 text-center"
+      dir="rtl"
+    >
+      <section className="w-full max-w-md">
+        <BrandLogo variant="horizontal" className="mx-auto w-32 sm:w-36" />
 
-              <span className="rounded-full bg-rose-50 px-4 py-2 text-xs font-black text-rose-600 ring-1 ring-rose-100">
-                تعذر الاتصال
-              </span>
-            </div>
-          </div>
+        <div className="mx-auto mt-10 flex h-16 w-16 items-center justify-center rounded-3xl border border-[rgb(var(--color-brand-gold-rgb)/0.22)] bg-white text-[var(--color-brand-gold-deep)] shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.08)]">
+          <svg
+            className="h-7 w-7"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            aria-hidden="true"
+          >
+            <path d="M12 8v4" strokeLinecap="round" />
+            <path d="M12 16h.01" strokeLinecap="round" />
+            <path
+              d="M10.3 3.9 2.8 17a2 2 0 0 0 1.74 3h14.92A2 2 0 0 0 21.2 17L13.7 3.9a2 2 0 0 0-3.4 0Z"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
 
-          <div className="space-y-6 px-6 py-7 sm:px-8">
-            <div className="rounded-3xl border border-slate-100 bg-slate-50/70 p-5">
-              <p className="text-sm font-bold leading-7 text-slate-600">
-                لم نتمكن من الوصول إلى الـ API. تأكد أن السيرفر شغّال وأن رابط البيئة مضبوط، ثم أعد المحاولة.
-              </p>
+        <h1 className="mt-6 text-2xl font-black text-[var(--color-brand-ink)] sm:text-3xl">
+          تعذر الاتصال بالخادم
+        </h1>
 
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                  <p className="text-xs font-black text-slate-400">1</p>
-                  <p className="mt-1 text-sm font-black text-slate-800">شغّل backend</p>
-                </div>
-
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                  <p className="text-xs font-black text-slate-400">2</p>
-                  <p className="mt-1 text-sm font-black text-slate-800">تأكد من VITE_API_BASE_URL</p>
-                </div>
-
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-100">
-                  <p className="text-xs font-black text-slate-400">3</p>
-                  <p className="mt-1 text-sm font-black text-slate-800">حاول مرة أخرى</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-5 text-sm font-black text-white transition hover:bg-[var(--color-brand-ink)]"
-              >
-                إعادة المحاولة
-              </button>
-
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-              >
-                تحديث الصفحة
-              </button>
-
-              <Link
-                to="/login"
-                replace
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
-              >
-                الذهاب لتسجيل الدخول
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
+        <button
+          type="button"
+          onClick={handleRetry}
+          className="mt-8 inline-flex h-12 min-w-40 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-6 text-sm font-black text-white shadow-[0_12px_28px_rgb(var(--color-brand-ink-rgb)/0.14)] transition hover:opacity-95 active:scale-[0.98]"
+        >
+          إعادة المحاولة
+        </button>
+      </section>
     </main>
   )
 }

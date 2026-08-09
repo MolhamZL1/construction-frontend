@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { BrandLockup } from '@/components/brand/BrandLockup'
-import { AUTH_CONFIG } from '@/config/design-system'
 import { registerFcmTokenAfterLogin } from '@/features/notifications/hooks/useFcmTokenRegistration'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -120,7 +119,7 @@ export function LoginForm() {
   const errorMessage = loginMutation.error ? getLoginErrorMessage(loginMutation.error) : null
 
   return (
-    <section className="relative z-10 w-full max-w-[470px] overflow-hidden rounded-[2.25rem] border border-white/75 bg-[rgb(var(--color-white-rgb)/0.52)] p-6 text-right shadow-[0_34px_100px_rgb(var(--color-brand-ink-rgb)/0.14)] backdrop-blur-[32px] sm:p-8 xl:p-9">
+    <section dir="rtl" className="relative z-10 w-full max-w-[470px] overflow-hidden rounded-[2.25rem] border border-white/75 bg-[rgb(var(--color-white-rgb)/0.52)] p-6 text-right shadow-[0_34px_100px_rgb(var(--color-brand-ink-rgb)/0.14)] backdrop-blur-[32px] sm:p-8 xl:p-9">
       <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
       <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-white/60 blur-[54px]" />
       <div className="pointer-events-none absolute -bottom-28 -left-24 h-64 w-64 rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.13)] blur-[66px]" />
@@ -143,7 +142,7 @@ export function LoginForm() {
         <form className="mt-7 space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="space-y-2">
             <label htmlFor="identifier" className="block text-sm font-black text-[var(--color-brand-ink)]">
-المعرف الداخلي
+              البريد الإلكتروني أو المعرّف الداخلي
             </label>
             <div className="group relative">
               <span className="pointer-events-none absolute inset-y-0 right-0 z-10 flex w-12 items-center justify-center text-[var(--color-brand-stone)] transition group-focus-within:text-[var(--color-brand-gold)]">
@@ -153,14 +152,21 @@ export function LoginForm() {
                 id="identifier"
                 type="text"
                 autoComplete="username"
-                inputMode="email"
-                placeholder={AUTH_CONFIG.identifierPlaceholder}
+                autoCapitalize="none"
+                spellCheck={false}
+                placeholder="email@example.com / pm.username"
                 dir="ltr"
                 className={`${inputClassName} text-left`}
+                aria-invalid={Boolean(errors.identifier)}
+                aria-describedby={errors.identifier ? 'identifier-error' : undefined}
                 {...register('identifier')}
               />
             </div>
-            {errors.identifier ? <p className="text-xs font-bold text-rose-600">{errors.identifier.message}</p> : null}
+            {errors.identifier ? (
+              <p id="identifier-error" role="alert" className="text-xs font-bold text-rose-600">
+                {errors.identifier.message}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -177,6 +183,8 @@ export function LoginForm() {
                 autoComplete="current-password"
                 placeholder="••••••••"
                 className={`${inputClassName} text-right`}
+                aria-invalid={Boolean(errors.password)}
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />
               <button
@@ -189,11 +197,15 @@ export function LoginForm() {
                 <EyeIcon hidden={showPassword} />
               </button>
             </div>
-            {errors.password ? <p className="text-xs font-bold text-rose-600">{errors.password.message}</p> : null}
+            {errors.password ? (
+              <p id="password-error" role="alert" className="text-xs font-bold text-rose-600">
+                {errors.password.message}
+              </p>
+            ) : null}
           </div>
 
           {errorMessage ? (
-            <div className="rounded-2xl border border-rose-200/80 bg-rose-50/85 px-4 py-3 text-sm font-bold leading-6 text-rose-700 backdrop-blur-xl">
+            <div role="alert" className="rounded-2xl border border-rose-200/80 bg-rose-50/85 px-4 py-3 text-sm font-bold leading-6 text-rose-700 backdrop-blur-xl">
               {errorMessage}
             </div>
           ) : null}

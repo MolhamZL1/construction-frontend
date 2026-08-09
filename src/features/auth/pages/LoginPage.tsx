@@ -17,7 +17,7 @@ export function LoginPage() {
         className="flex min-h-screen items-center justify-center bg-[var(--color-brand-paper)] text-sm font-bold text-[var(--color-brand-stone)]"
         dir="rtl"
       >
-        جاري تجهيز صفحة الدخول...
+        جارٍ تجهيز صفحة تسجيل الدخول...
       </main>
     )
   }
@@ -28,12 +28,12 @@ export function LoginPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[var(--color-brand-paper)]" dir="rtl">
-      <div className="grid min-h-screen lg:grid-cols-[minmax(0,1.08fr)_minmax(460px,0.92fr)]">
+      <div className="grid min-h-screen lg:grid-cols-[minmax(0,1.08fr)_minmax(460px,0.92fr)]" dir="ltr">
         <div className="hidden lg:block">
           <AuthHeroPanel />
         </div>
 
-        <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-10 sm:px-10 lg:px-12 xl:px-16">
+        <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-10 sm:px-10 lg:px-12 xl:px-16" dir="rtl">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -right-28 -top-24 h-80 w-80 rounded-full bg-white/95 blur-[70px]" />
             <div className="absolute -bottom-28 -left-24 h-96 w-96 rounded-full bg-[rgb(var(--color-brand-gold-rgb)/0.2)] blur-[90px]" />

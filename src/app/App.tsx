@@ -4,6 +4,8 @@ import { router } from './routes/router'
 import { queryClient } from '@/lib/query-client'
 import { useAuthStore } from '@/stores/authStore'
 
+const SERVER_ERROR_RETURN_PATH_KEY = 'mutqin:server-error-return-path'
+
 function getCurrentPath() {
   return `${window.location.pathname}${window.location.search}${window.location.hash}`
 }
@@ -33,6 +35,8 @@ export function App() {
     function handleServerUnavailable(event: Event) {
       const from = getEventFromPath(event)
       if (window.location.pathname === '/server-error') return
+
+      window.sessionStorage.setItem(SERVER_ERROR_RETURN_PATH_KEY, from)
 
       void router.navigate('/server-error', {
         replace: true,

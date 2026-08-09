@@ -58,6 +58,7 @@ export function AppShell() {
   const signOutMutation = useSignOut()
   const notificationCards = useInAppNotificationCards()
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   useFcmTokenRegistration()
 
   const hideSidebar = isInternalUser(user)
@@ -81,7 +82,12 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-brand-paper)] lg:flex-row" dir="rtl">
-      {hideSidebar ? null : <Sidebar />}
+      {hideSidebar ? null : (
+        <Sidebar
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header
@@ -109,6 +115,29 @@ export function AppShell() {
           </div>
 
           <div className="absolute right-4 top-1/2 flex max-w-[calc(100%-8.5rem)] -translate-y-1/2 items-center gap-3 text-right sm:right-6 sm:max-w-[55vw]">
+            {!hideSidebar ? (
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgb(var(--color-brand-ink-rgb)/0.1)] bg-white text-[var(--color-brand-ink)] shadow-sm transition hover:bg-[var(--color-brand-paper)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-gold-rgb)/0.45)] lg:hidden"
+                aria-label="فتح القائمة الرئيسية"
+                aria-controls="app-sidebar"
+                aria-expanded={mobileSidebarOpen}
+                title="القائمة الرئيسية"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  aria-hidden="true"
+                >
+                  <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                </svg>
+              </button>
+            ) : null}
+
             <UserAvatar name={displayName} />
             <div className="min-w-0">
               <p className="truncate text-sm font-black text-[var(--color-brand-ink)] sm:text-[15px]">{displayName}</p>

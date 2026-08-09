@@ -7,7 +7,7 @@ export function isProjectManagerIdentifier(value: string) {
 
 export const loginSchema = z
   .object({
-    identifier: z.string().trim().min(1, 'البريد الإلكتروني أو المعرّف الوظيفي مطلوب'),
+    identifier: z.string().trim().min(1, 'البريد الإلكتروني أو المعرّف الداخلي مطلوب'),
     password: z
       .string()
       .min(1, 'كلمة المرور مطلوبة')

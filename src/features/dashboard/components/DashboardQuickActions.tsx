@@ -16,7 +16,7 @@ interface QuickActionContentProps {
 }
 
 const actionBaseClassName =
-  'group relative flex min-h-[108px] w-full items-center justify-between overflow-hidden rounded-[26px] border border-white/80 bg-white/[0.68] p-4 text-right shadow-[0_14px_38px_rgb(var(--color-brand-ink-rgb)/0.09),inset_0_1px_0_rgb(255_255_255/0.92)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/[0.82] hover:shadow-[0_20px_50px_rgb(var(--color-brand-ink-rgb)/0.14),inset_0_1px_0_rgb(255_255_255/0.95)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-brand-gold-rgb)/0.2)] sm:min-h-[118px] sm:p-5'
+  'group relative flex min-h-[124px] w-full flex-col items-stretch justify-between overflow-hidden rounded-[22px] border border-white/80 bg-white/[0.72] p-3.5 text-right shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.08),inset_0_1px_0_rgb(255_255_255/0.92)] backdrop-blur-xl transition duration-300 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--color-brand-gold-rgb)/0.2)] sm:min-h-[118px] sm:flex-row sm:items-center sm:rounded-[26px] sm:p-5 sm:hover:-translate-y-1 sm:hover:border-white sm:hover:bg-white/[0.82] sm:hover:shadow-[0_20px_50px_rgb(var(--color-brand-ink-rgb)/0.14),inset_0_1px_0_rgb(255_255_255/0.95)]'
 
 export function DashboardQuickActions({ onAddUser }: DashboardQuickActionsProps) {
   return (
@@ -63,33 +63,38 @@ export function DashboardQuickActions({ onAddUser }: DashboardQuickActionsProps)
   )
 }
 
-function QuickActionContent({ icon, label, accentClassName, glowClassName }: QuickActionContentProps) {
+function QuickActionContent({
+  icon,
+  label,
+  accentClassName,
+  glowClassName,
+}: QuickActionContentProps) {
   return (
     <>
       <span
         aria-hidden="true"
         className={cn(
-          'pointer-events-none absolute -left-8 -top-10 h-28 w-28 rounded-full opacity-80 blur-3xl transition duration-300 group-hover:scale-125',
+          'pointer-events-none absolute -left-8 -top-10 h-28 w-28 rounded-full opacity-70 blur-3xl transition duration-300 sm:group-hover:scale-125',
           glowClassName,
         )}
       />
 
-      <span className="relative z-10 flex min-w-0 items-center gap-3 sm:gap-4">
+      <span className="relative z-10 flex min-w-0 flex-1 flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:justify-start sm:gap-4">
         <span
           className={cn(
-            'grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/75 shadow-[0_8px_22px_rgb(var(--color-brand-ink-rgb)/0.07)] transition duration-300 group-hover:scale-105 group-hover:rotate-[-3deg] sm:h-14 sm:w-14',
+            'grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/75 shadow-[0_8px_22px_rgb(var(--color-brand-ink-rgb)/0.07)] transition duration-300 sm:h-14 sm:w-14 sm:group-hover:scale-105 sm:group-hover:rotate-[-3deg]',
             accentClassName,
           )}
         >
           <DashboardIcon name={icon} className="h-5 w-5 sm:h-6 sm:w-6" />
         </span>
 
-        <span className="truncate text-sm font-black text-[var(--color-brand-ink)] sm:text-base">
+        <span className="max-w-full whitespace-normal text-sm font-black leading-5 text-[var(--color-brand-ink)] sm:text-base">
           {label}
         </span>
       </span>
 
-      <span className="relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[rgb(var(--color-brand-stone-rgb)/0.16)] bg-white/[0.65] text-[var(--color-brand-stone)] transition duration-300 group-hover:-translate-x-1 group-hover:border-[rgb(var(--color-brand-gold-rgb)/0.35)] group-hover:text-[var(--color-brand-gold-deep)]">
+      <span className="relative z-10 hidden h-8 w-8 shrink-0 place-items-center rounded-full border border-[rgb(var(--color-brand-stone-rgb)/0.16)] bg-white/[0.65] text-[var(--color-brand-stone)] transition duration-300 sm:grid sm:group-hover:-translate-x-1 sm:group-hover:border-[rgb(var(--color-brand-gold-rgb)/0.35)] sm:group-hover:text-[var(--color-brand-gold-deep)]">
         <DashboardIcon name="arrow" className="h-4 w-4" />
       </span>
     </>
