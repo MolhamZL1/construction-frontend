@@ -65,7 +65,7 @@ export function MaterialWorkItemsDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4 py-6" dir="rtl">
       <section className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white text-right shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.28)]">
         <header className="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">

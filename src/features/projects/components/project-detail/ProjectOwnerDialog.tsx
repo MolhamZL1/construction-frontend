@@ -136,7 +136,7 @@ export function ProjectOwnerDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="project-owner-dialog-title"

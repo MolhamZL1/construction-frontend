@@ -13,7 +13,7 @@ export function DeleteMaterialDialog({ material, isDeleting, errorMessage, onClo
   if (!material) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4" dir="rtl">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-2xl">
         <div className="flex items-start gap-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">

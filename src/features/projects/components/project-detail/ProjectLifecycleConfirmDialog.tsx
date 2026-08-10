@@ -50,7 +50,7 @@ export function ProjectLifecycleConfirmDialog({
   const content = actionContent[action]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm" role="dialog" aria-modal="true">
       <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white text-right shadow-[0_24px_80px_rgb(var(--color-brand-ink-rgb)/0.25)]" dir="rtl">
         <div className="border-b border-slate-100 px-5 py-5 sm:px-6">
           <div className="flex items-start gap-3">

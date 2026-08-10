@@ -508,7 +508,7 @@ function CreateVisualizationDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm" dir="rtl">
       <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <div className="flex items-center gap-3">
@@ -674,7 +674,7 @@ function ImagePreviewDialog({ preview, onClose }: { preview: PreviewState | null
   if (!preview) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm" dir="rtl">
       <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[1.5rem] bg-white shadow-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
           <p className="text-sm font-black text-slate-800">{preview.title}</p>

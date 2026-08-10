@@ -134,7 +134,7 @@ interface MaintenanceDialogProps {
 
 function MaintenanceDialog({ equipment, onClose }: MaintenanceDialogProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
       <div className="w-full max-w-2xl rounded-2xl bg-white p-5 text-right shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
@@ -192,7 +192,7 @@ function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogPr
   const errorMessage = closeMaintenanceMutation.error ? getEquipmentsErrorMessage(closeMaintenanceMutation.error) : null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
       <div className="w-full max-w-xl rounded-2xl bg-white p-5 text-right shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>

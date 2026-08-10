@@ -91,7 +91,7 @@ export function AddWorkItemExpenseDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center p-4" dir="rtl">
       <button
         type="button"
         aria-label="إغلاق النافذة"

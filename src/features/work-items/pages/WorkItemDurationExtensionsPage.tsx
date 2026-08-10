@@ -324,7 +324,7 @@ function CreateDurationExtensionDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6" dir="rtl">
+    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6" dir="rtl">
       <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white text-right shadow-2xl">
         <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
           <div className="flex items-start justify-between gap-4">
