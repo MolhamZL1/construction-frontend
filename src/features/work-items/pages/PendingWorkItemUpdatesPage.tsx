@@ -7,7 +7,7 @@ import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { useAuthStore } from '@/stores/authStore'
 
 import { ProgressRequestReviewDialog } from '../components/progress/ProgressRequestReviewDialog'
-import { ProgressRequestsPanel } from '../components/progress/ProgressRequestsPanel'
+import { ProjectProgressRequestsGrid } from '../components/progress/ProjectProgressRequestsGrid'
 import {
   useApproveProgressRequest,
   useProjectProgressRequests,
@@ -42,9 +42,14 @@ function EngineerProjectProgressRequestsPage({ projectId }: { projectId: string 
   const [reviewRequest, setReviewRequest] = useState<WorkItemProgressRequest | null>(null)
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null)
 
-  const workItemNames = useMemo(
-    () => Object.fromEntries((itemsQuery.data ?? []).map((item) => [item.id, item.name])),
+  const workItemsById = useMemo(
+    () => Object.fromEntries((itemsQuery.data ?? []).map((item) => [item.id, item])),
     [itemsQuery.data],
+  )
+
+  const spacesById = useMemo(
+    () => Object.fromEntries((summaryQuery.data?.spaces ?? []).map((space) => [space.id, space])),
+    [summaryQuery.data?.spaces],
   )
 
   const projectName = summaryQuery.data?.project.name
@@ -80,7 +85,7 @@ function EngineerProjectProgressRequestsPage({ projectId }: { projectId: string 
 
   return (
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
 
         <header className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
@@ -113,13 +118,10 @@ function EngineerProjectProgressRequestsPage({ projectId }: { projectId: string 
         ) : null}
 
         {!isLoading && !error ? (
-          <ProgressRequestsPanel
+          <ProjectProgressRequestsGrid
             requests={requests}
-            canReview
-            title="طلبات تحديث الإنجاز للمشروع"
-            emptyMessage="لا توجد طلبات تحديث إنجاز لهذا المشروع."
-            showHistory
-            workItemNames={workItemNames}
+            workItemsById={workItemsById}
+            spacesById={spacesById}
             onApprove={openApproveDialog}
             onReject={openRejectDialog}
           />
