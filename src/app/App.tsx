@@ -20,7 +20,6 @@ function getEventFromPath(event: Event) {
 export function App() {
   useEffect(() => {
     function handleUnauthenticated(event: Event) {
-      console.log('hello nigga');
       useAuthStore.getState().logout()
       queryClient.clear()
 
