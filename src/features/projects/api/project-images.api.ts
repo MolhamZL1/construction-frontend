@@ -1,5 +1,5 @@
-import { env } from '@/config/env'
 import { api } from '@/lib/axios'
+import { resolveBackendMediaUrl } from '@/utils/media-url'
 
 interface ProjectImageDto {
   id: number | string
@@ -30,18 +30,8 @@ export interface UploadProjectImageInput {
   image: File
 }
 
-function getBackendOrigin() {
-  return env.API_BASE_URL
-    .replace(/\/api(?:\/v\d+)?\/?$/i, '')
-    .replace(/\/$/, '')
-}
-
 export function resolveStorageUrl(path?: string | null) {
-  if (!path) return ''
-  if (/^https?:\/\//i.test(path)) return path
-
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`
-  return `${getBackendOrigin()}${normalizedPath}`
+  return resolveBackendMediaUrl(path)
 }
 
 function mapProjectImage(dto: ProjectImageDto): ProjectImage {

@@ -1,4 +1,4 @@
-import { env } from '@/config/env'
+import { resolveBackendMediaUrl } from '@/utils/media-url'
 
 export interface ProgressPhotoLike {
   id?: string
@@ -11,24 +11,12 @@ interface ProgressPhotoThumbsProps {
   photos: ProgressPhotoLike[]
 }
 
-function getBackendOrigin() {
-  return env.API_BASE_URL
-    .replace(/\/api(?:\/v\d+)?\/?$/i, '')
-    .replace(/\/$/, '')
-}
-
 export function resolveProgressPhotoUrl(path?: string | null) {
-  if (!path) return ''
-  if (/^https?:\/\//i.test(path)) return path
-
-  const normalizedPath = path.replace(/^\/+/, '')
-  const storagePath = normalizedPath.startsWith('storage/') ? normalizedPath : `storage/${normalizedPath}`
-
-  return `${getBackendOrigin()}/${storagePath}`
+  return resolveBackendMediaUrl(path, { defaultToStorage: true })
 }
 
 function getPhotoUrl(photo: ProgressPhotoLike) {
-  return photo.url || resolveProgressPhotoUrl(photo.filePath)
+  return resolveProgressPhotoUrl(photo.url || photo.filePath)
 }
 
 export function ProgressPhotoThumbs({ photos }: ProgressPhotoThumbsProps) {

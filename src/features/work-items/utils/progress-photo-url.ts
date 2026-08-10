@@ -1,4 +1,5 @@
 import { env } from '@/config/env'
+import { extractExternalMediaUrl } from '@/utils/media-url'
 
 function unique(values: string[]) {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)))
@@ -53,6 +54,9 @@ export function getProgressPhotoUrlCandidates(value?: string | null) {
 
   const raw = value.trim()
   if (!raw) return []
+
+  const externalUrl = extractExternalMediaUrl(raw)
+  if (externalUrl) return [externalUrl]
 
   if (raw.startsWith('data:') || raw.startsWith('blob:')) return [raw]
 
