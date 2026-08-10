@@ -21,16 +21,16 @@ export function App() {
   useEffect(() => {
     function handleUnauthenticated(event: Event) {
       console.log('hello nigga');
-      // useAuthStore.getState().logout()
-      // queryClient.clear()
+      useAuthStore.getState().logout()
+      queryClient.clear()
 
-      // const from = getEventFromPath(event)
-      // if (window.location.pathname === '/login') return
+      const from = getEventFromPath(event)
+      if (window.location.pathname === '/login') return
 
-      // void router.navigate('/login', {
-      //   replace: true,
-      //   state: { from },
-      // })
+      void router.navigate('/login', {
+        replace: true,
+        state: { from },
+      })
     }
 
     function handleServerUnavailable(event: Event) {
