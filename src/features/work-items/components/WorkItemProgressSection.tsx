@@ -532,7 +532,7 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
             >
               <WorkItemIcon name={progressMutation.isPending ? 'reload' : 'send'} className="h-4 w-4" />
-              <span>{progressMutation.isPending ? 'جاري إرسال الطلب...' : 'إرسال طلب تحديث الإنجاز'}</span>
+              <span>{progressMutation.isPending ? 'جاري  التحديث...' : 'تحديث الإنجاز'}</span>
             </button>
           </>
         )}
