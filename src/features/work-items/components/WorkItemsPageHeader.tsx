@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { SearchInput } from '@/components/ui'
+import { isProjectManager } from '@/features/auth/utils/auth-navigation'
+import { useAuthStore } from '@/stores/authStore'
 import type { WorkItem } from '../models/work-item.model'
 
 interface WorkItemsPageHeaderProps {
@@ -17,6 +19,8 @@ const projectStatusLabels: Record<string, string> = {
 }
 
 export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearchChange, items }: WorkItemsPageHeaderProps) {
+  const user = useAuthStore((state) => state.user)
+  const canViewProgressRequests = isProjectManager(user)
   const activeItems = items.filter((item) => item.isActive)
   const total = activeItems.length
   const completed = activeItems.filter((item) => item.status === 'completed').length
@@ -45,12 +49,17 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Link
-            to={`/projects/${projectId}/work-items/pending-updates`}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
-          >
-            طلبات التحديث
-          </Link>
+          {canViewProgressRequests ? (
+            <Link
+              to={`/projects/${projectId}/work-items/pending-updates`}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.22)] bg-[var(--color-brand-gold-surface)] px-4 text-sm font-extrabold text-[var(--color-brand-ink)] transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.45)] hover:bg-[var(--color-brand-paper-hover)]"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+                <path d="M5 5h14v14H5zM8 9h8M8 13h5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              طلبات تحديث الإنجاز
+            </Link>
+          ) : null}
           <Link
             to={`/projects/${projectId}/work-items/inactive`}
             className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"

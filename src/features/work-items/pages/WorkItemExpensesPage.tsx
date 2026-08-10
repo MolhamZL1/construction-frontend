@@ -71,7 +71,8 @@ export function WorkItemExpensesPage() {
   }
 
   return (
-    <ExpensesPageShell>
+    <section className="min-h-[calc(100vh-72px)] bg-white">
+      <ExpensesPageShell>
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <BackButton to={`/projects/${projectId}`} label="تفاصيل المشروع" />
@@ -144,6 +145,7 @@ export function WorkItemExpensesPage() {
           setSearchParams({ workItemId: createdWorkItemId })
         }}
       />
-    </ExpensesPageShell>
+      </ExpensesPageShell>
+    </section>
   )
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { approveProgressRequest, listWorkItemProgressRequests, rejectProgressRequest } from '../api/work-item-progress-requests.api'
+import { approveProgressRequest, listProjectProgressRequests, listWorkItemProgressRequests, rejectProgressRequest } from '../api/work-item-progress-requests.api'
 import { workItemSpacesProgressKeys } from './useWorkItemSpacesProgress'
 import { workItemsKeys } from './useWorkItems'
 import { useAuthStore } from '@/stores/authStore'
@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/authStore'
 export const workItemProgressRequestsKeys = {
   all: ['work-item-progress-requests'] as const,
   list: (projectId: string, workItemId: string) => [...workItemProgressRequestsKeys.all, projectId, workItemId] as const,
+  project: (projectId: string) => [...workItemProgressRequestsKeys.all, 'project', projectId] as const,
 }
 
 function invalidateProgressRequests(queryClient: ReturnType<typeof useQueryClient>, projectId?: string, workItemId?: string) {
@@ -41,6 +42,23 @@ export function useWorkItemProgressRequests(
     queryFn: () => listWorkItemProgressRequests(projectId ?? '', workItemId ?? ''),
     enabled: queryEnabled,
     retry: false,
+  })
+}
+
+export function useProjectProgressRequests(projectId?: string, enabled = true) {
+  const userRole = useAuthStore((state) => state.user?.role)
+  const canAccessProgressRequests =
+    userRole === 'project_manager' || userRole === 'engineer'
+  const queryEnabled = Boolean(enabled && canAccessProgressRequests && projectId)
+
+  return useQuery({
+    queryKey: canAccessProgressRequests
+      ? workItemProgressRequestsKeys.project(projectId ?? '')
+      : [...workItemProgressRequestsKeys.all, 'project-disabled', userRole ?? 'guest'] as const,
+    queryFn: () => listProjectProgressRequests(projectId ?? ''),
+    enabled: queryEnabled,
+    retry: false,
+    staleTime: 15_000,
   })
 }
 

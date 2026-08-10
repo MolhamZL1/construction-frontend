@@ -1,4 +1,5 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { BackButton } from '@/components/ui'
 
 export function EditWorkItemPage() {
   const { id } = useParams<{ id: string }>()
@@ -11,9 +12,9 @@ export function EditWorkItemPage() {
         <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">
           حسب الآلية الجديدة، لا يمكن تعديل تفاصيل البنود من صفحة منفصلة. التعديل مسموح فقط للمدة المتوقعة ومستوى الجودة من جدول بنود العمل قبل بدء البند.
         </p>
-        <Link to={`/projects/${projectId}/work-items`} className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white">
-          العودة إلى الجدول
-        </Link>
+        <div className="mt-5">
+          <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
+        </div>
       </div>
     </section>
   )

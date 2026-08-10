@@ -1,5 +1,5 @@
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { LoadingState } from '@/components/ui'
+import { useNavigate, useParams } from 'react-router-dom'
+import { BackButton, LoadingState } from '@/components/ui'
 import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemForm } from '../components/WorkItemForm'
 import { getWorkItemsErrorMessage, useCreateWorkItem } from '../hooks/useWorkItems'
@@ -25,9 +25,7 @@ export function CreateWorkItemPage() {
       <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
         <div className="mx-auto max-w-4xl space-y-6">
           <div className="flex justify-start">
-            <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
-              العودة إلى بنود العمل
-            </Link>
+            <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
           </div>
           <div className="rounded-3xl border border-amber-100 bg-amber-50 p-6 text-right shadow-sm">
             <h1 className="text-2xl font-black text-amber-800">لا يمكن إضافة بند بعد بدء المشروع</h1>
@@ -42,9 +40,7 @@ export function CreateWorkItemPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
-            العودة إلى بنود العمل
-          </Link>
+          <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
         </div>
 
         <div>

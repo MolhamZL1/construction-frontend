@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { LoadingState } from '@/components/ui'
+import { useParams } from 'react-router-dom'
+import { BackButton, LoadingState } from '@/components/ui'
 import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemsPageHeader } from '../components/WorkItemsPageHeader'
 import { WorkItemsTable } from '../components/WorkItemsTable'
@@ -51,9 +51,7 @@ export function ProjectWorkItemsPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
-            العودة لتفاصيل المشروع
-          </Link>
+          <BackButton to={`/projects/${projectId}`} label="العودة لتفاصيل المشروع" />
         </div>
 
         <WorkItemsPageHeader projectId={projectId} projectStatus={projectStatus} search={search} onSearchChange={setSearch} items={items} />

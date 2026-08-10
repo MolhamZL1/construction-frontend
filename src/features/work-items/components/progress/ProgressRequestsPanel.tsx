@@ -20,6 +20,7 @@ interface ProgressRequestsPanelProps {
   title?: string
   emptyMessage?: string
   showHistory?: boolean
+  workItemNames?: Record<string, string>
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
 }
@@ -62,6 +63,7 @@ function RequestCard({
   onApprove,
   onReject,
   onAiInspect,
+  workItemName,
 }: {
   request: WorkItemProgressRequest
   canReview?: boolean
@@ -69,6 +71,7 @@ function RequestCard({
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
   onAiInspect?: (request: WorkItemProgressRequest) => void
+  workItemName?: string
 }) {
   const isPending = isPendingProgressRequest(request)
   const isApproved = isApprovedProgressRequest(request)
@@ -131,6 +134,7 @@ function RequestCard({
 
         <div className="rounded-xl border border-white/70 bg-white/70 px-3 py-2">
           <div className="space-y-1.5">
+            <MetaRow label="بند العمل" value={workItemName} />
             <MetaRow label="أرسل بواسطة" value={request.requester?.name} />
             <MetaRow label="تاريخ الطلب" value={formatDateTime(request.createdAt)} />
             {isApproved ? <MetaRow label="اعتمد بواسطة" value={request.reviewer?.name} /> : null}
@@ -166,6 +170,7 @@ function RequestGroup({
   onApprove,
   onReject,
   onAiInspect,
+  workItemNames,
 }: {
   title: string
   requests: WorkItemProgressRequest[]
@@ -174,6 +179,7 @@ function RequestGroup({
   onApprove?: (request: WorkItemProgressRequest) => void
   onReject?: (request: WorkItemProgressRequest) => void
   onAiInspect?: (request: WorkItemProgressRequest) => void
+  workItemNames?: Record<string, string>
 }) {
   if (requests.length === 0) return null
 
@@ -193,6 +199,7 @@ function RequestGroup({
             onApprove={onApprove}
             onReject={onReject}
             onAiInspect={onAiInspect}
+            workItemName={workItemNames?.[request.workItemId]}
           />
         ))}
       </div>
@@ -208,6 +215,7 @@ export function ProgressRequestsPanel({
   title = 'طلبات تحديث الإنجاز',
   emptyMessage = 'لا توجد طلبات تحديث إنجاز لهذا البند.',
   showHistory = true,
+  workItemNames,
   onApprove,
   onReject,
 }: ProgressRequestsPanelProps) {
@@ -250,9 +258,9 @@ export function ProgressRequestsPanel({
         </div>
 
         <div className="space-y-5">
-          <RequestGroup title="الطلبات المعلّقة" requests={pendingRequests} canReview={canReview} canAiInspect={canAiInspect} onApprove={onApprove} onReject={onReject} onAiInspect={setAiInspectionRequest} />
-          {showHistory ? <RequestGroup title="الطلبات المقبولة" requests={approvedRequests} /> : null}
-          {showHistory ? <RequestGroup title="الطلبات المرفوضة" requests={rejectedRequests} /> : null}
+          <RequestGroup title="الطلبات المعلّقة" requests={pendingRequests} canReview={canReview} canAiInspect={canAiInspect} onApprove={onApprove} onReject={onReject} onAiInspect={setAiInspectionRequest} workItemNames={workItemNames} />
+          {showHistory ? <RequestGroup title="الطلبات المقبولة" requests={approvedRequests} workItemNames={workItemNames} /> : null}
+          {showHistory ? <RequestGroup title="الطلبات المرفوضة" requests={rejectedRequests} workItemNames={workItemNames} /> : null}
         </div>
       </section>
 

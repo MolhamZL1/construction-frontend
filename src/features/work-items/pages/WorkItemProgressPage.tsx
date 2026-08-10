@@ -1,8 +1,8 @@
 import {
   useMemo } from 'react'
-import { Link,
+import {
   useParams } from 'react-router-dom'
-import { LoadingState } from '@/components/ui'
+import { BackButton, LoadingState } from '@/components/ui'
 import { useProjectSummary } from '@/features/projects/hooks/useProjects'
 import { WorkItemProgressSection } from '../components/WorkItemProgressSection'
 import { getWorkItemsErrorMessage,
@@ -46,9 +46,7 @@ export function WorkItemProgressPage() {
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
-            العودة إلى بنود العمل
-          </Link>
+          <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
         </div>
 
    

@@ -1,115 +1,139 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { LoadingState } from '@/components/ui'
-import { getWorkItemsErrorMessage, useApproveWorkItemUpdates, usePendingWorkItemUpdates, useRejectWorkItemUpdates } from '../hooks/useWorkItems'
-import type { PendingWorkItemUpdate } from '../models/work-item.model'
-import { formatWorkItemDate } from '../utils/work-items-formatters'
+import { useMemo, useState } from 'react'
+import { Navigate, useParams } from 'react-router-dom'
+
+import { BackButton, LoadingState } from '@/components/ui'
+import { isProjectManager } from '@/features/auth/utils/auth-navigation'
+import { useProjectSummary } from '@/features/projects/hooks/useProjects'
+import { useAuthStore } from '@/stores/authStore'
+
+import { ProgressRequestReviewDialog } from '../components/progress/ProgressRequestReviewDialog'
+import { ProgressRequestsPanel } from '../components/progress/ProgressRequestsPanel'
+import {
+  useApproveProgressRequest,
+  useProjectProgressRequests,
+  useRejectProgressRequest,
+} from '../hooks/useWorkItemProgressRequests'
+import { getWorkItemsErrorMessage, useWorkItems } from '../hooks/useWorkItems'
+import type { WorkItemProgressRequest } from '../models/work-item-progress-request.model'
 
 export function PendingWorkItemUpdatesPage() {
   const { id } = useParams<{ id: string }>()
   const projectId = id ?? ''
-  const updatesQuery = usePendingWorkItemUpdates()
-  const approveMutation = useApproveWorkItemUpdates()
-  const rejectMutation = useRejectWorkItemUpdates()
-  const [rejecting, setRejecting] = useState<PendingWorkItemUpdate | null>(null)
-  const [reason, setReason] = useState('')
-  const error = updatesQuery.error || approveMutation.error || rejectMutation.error
+  const user = useAuthStore((state) => state.user)
+
+  if (!projectId) {
+    return <Navigate to="/projects" replace />
+  }
+
+  if (!isProjectManager(user)) {
+    return <Navigate to={`/projects/${projectId}/work-items`} replace />
+  }
+
+  return <EngineerProjectProgressRequestsPage projectId={projectId} />
+}
+
+function EngineerProjectProgressRequestsPage({ projectId }: { projectId: string }) {
+  const requestsQuery = useProjectProgressRequests(projectId, true)
+  const itemsQuery = useWorkItems(projectId)
+  const summaryQuery = useProjectSummary(projectId)
+  const approveMutation = useApproveProgressRequest(projectId)
+  const rejectMutation = useRejectProgressRequest(projectId)
+
+  const [reviewRequest, setReviewRequest] = useState<WorkItemProgressRequest | null>(null)
+  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null)
+
+  const workItemNames = useMemo(
+    () => Object.fromEntries((itemsQuery.data ?? []).map((item) => [item.id, item.name])),
+    [itemsQuery.data],
+  )
+
+  const projectName = summaryQuery.data?.project.name
+  const requests = requestsQuery.data ?? []
+  const error = requestsQuery.error || itemsQuery.error || summaryQuery.error || approveMutation.error || rejectMutation.error
+  const isLoading = requestsQuery.isLoading || itemsQuery.isLoading || summaryQuery.isLoading
+
+  function closeReviewDialog() {
+    setReviewRequest(null)
+    setReviewAction(null)
+  }
+
+  function openApproveDialog(request: WorkItemProgressRequest) {
+    setReviewRequest(request)
+    setReviewAction('approve')
+  }
+
+  function openRejectDialog(request: WorkItemProgressRequest) {
+    setReviewRequest(request)
+    setReviewAction('reject')
+  }
+
+  function handleApprove(request: WorkItemProgressRequest) {
+    approveMutation.mutate(request.id, { onSuccess: closeReviewDialog })
+  }
+
+  function handleReject(request: WorkItemProgressRequest, reason: string) {
+    rejectMutation.mutate(
+      { requestId: request.id, reason },
+      { onSuccess: closeReviewDialog },
+    )
+  }
 
   return (
     <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex justify-start">
-          <Link to={`/projects/${projectId}/work-items`} className="inline-flex h-10 items-center justify-center rounded-xl px-3 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
-            العودة إلى بنود العمل
-          </Link>
-        </div>
+        <BackButton to={`/projects/${projectId}/work-items`} label="العودة إلى بنود العمل" />
 
-        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
-          <h1 className="text-3xl font-black text-slate-900">طلبات تحديث تفاصيل البنود</h1>
-          <p className="mt-2 text-sm font-semibold text-slate-500">اعتماد أو رفض التحديثات المطلوبة على تفاصيل البنود.</p>
-        </header>
-
-        {error ? <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">{getWorkItemsErrorMessage(error)}</div> : null}
-
-        {updatesQuery.isLoading ? <LoadingState label="جاري تحميل طلبات التحديث..." /> : null}
-
-        {!updatesQuery.isLoading && (updatesQuery.data ?? []).length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-sm font-bold text-slate-500">لا توجد طلبات تحديث معلقة.</div>
-        ) : null}
-
-        <div className="space-y-4">
-          {(updatesQuery.data ?? []).map((request) => (
-            <article key={`${request.workItemId}-${request.requestedAt}`} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900">{request.workItemName}</h2>
-                  <p className="mt-1 text-sm font-semibold text-slate-500">
-                    {request.project?.name ? `المشروع: ${request.project.name} • ` : ''}تاريخ الطلب: {formatWorkItemDate(request.requestedAt)}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => approveMutation.mutate(request.workItemId)}
-                    disabled={approveMutation.isPending || rejectMutation.isPending}
-                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-extrabold text-white disabled:opacity-60"
-                  >
-                    اعتماد
-                  </button>
-                  <button
-                    onClick={() => setRejecting(request)}
-                    disabled={approveMutation.isPending || rejectMutation.isPending}
-                    className="inline-flex h-10 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 px-4 text-sm font-extrabold text-rose-600 disabled:opacity-60"
-                  >
-                    رفض
-                  </button>
-                </div>
+        <header className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)]">
+          <div className="bg-gradient-to-l from-[rgb(var(--color-brand-gold-rgb)/0.09)] via-white to-white p-5 sm:p-6 md:p-7">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-black text-[var(--color-brand-gold-deep)]">مراجعة تقدم المشروع</p>
+                <h1 className="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">طلبات تحديث الإنجاز</h1>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
+                  جميع طلبات تحديث الإنجاز المرتبطة ببنود {projectName ? `مشروع ${projectName}` : 'المشروع'} في مكان واحد.
+                </p>
               </div>
 
-              <div className="mt-5 overflow-hidden rounded-2xl border border-slate-100">
-                <div className="grid grid-cols-3 bg-slate-50 px-4 py-3 text-xs font-black text-slate-500">
-                  <span>الحقل</span>
-                  <span>القيمة الحالية</span>
-                  <span>القيمة المطلوبة</span>
+              {!isLoading ? (
+                <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[rgb(var(--color-brand-gold-rgb)/0.18)] bg-white px-4 py-3 shadow-sm">
+                  <span className="text-2xl font-black tabular-nums text-[var(--color-brand-ink)]">{requests.length}</span>
+                  <span className="text-xs font-black text-slate-500">إجمالي الطلبات</span>
                 </div>
-                <div className="divide-y divide-slate-100">
-                  {request.updates.map((update) => (
-                    <div key={update.detailId} className="grid grid-cols-3 px-4 py-3 text-sm font-bold text-slate-700">
-                      <span>{update.field}</span>
-                      <span>{update.currentValue || '—'}</span>
-                      <span>{update.requestedValue || '—'}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {rejecting ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
-            <div className="w-full max-w-lg rounded-3xl bg-white p-6 text-right shadow-2xl">
-              <h2 className="text-xl font-black text-slate-900">رفض طلب التحديث</h2>
-              <p className="mt-2 text-sm font-semibold text-slate-500">اكتب سبب الرفض ليتم إرساله مع الطلب.</p>
-              <textarea
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                className="mt-4 min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none focus:border-[var(--color-brand-gold)]"
-                placeholder="سبب الرفض..."
-              />
-              <div className="mt-5 flex justify-start gap-3">
-                <button onClick={() => { setRejecting(null); setReason('') }} className="h-11 rounded-xl border border-slate-200 px-5 text-sm font-extrabold text-slate-600">إلغاء</button>
-                <button
-                  onClick={() => rejectMutation.mutate({ workItemId: rejecting.workItemId, reason }, { onSuccess: () => { setRejecting(null); setReason('') } })}
-                  disabled={!reason.trim() || rejectMutation.isPending}
-                  className="h-11 rounded-xl bg-rose-500 px-5 text-sm font-extrabold text-white disabled:opacity-60"
-                >
-                  رفض الطلب
-                </button>
-              </div>
+              ) : null}
             </div>
           </div>
+        </header>
+
+        {isLoading ? <LoadingState label="جاري تحميل طلبات تحديث الإنجاز..." /> : null}
+
+        {!isLoading && error ? (
+          <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
+            {getWorkItemsErrorMessage(error)}
+          </div>
+        ) : null}
+
+        {!isLoading && !error ? (
+          <ProgressRequestsPanel
+            requests={requests}
+            canReview
+            title="طلبات تحديث الإنجاز للمشروع"
+            emptyMessage="لا توجد طلبات تحديث إنجاز لهذا المشروع."
+            showHistory
+            workItemNames={workItemNames}
+            onApprove={openApproveDialog}
+            onReject={openRejectDialog}
+          />
         ) : null}
       </div>
+
+      <ProgressRequestReviewDialog
+        request={reviewRequest}
+        action={reviewAction}
+        isLoading={approveMutation.isPending || rejectMutation.isPending}
+        onClose={closeReviewDialog}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </section>
   )
 }

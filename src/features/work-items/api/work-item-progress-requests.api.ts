@@ -32,6 +32,22 @@ export async function listWorkItemProgressRequests(projectId: string, workItemId
   return normalizeListPayload(response.data.data).map(mapWorkItemProgressRequest).filter((request) => request.id)
 }
 
+
+export async function listProjectProgressRequests(projectId: string): Promise<WorkItemProgressRequest[]> {
+  const response = await api.get<ApiEnvelope<unknown>>(`/projects/${projectId}/progress-requests`, {
+    headers: { Accept: 'application/json' },
+  })
+
+  return normalizeListPayload(response.data.data)
+    .map(mapWorkItemProgressRequest)
+    .filter((request) => request.id)
+    .sort((first, second) => {
+      const firstTime = first.createdAt ? new Date(first.createdAt).getTime() : 0
+      const secondTime = second.createdAt ? new Date(second.createdAt).getTime() : 0
+      return secondTime - firstTime
+    })
+}
+
 export async function approveProgressRequest(requestId: string): Promise<void> {
   await api.post(`/progress-requests/${requestId}/approve`, undefined, {
     headers: { Accept: 'application/json' },
