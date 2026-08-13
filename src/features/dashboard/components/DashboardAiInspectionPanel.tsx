@@ -265,6 +265,7 @@ export function DashboardAiInspectionPanel() {
   )
 }
 
+
 function AssistantMessage({ children, tone = 'normal' }: { children: ReactNode; tone?: 'normal' | 'error' }) {
   return (
     <div className="flex justify-end">

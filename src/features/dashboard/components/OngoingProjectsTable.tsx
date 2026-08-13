@@ -5,6 +5,7 @@ import type {
   DashboardProjectHealthStatus,
 } from '../models/dashboard-overview.model'
 import { DashboardIcon } from './DashboardIcon'
+import { Link } from 'react-router-dom'
 
 interface OngoingProjectsTableProps {
   projects: DashboardOngoingProject[]
@@ -193,7 +194,8 @@ export function OngoingProjectsTable({
                 const status = statusDetails[project.status]
 
                 return (
-                  <tr key={project.id} className="group transition hover:bg-slate-50/70">
+               <Link to={`/projects/${project.id}`} key={project.id}>
+               <tr key={project.id} className="group transition hover:bg-slate-50/70">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <ProjectProgressCircle value={project.progressPercentage} />
@@ -234,6 +236,7 @@ export function OngoingProjectsTable({
                       </span>
                     </td>
                   </tr>
+               </Link>
                 )
               })}
             </tbody>
