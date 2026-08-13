@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { formatUsdCompactCurrency, formatUsdCurrency } from '@/utils/currency'
 
 import type {
@@ -196,16 +195,10 @@ export function OngoingProjectsTable({
                 return (
                   <tr key={project.id} className="group transition hover:bg-slate-50/70">
                     <td className="px-6 py-4">
-                      <Link
-                        to={`/projects/${project.id}`}
-                        className="group/project flex w-fit max-w-full items-center gap-3 rounded-xl outline-none transition focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-gold-rgb)/0.45)]"
-                        title={`عرض تفاصيل ${project.name}`}
-                      >
+                      <div className="flex items-center gap-3">
                         <ProjectProgressCircle value={project.progressPercentage} />
-                        <span className="min-w-0 truncate font-black text-slate-800 transition group-hover/project:text-[var(--color-brand-gold-deep)]">
-                          {project.name}
-                        </span>
-                      </Link>
+                        <span className="font-black text-slate-800">{project.name}</span>
+                      </div>
                     </td>
 
                     <td className="px-4 py-4">
