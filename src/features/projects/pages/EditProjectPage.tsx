@@ -330,6 +330,7 @@ export function EditProjectPage() {
               onLocationNameChange={handleLocationNameChange}
               height="320px"
               defaultToUserLocation={false}
+              localizeInitialValue
             />
             {errors.location?.message ? <p className="text-sm text-rose-600">{errors.location.message}</p> : null}
           </div>

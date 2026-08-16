@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { EXTERNAL_SERVICES } from '@/config/design-system'
 
 const MAP_CONFIG = EXTERNAL_SERVICES.maps
+
+const ARABIC_GEOCODING_LANGUAGE = 'ar'
 
 const defaultIcon = L.icon({
   iconUrl: MAP_CONFIG.markerIconUrl,
@@ -21,6 +23,7 @@ interface LocationPickerMapProps {
   onLocationNameChange?: (name: string) => void
   height?: string
   defaultToUserLocation?: boolean
+  localizeInitialValue?: boolean
 }
 
 function ClickHandler({ onChange }: { onChange: (lat: number, lng: number) => void }) {
@@ -46,6 +49,7 @@ export function LocationPickerMap({
   onLocationNameChange,
   height = '280px',
   defaultToUserLocation = true,
+  localizeInitialValue = false,
 }: LocationPickerMapProps) {
   const handleChange = useCallback(
     (lat: number, lng: number) => {
@@ -61,28 +65,42 @@ export function LocationPickerMap({
   const [isSearching, setIsSearching] = useState(false)
   const [isLocatingUser, setIsLocatingUser] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const lastResolvedCoordsRef = useRef<string | null>(null)
 
   const setLocationNameFromCoords = useCallback(
-    async (lat: number, lng: number) => {
+    async (lat: number, lng: number, useCoordinateFallback = true) => {
       const fallbackName = `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-      onLocationNameChange?.(fallbackName)
 
       try {
-        const response = await fetch(
-          `${MAP_CONFIG.reverseGeocodeUrl}?format=jsonv2&lat=${lat}&lon=${lng}`
-        )
+        const params = new URLSearchParams({
+          format: 'jsonv2',
+          lat: String(lat),
+          lon: String(lng),
+          'accept-language': ARABIC_GEOCODING_LANGUAGE,
+          addressdetails: '1',
+        })
+
+        const response = await fetch(`${MAP_CONFIG.reverseGeocodeUrl}?${params.toString()}`)
 
         if (!response.ok) {
-          return
+          throw new Error('reverse_geocode_failed')
         }
 
         const result = (await response.json()) as { display_name?: string }
-        if (result.display_name) {
-          setSearchText(result.display_name)
-          onLocationNameChange?.(result.display_name)
+
+        if (result.display_name?.trim()) {
+          const arabicLocationName = result.display_name.trim()
+          setSearchText(arabicLocationName)
+          onLocationNameChange?.(arabicLocationName)
+          return
         }
       } catch {
-        return
+        // في صفحة التعديل نحافظ على الاسم المخزن إذا تعذر جلب النسخة العربية.
+      }
+
+      if (useCoordinateFallback) {
+        setSearchText(fallbackName)
+        onLocationNameChange?.(fallbackName)
       }
     },
     [onLocationNameChange]
@@ -93,11 +111,30 @@ export function LocationPickerMap({
       const roundedLat = Math.round(lat * 1000000) / 1000000
       const roundedLng = Math.round(lng * 1000000) / 1000000
 
+      lastResolvedCoordsRef.current = `${roundedLat},${roundedLng}`
       handleChange(roundedLat, roundedLng)
       void setLocationNameFromCoords(roundedLat, roundedLng)
     },
     [handleChange, setLocationNameFromCoords]
   )
+
+  useEffect(() => {
+    if (!localizeInitialValue || (value.lat === 0 && value.lng === 0)) {
+      return
+    }
+
+    const coordsKey = `${value.lat},${value.lng}`
+
+    if (lastResolvedCoordsRef.current === coordsKey) {
+      return
+    }
+
+    lastResolvedCoordsRef.current = coordsKey
+
+    // لا نستخدم الإحداثيات كبديل هنا حتى لا نستبدل اسم موقع قديم
+    // إذا تعذر الاتصال بخدمة الخرائط.
+    void setLocationNameFromCoords(value.lat, value.lng, false)
+  }, [localizeInitialValue, setLocationNameFromCoords, value.lat, value.lng])
 
   useEffect(() => {
     if (!defaultToUserLocation || value.lat !== 0 || value.lng !== 0 || !navigator.geolocation) {
@@ -129,9 +166,15 @@ export function LocationPickerMap({
     setSearchError(null)
 
     try {
-      const response = await fetch(
-        `${MAP_CONFIG.searchUrl}?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`
-      )
+      const params = new URLSearchParams({
+        format: 'jsonv2',
+        limit: '1',
+        q: query,
+        'accept-language': ARABIC_GEOCODING_LANGUAGE,
+        addressdetails: '1',
+      })
+
+      const response = await fetch(`${MAP_CONFIG.searchUrl}?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error('search_failed')
