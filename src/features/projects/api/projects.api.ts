@@ -362,7 +362,7 @@ function createProjectPayload(input: CreateProjectInput) {
     total_wood_doors: input.woodDoorsCount,
     total_aluminum_doors: input.aluminumDoorsCount,
     total_windows: input.windowsCount,
-    total_aluminum: input.aluminumDoorsCount + input.windowsCount,
+    total_aluminum: Number(input.aluminumDoorsCount) + Number(input.windowsCount),
     total_doors: input.woodDoorsCount,
   }
 }
