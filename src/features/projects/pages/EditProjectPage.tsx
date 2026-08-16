@@ -301,7 +301,24 @@ export function EditProjectPage() {
               <input className={inputClass} type="number" min="0" step="0.01" {...register('height')} />
             </Field>
           </div>
+<section className="mt-7 rounded-3xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[rgb(var(--color-brand-gold-rgb)/0.05)] p-5 sm:p-6">
+            <div className="mb-5">
+              <h2 className="text-xl font-extrabold text-slate-900">أعداد الأبواب والنوافذ</h2>
+             
+            </div>
 
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="العدد الكلي لأبواب الخشب" error={errors.woodDoorsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('woodDoorsCount')} />
+              </Field>
+              <Field label="العدد الكلي لأبواب الألمنيوم" error={errors.aluminumDoorsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('aluminumDoorsCount')} />
+              </Field>
+              <Field label="العدد الكلي للنوافذ" error={errors.windowsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('windowsCount')} />
+              </Field>
+            </div>
+          </section>
           <div className="mt-6 space-y-2">
             <div>
               <p className="text-sm font-semibold text-slate-700">موقع المشروع على الخريطة</p>
@@ -322,26 +339,7 @@ export function EditProjectPage() {
           <input type="hidden" {...register('longitude')} />
           <input type="hidden" {...register('status')} />
 
-          <section className="mt-7 rounded-3xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[rgb(var(--color-brand-gold-rgb)/0.05)] p-5 sm:p-6">
-            <div className="mb-5">
-              <h2 className="text-xl font-extrabold text-slate-900">أعداد الأبواب والنوافذ</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                عند الحفظ تُحدَّث تفاصيل ملابن الأبواب، ثم تُزامَن قيمة أبواب الألمنيوم مع بند الألمنيوم والأبجورات، وقيمة أبواب الخشب مع بند الأبواب والنجارة.
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="العدد الكلي لأبواب الخشب" error={errors.woodDoorsCount?.message}>
-                <input className={inputClass} type="number" min="0" step="1" {...register('woodDoorsCount')} />
-              </Field>
-              <Field label="العدد الكلي لأبواب الألمنيوم" error={errors.aluminumDoorsCount?.message}>
-                <input className={inputClass} type="number" min="0" step="1" {...register('aluminumDoorsCount')} />
-              </Field>
-              <Field label="العدد الكلي للنوافذ" error={errors.windowsCount?.message}>
-                <input className={inputClass} type="number" min="0" step="1" {...register('windowsCount')} />
-              </Field>
-            </div>
-          </section>
+          
 
           {errorMessage ? (
             <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">

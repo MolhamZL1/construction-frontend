@@ -105,9 +105,7 @@ export function CreateProjectForm({ onCreated }: CreateProjectFormProps) {
       <section className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
         <div className="mb-4">
           <h2 className="text-lg font-extrabold text-slate-900">أعداد الأبواب والنوافذ</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
-            تُرسل هذه القيم مع طلب إنشاء المشروع وتُستخدم لتهيئة تفاصيل بنود العمل المرتبطة بها.
-          </p>
+         
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
