@@ -195,13 +195,13 @@ export function EditProjectPage() {
       return
     }
 
-    const missingWorkItems = [
-      !mellabenWorkItem ? 'ملابن الأبواب' : null,
-      !aluminumWorkItem ? 'الألمنيوم والأبجورات' : null,
-      !doorsWorkItem ? 'الأبواب والنجارة' : null,
-    ].filter((name): name is string => Boolean(name))
+    if (!mellabenWorkItem || !aluminumWorkItem || !doorsWorkItem) {
+      const missingWorkItems = [
+        !mellabenWorkItem ? 'ملابن الأبواب' : null,
+        !aluminumWorkItem ? 'الألمنيوم والأبجورات' : null,
+        !doorsWorkItem ? 'الأبواب والنجارة' : null,
+      ].filter((name): name is string => Boolean(name))
 
-    if (missingWorkItems.length > 0) {
       setCountsError(`تعذر حفظ الأعداد لأن البنود التالية غير موجودة في المشروع: ${missingWorkItems.join('، ')}.`)
       return
     }
