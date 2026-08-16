@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import type { ProjectSpace } from '@/features/projects/models/project.model'
+import { getWorkItemDetailNumber } from '@/utils/work-item-details'
 import { useAuthStore } from '@/stores/authStore'
 import { getWorkItemsErrorMessage, useUpdateWorkItemProgress } from '../hooks/useWorkItems'
 import { useApproveProgressRequest, useRejectProgressRequest, useWorkItemProgressRequests } from '../hooks/useWorkItemProgressRequests'
@@ -52,6 +53,8 @@ const numberValue = (value: string | boolean | undefined) => {
 }
 
 const boolValue = (value: string | boolean | undefined) => value === true || value === '1' || value === 'true'
+
+const KITCHEN_CABINET_DONE_KEYS = ['kitchen_cabinet_done', 'kitchenCabinetDone'] as const
 
 function isBlank(value: string | boolean | undefined) {
   return typeof value === 'string' && value.trim() === ''
@@ -116,9 +119,21 @@ const progressConfigs: ProgressConfig[] = [
   { id: 'ceramic', match: ['سيراميك'], title: 'تحديث السيراميك', helper: 'اختر فراغاً غير منجز وأرفق صورة واحدة. لا تحتاج لتفعيل أي خيار إضافي.', needsSpace: true, exactPhotos: true, filterSpaces: (space) => space.wallFinishType === 'ceramic' || space.ceilingFinishType === 'ceramic', fields: [], getRequiredPhotos: () => 1 },
 ]
 
+function getInitialCheckboxValue(item: WorkItem, fieldName: string) {
+  if (fieldName === 'kitchen_cabinet_done') {
+    return getWorkItemDetailNumber(item.details, KITCHEN_CABINET_DONE_KEYS, 0) > 0
+  }
+
+  return false
+}
+
 function createInitialValues(fields: ProgressField[], item: WorkItem): FieldValues {
   return fields.reduce<FieldValues>((current, field) => {
-    current[field.name] = field.type === 'checkbox' ? false : field.type === 'number' ? (getInitialProgressFieldValue(item, field.name) ?? '0') : ''
+    current[field.name] = field.type === 'checkbox'
+      ? getInitialCheckboxValue(item, field.name)
+      : field.type === 'number'
+        ? (getInitialProgressFieldValue(item, field.name) ?? '0')
+        : ''
     return current
   }, {})
 }
@@ -227,6 +242,8 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
   }, [item.name])
 
   const progressCounters = useMemo(() => getWorkItemProgressCounters(item), [item])
+  const kitchenCabinetDoneValue = getWorkItemDetailNumber(item.details, KITCHEN_CABINET_DONE_KEYS, 0)
+  const isKitchenCabinetAlreadyDone = config.id === 'doors' && kitchenCabinetDoneValue > 0
   const spacesProgressQuery = useWorkItemSpacesProgress(projectId, item.id, Boolean(config.needsSpace))
   const unfinishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.unfinished ?? [], config), [config, spacesProgressQuery.data?.unfinished])
   const finishedSpaces = useMemo(() => filterSpaces(spacesProgressQuery.data?.finished ?? [], config), [config, spacesProgressQuery.data?.finished])
@@ -248,14 +265,17 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
     setSelectedSpaceId('')
     setSelectedImagesCount(0)
     setValidationError('')
-  }, [config.id, config.fields, item.id])
+  }, [config.id, config.fields, item.id, kitchenCabinetDoneValue])
 
   useEffect(() => {
     if (!config.needsSpace || !selectedSpaceId || spacesProgressQuery.isLoading) return
     if (!hasSpace(selectableUnfinishedSpaces, selectedSpaceId)) setSelectedSpaceId('')
   }, [config.needsSpace, selectedSpaceId, spacesProgressQuery.isLoading, selectableUnfinishedSpaces])
 
-  const requiredPhotos = config.getRequiredPhotos ? config.getRequiredPhotos(fieldValues) : 0
+  const calculatedRequiredPhotos = config.getRequiredPhotos ? config.getRequiredPhotos(fieldValues) : 0
+  const requiredPhotos = isKitchenCabinetAlreadyDone
+    ? Math.max(calculatedRequiredPhotos - 1, 0)
+    : calculatedRequiredPhotos
   const mustMatchPhotos = Boolean(config.exactPhotos)
   const isProjectOngoing = projectStatus === 'ongoing'
   const isItemOngoing = item.status === 'ongoing'
@@ -391,6 +411,9 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
     }
 
     const values = config.fields.reduce<Record<string, string | number | boolean | null>>((current, field) => {
+      // إذا كانت خزائن المطبخ منجزة مسبقاً فلا نرسلها كتحديث جديد مرة ثانية.
+      if (field.name === 'kitchen_cabinet_done' && isKitchenCabinetAlreadyDone) return current
+
       const value = toPayloadValue(field, fieldValues[field.name])
       if (value !== null) current[field.name] = value
       return current
@@ -477,6 +500,8 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
                   const value = fieldValues[field.name]
 
                   if (field.type === 'checkbox') {
+                    const isPersistedKitchenCabinet = field.name === 'kitchen_cabinet_done' && isKitchenCabinetAlreadyDone
+
                     return (
                       <label key={field.name} className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700">
                         <input
@@ -484,10 +509,15 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
                           type="checkbox"
                           checked={Boolean(value)}
                           onChange={(event) => updateField(field, event)}
-                          disabled={!canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
-                          className="h-5 w-5 rounded border-slate-300 text-[var(--color-brand-ink)] focus:ring-[var(--color-brand-gold)]"
+                          disabled={isPersistedKitchenCabinet || !canUpdateProgress || isSpacesProgressLoading || Boolean(spacesProgressError)}
+                          className="h-5 w-5 rounded border-slate-300 text-[var(--color-brand-ink)] focus:ring-[var(--color-brand-gold)] disabled:cursor-not-allowed"
                         />
-                        <span>{field.label}</span>
+                        <span className="flex flex-col gap-1">
+                          <span>{field.label}</span>
+                          {isPersistedKitchenCabinet ? (
+                            <span className="text-xs font-extrabold text-emerald-600">تم تسجيل خزائن المطبخ كمنجزة سابقاً.</span>
+                          ) : null}
+                        </span>
                       </label>
                     )
                   }

@@ -23,6 +23,7 @@ const COMPLETED_ALUMINUM_DOORS_KEYS = ['completed_aluminum_doors', 'completedAlu
 const COMPLETED_WINDOWS_KEYS = ['completed_windows', 'completedWindows']
 const COMPLETED_DOORS_KEYS = ['completed_doors', 'completedDoors']
 const COMPLETED_ALUMINUM_KEYS = ['completed_aluminum', 'completedAluminum']
+const KITCHEN_CABINET_DONE_KEYS = ['kitchen_cabinet_done', 'kitchenCabinetDone']
 
 const nonNegativeInteger = z.coerce
   .number()
@@ -96,6 +97,10 @@ export function EditProjectPage() {
   const mellabenWorkItem = useMemo(() => findMellabenWorkItem(workItems), [workItems])
   const doorsWorkItem = useMemo(() => findDoorsWorkItem(workItems), [workItems])
   const aluminumWorkItem = useMemo(() => findAluminumWorkItem(workItems), [workItems])
+  const kitchenCabinetDone = useMemo(
+    () => (detailCount(doorsWorkItem, KITCHEN_CABINET_DONE_KEYS) > 0 ? 1 : 0),
+    [doorsWorkItem],
+  )
 
   const fallbackCounts = useMemo(
     () => ({
@@ -228,11 +233,14 @@ export function EditProjectPage() {
         details: [{ key: 'total_aluminum', value: aluminumDoorsCount }],
       })
 
-      // الأبواب والنجارة: total_doors = total_wood_doors.
+      // الأبواب والنجارة: نحافظ على حالة خزائن المطبخ الحالية لأن الحقل مطلوب من الـ API.
       await detailsMutation.mutateAsync({
         projectId: id,
         workItemId: doorsWorkItem.id,
-        details: [{ key: 'total_doors', value: woodDoorsCount }],
+        details: [
+          { key: 'total_doors', value: woodDoorsCount },
+          { key: 'kitchen_cabinet_done', value: kitchenCabinetDone },
+        ],
       })
 
       navigate(`/projects/${id}`)
