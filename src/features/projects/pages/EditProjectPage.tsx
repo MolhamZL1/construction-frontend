@@ -230,7 +230,7 @@ export function EditProjectPage() {
       await detailsMutation.mutateAsync({
         projectId: id,
         workItemId: aluminumWorkItem.id,
-        details: [{ key: 'total_aluminum', value: aluminumDoorsCount }],
+        details: [{ key: 'total_aluminum', value: aluminumDoorsCount + windowsCount }],
       })
 
       // الأبواب والنجارة: نحافظ على حالة خزائن المطبخ الحالية لأن الحقل مطلوب من الـ API.
