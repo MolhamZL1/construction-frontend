@@ -56,7 +56,7 @@ export async function approveProgressRequest(requestId: string): Promise<void> {
 
 export async function rejectProgressRequest(requestId: string, reason: string): Promise<void> {
   const formData = new FormData()
-  formData.append('reason', reason.trim())
+  formData.append('comment', reason.trim())
 
   await api.post(`/progress-requests/${requestId}/reject`, formData, {
     headers: {
