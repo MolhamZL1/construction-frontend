@@ -338,7 +338,14 @@ function mapProjectWeatherByDate(dto: ProjectWeatherByDateDto): ProjectWeatherBy
   }
 }
 
-function projectBasePayload(input: CreateProjectInput) {
+function projectCorePayload(input: {
+  name: string
+  location: string
+  apartmentArea: number
+  height: number
+  latitude: number
+  longitude: number
+}) {
   return {
     name: input.name,
     location: input.location,
@@ -346,19 +353,23 @@ function projectBasePayload(input: CreateProjectInput) {
     height: input.height,
     latitude: input.latitude,
     longitude: input.longitude,
+  }
+}
+
+function createProjectPayload(input: CreateProjectInput) {
+  return {
+    ...projectCorePayload(input),
     total_wood_doors: input.woodDoorsCount,
     total_aluminum_doors: input.aluminumDoorsCount,
     total_windows: input.windowsCount,
-    // نفس قيمة أبواب الألمنيوم تُستخدم لتهيئة بند الألمنيوم والأبجورات.
     total_aluminum: input.aluminumDoorsCount,
-    // نفس قيمة أبواب الخشب تُستخدم لتهيئة بند الأبواب والنجارة.
     total_doors: input.woodDoorsCount,
   }
 }
 
 function updateProjectPayload(input: UpdateProjectInput) {
   return {
-    ...projectBasePayload(input),
+    ...projectCorePayload(input),
     ...(input.status ? { status: input.status } : {}),
   }
 }
@@ -370,7 +381,7 @@ export async function listProjects(): Promise<Project[]> {
 }
 
 export async function createProject(input: CreateProjectInput): Promise<Project> {
-  const { data } = await api.post<ApiSingleResponse<ProjectDto>>('/projects', projectBasePayload(input))
+  const { data } = await api.post<ApiSingleResponse<ProjectDto>>('/projects', createProjectPayload(input))
 
   return mapProject(data.data)
 }

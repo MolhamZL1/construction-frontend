@@ -10,7 +10,7 @@ import { ProjectDetailErrorState } from '../components/project-detail/ProjectDet
 import { ProjectsPageHeader } from '../components/ProjectsPageHeader'
 import { ProjectStatusBadge } from '../components/ProjectStatusBadge'
 import { getWorkItemDetailNumber, getWorkItemDetailText } from '@/utils/work-item-details'
-import { getProjectsErrorMessage, useProjectSummary, useProjectWorkItems, useUpdateProject } from '../hooks/useProjects'
+import { getProjectsErrorMessage, useProjectSummary, useProjectWorkItems, useUpdateProject, useUpdateWorkItemDetails } from '../hooks/useProjects'
 
 const PROJECT_COUNT_KEYS = {
   woodDoors: ['total_wood_doors', 'wood_doors_count', 'woodDoorsCount'],
@@ -87,6 +87,7 @@ export function EditProjectPage() {
   const summaryQuery = useProjectSummary(id)
   const workItemsQuery = useProjectWorkItems(id)
   const mutation = useUpdateProject()
+  const detailsMutation = useUpdateWorkItemDetails()
   const project = summaryQuery.data?.project
   const workItems = workItemsQuery.data ?? summaryQuery.data?.workItems ?? []
   const [mapCoords, setMapCoords] = useState({ lat: 0, lng: 0 })
@@ -156,9 +157,9 @@ export function EditProjectPage() {
       height: Number(project.height),
       latitude,
       longitude,
-      woodDoorsCount: project.totalWoodDoors ?? fallbackCounts.woodDoors,
-      aluminumDoorsCount: project.totalAluminumDoors ?? fallbackCounts.aluminumDoors,
-      windowsCount: project.totalWindows ?? fallbackCounts.windows,
+      woodDoorsCount: fallbackCounts.woodDoors,
+      aluminumDoorsCount: fallbackCounts.aluminumDoors,
+      windowsCount: fallbackCounts.windows,
       status: project.status,
     })
 
@@ -194,8 +195,46 @@ export function EditProjectPage() {
       return
     }
 
+    const missingWorkItems = [
+      !mellabenWorkItem ? 'ملابن الأبواب' : null,
+      !aluminumWorkItem ? 'الألمنيوم والأبجورات' : null,
+      !doorsWorkItem ? 'الأبواب والنجارة' : null,
+    ].filter((name): name is string => Boolean(name))
+
+    if (missingWorkItems.length > 0) {
+      setCountsError(`تعذر حفظ الأعداد لأن البنود التالية غير موجودة في المشروع: ${missingWorkItems.join('، ')}.`)
+      return
+    }
+
+    const { woodDoorsCount, aluminumDoorsCount, windowsCount, ...projectValues } = values
+
     try {
-      await mutation.mutateAsync({ id, ...values })
+      // بيانات المشروع الأساسية فقط — بدون حقول تفاصيل البنود.
+      await mutation.mutateAsync({ id, ...projectValues })
+
+      // ملابن الأبواب.
+      await detailsMutation.mutateAsync({
+        projectId: id,
+        workItemId: mellabenWorkItem.id,
+        woodDoorsCount,
+        aluminumDoorsCount,
+        windowsCount,
+      })
+
+      // الألمنيوم والأبجورات: total_aluminum = total_aluminum_doors.
+      await detailsMutation.mutateAsync({
+        projectId: id,
+        workItemId: aluminumWorkItem.id,
+        details: [{ key: 'total_aluminum', value: aluminumDoorsCount }],
+      })
+
+      // الأبواب والنجارة: total_doors = total_wood_doors.
+      await detailsMutation.mutateAsync({
+        projectId: id,
+        workItemId: doorsWorkItem.id,
+        details: [{ key: 'total_doors', value: woodDoorsCount }],
+      })
+
       navigate(`/projects/${id}`)
     } catch {
       return
@@ -218,7 +257,8 @@ export function EditProjectPage() {
     return <ProjectDetailErrorState title="المشروع غير موجود" description="قد يكون المشروع محذوفاً أو أن صلاحيات العرض غير متاحة لهذا الحساب." />
   }
 
-  const errorMessage = countsError ?? (mutation.error ? getProjectsErrorMessage(mutation.error) : null)
+  const errorMessage = countsError ?? (mutation.error ? getProjectsErrorMessage(mutation.error) : detailsMutation.error ? getProjectsErrorMessage(detailsMutation.error) : null)
+  const isSaving = mutation.isPending || detailsMutation.isPending
   const selectedStatus = watch('status')
 
   return (
@@ -278,7 +318,7 @@ export function EditProjectPage() {
             <div className="mb-5">
               <h2 className="text-xl font-extrabold text-slate-900">أعداد الأبواب والنوافذ</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                عند الحفظ تُرسل القيم نفسها إلى تفاصيل البنود المرتبطة: أبواب الخشب إلى الأبواب والنجارة، وأبواب الألمنيوم إلى الألمنيوم والأبجورات.
+                عند الحفظ تُحدَّث تفاصيل ملابن الأبواب، ثم تُزامَن قيمة أبواب الألمنيوم مع بند الألمنيوم والأبجورات، وقيمة أبواب الخشب مع بند الأبواب والنجارة.
               </p>
             </div>
 
@@ -305,17 +345,17 @@ export function EditProjectPage() {
             <button
               type="button"
               onClick={() => navigate(`/projects/${id}`)}
-              disabled={mutation.isPending}
+              disabled={isSaving}
               className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               إلغاء
             </button>
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={isSaving}
               className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-8 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
             >
-              {mutation.isPending ? 'جاري الحفظ...' : 'حفظ تفاصيل المشروع'}
+              {isSaving ? 'جاري الحفظ...' : 'حفظ تفاصيل المشروع'}
             </button>
           </div>
         </form>

@@ -156,7 +156,10 @@ export interface CreateProjectInput {
   status?: ProjectStatus
 }
 
-export type UpdateProjectInput = CreateProjectInput & {
+export type UpdateProjectInput = Omit<
+  CreateProjectInput,
+  'woodDoorsCount' | 'aluminumDoorsCount' | 'windowsCount'
+> & {
   id: string
 }
 
