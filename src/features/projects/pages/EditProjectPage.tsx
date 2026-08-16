@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -7,23 +7,28 @@ import { BackButton, LoadingState } from '@/components/ui'
 import type { WorkItem } from '../models/project.model'
 import { LocationPickerMap } from '../components/LocationPickerMap'
 import { ProjectDetailErrorState } from '../components/project-detail/ProjectDetailErrorState'
-import { ProjectDetailIcon } from '../components/project-detail/ProjectDetailIcons'
 import { ProjectsPageHeader } from '../components/ProjectsPageHeader'
 import { ProjectStatusBadge } from '../components/ProjectStatusBadge'
 import { getWorkItemDetailNumber, getWorkItemDetailText } from '@/utils/work-item-details'
-import {
-  getProjectsErrorMessage,
-  useProjectSummary,
-  useUpdateProject,
-  useUpdateWorkItemDetails,
-  useProjectWorkItems
-} from '../hooks/useProjects'
+import { getProjectsErrorMessage, useProjectSummary, useProjectWorkItems, useUpdateProject } from '../hooks/useProjects'
 
 const PROJECT_COUNT_KEYS = {
   woodDoors: ['total_wood_doors', 'wood_doors_count', 'woodDoorsCount'],
   aluminumDoors: ['total_aluminum_doors', 'aluminum_doors_count', 'aluminumDoorsCount'],
   windows: ['total_windows', 'windows_count', 'windowsCount'],
 } as const
+
+const COMPLETED_WOOD_KEYS = ['completed_wood_doors', 'completedWoodDoors']
+const COMPLETED_ALUMINUM_DOORS_KEYS = ['completed_aluminum_doors', 'completedAluminumDoors']
+const COMPLETED_WINDOWS_KEYS = ['completed_windows', 'completedWindows']
+const COMPLETED_DOORS_KEYS = ['completed_doors', 'completedDoors']
+const COMPLETED_ALUMINUM_KEYS = ['completed_aluminum', 'completedAluminum']
+
+const nonNegativeInteger = z.coerce
+  .number()
+  .int('يجب أن يكون العدد صحيحاً')
+  .min(0, 'يجب أن يكون العدد أكبر أو يساوي صفراً')
+
 const schema = z.object({
   name: z.string().min(2, 'اسم المشروع مطلوب'),
   location: z.string().min(2, 'حدد موقع المشروع على الخريطة'),
@@ -31,6 +36,9 @@ const schema = z.object({
   height: z.coerce.number().positive('الارتفاع يجب أن يكون أكبر من صفر'),
   latitude: z.coerce.number(),
   longitude: z.coerce.number(),
+  woodDoorsCount: nonNegativeInteger,
+  aluminumDoorsCount: nonNegativeInteger,
+  windowsCount: nonNegativeInteger,
   status: z.enum(['planned', 'ongoing', 'completed']),
 })
 
@@ -39,50 +47,38 @@ type FormValues = z.infer<typeof schema>
 const inputClass =
   'h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
 
-const detailInputClass =
-  'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-right text-sm font-extrabold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-brand-gold)] focus:bg-white focus:ring-4 focus:ring-[rgb(var(--color-brand-gold-rgb)/0.1)]'
-
-const COMPLETED_WOOD_KEYS = ['completed_wood_doors', 'completedWoodDoors']
-const COMPLETED_ALUMINUM_KEYS = ['completed_aluminum_doors', 'completedAluminumDoors']
-const COMPLETED_WINDOWS_KEYS = ['completed_windows', 'completedWindows']
-
-function getCompletedCounts(workItem: WorkItem | null) {
-  return {
-    wood: getWorkItemDetailNumber(workItem?.details, COMPLETED_WOOD_KEYS, 0),
-    aluminum: getWorkItemDetailNumber(workItem?.details, COMPLETED_ALUMINUM_KEYS, 0),
-    windows: getWorkItemDetailNumber(workItem?.details, COMPLETED_WINDOWS_KEYS, 0),
-  }
-}
-
-function findDetailValue(workItem: WorkItem | null | undefined, keys: readonly string[]) {
-  return getWorkItemDetailText(workItem?.details, keys, '0')
-}
-
-function workItemHasProjectCountDetails(workItem: WorkItem) {
-  return [PROJECT_COUNT_KEYS.woodDoors, PROJECT_COUNT_KEYS.aluminumDoors, PROJECT_COUNT_KEYS.windows].some(
-    (keys) => getWorkItemDetailText(workItem.details, keys, '') !== '',
-  )
+function normalizeName(value: string) {
+  return value.trim().toLowerCase()
 }
 
 function findMellabenWorkItem(workItems: WorkItem[]) {
   return (
-    workItems.find(workItemHasProjectCountDetails) ??
-    workItems.find((workItem) => workItem.name.includes('ملابن')) ??
-    workItems.find((workItem) => Number(workItem.sortOrder) === 1) ??
+    workItems.find((item) => normalizeName(item.name).includes('ملابن')) ??
+    workItems.find((item) =>
+      [PROJECT_COUNT_KEYS.woodDoors, PROJECT_COUNT_KEYS.aluminumDoors, PROJECT_COUNT_KEYS.windows].some(
+        (keys) => getWorkItemDetailText(item.details, keys, '') !== '',
+      ),
+    ) ??
     null
   )
 }
 
-function isValidCount(value: string) {
-  if (!value.trim()) return false
-
-  const numericValue = Number(value)
-  return Number.isFinite(numericValue) && Number.isInteger(numericValue) && numericValue >= 0
+function findDoorsWorkItem(workItems: WorkItem[]) {
+  return workItems.find((item) => {
+    const name = normalizeName(item.name)
+    return name.includes('أبواب ونجارة') || name.includes('نجارة')
+  }) ?? null
 }
 
-function toInteger(value: string) {
-  const numericValue = Number(value)
-  return Number.isFinite(numericValue) ? numericValue : 0
+function findAluminumWorkItem(workItems: WorkItem[]) {
+  return workItems.find((item) => {
+    const name = normalizeName(item.name)
+    return name.includes('ألمنيوم') || name.includes('المنيوم') || name.includes('أبجورات') || name.includes('ابجورات')
+  }) ?? null
+}
+
+function detailCount(workItem: WorkItem | null, keys: readonly string[]) {
+  return getWorkItemDetailNumber(workItem?.details, keys, 0)
 }
 
 export function EditProjectPage() {
@@ -91,18 +87,38 @@ export function EditProjectPage() {
   const summaryQuery = useProjectSummary(id)
   const workItemsQuery = useProjectWorkItems(id)
   const mutation = useUpdateProject()
-  const detailsMutation = useUpdateWorkItemDetails()
   const project = summaryQuery.data?.project
   const workItems = workItemsQuery.data ?? summaryQuery.data?.workItems ?? []
-  const mellabenWorkItem = useMemo(() => findMellabenWorkItem(workItems), [workItems])
   const [mapCoords, setMapCoords] = useState({ lat: 0, lng: 0 })
-  const [woodDoorsCount, setWoodDoorsCount] = useState('0')
-  const [aluminumDoorsCount, setAluminumDoorsCount] = useState('0')
-  const [windowsCount, setWindowsCount] = useState('0')
-  const [detailsError, setDetailsError] = useState<string | null>(null)
-  const savedWoodDoorsCount = findDetailValue(mellabenWorkItem, PROJECT_COUNT_KEYS.woodDoors)
-  const savedAluminumDoorsCount = findDetailValue(mellabenWorkItem, PROJECT_COUNT_KEYS.aluminumDoors)
-  const savedWindowsCount = findDetailValue(mellabenWorkItem, PROJECT_COUNT_KEYS.windows)
+  const [countsError, setCountsError] = useState<string | null>(null)
+
+  const mellabenWorkItem = useMemo(() => findMellabenWorkItem(workItems), [workItems])
+  const doorsWorkItem = useMemo(() => findDoorsWorkItem(workItems), [workItems])
+  const aluminumWorkItem = useMemo(() => findAluminumWorkItem(workItems), [workItems])
+
+  const fallbackCounts = useMemo(
+    () => ({
+      woodDoors: detailCount(mellabenWorkItem, PROJECT_COUNT_KEYS.woodDoors),
+      aluminumDoors: detailCount(mellabenWorkItem, PROJECT_COUNT_KEYS.aluminumDoors),
+      windows: detailCount(mellabenWorkItem, PROJECT_COUNT_KEYS.windows),
+    }),
+    [mellabenWorkItem],
+  )
+
+  const completedCounts = useMemo(
+    () => ({
+      woodDoors: Math.max(
+        detailCount(mellabenWorkItem, COMPLETED_WOOD_KEYS),
+        detailCount(doorsWorkItem, COMPLETED_DOORS_KEYS),
+      ),
+      aluminumDoors: Math.max(
+        detailCount(mellabenWorkItem, COMPLETED_ALUMINUM_DOORS_KEYS),
+        detailCount(aluminumWorkItem, COMPLETED_ALUMINUM_KEYS),
+      ),
+      windows: detailCount(mellabenWorkItem, COMPLETED_WINDOWS_KEYS),
+    }),
+    [aluminumWorkItem, doorsWorkItem, mellabenWorkItem],
+  )
 
   const {
     register,
@@ -120,14 +136,15 @@ export function EditProjectPage() {
       height: 0,
       latitude: 0,
       longitude: 0,
+      woodDoorsCount: 0,
+      aluminumDoorsCount: 0,
+      windowsCount: 0,
       status: 'planned',
     },
   })
 
   useEffect(() => {
-    if (!project) {
-      return
-    }
+    if (!project) return
 
     const latitude = Number(project.latitude)
     const longitude = Number(project.longitude)
@@ -139,25 +156,18 @@ export function EditProjectPage() {
       height: Number(project.height),
       latitude,
       longitude,
+      woodDoorsCount: project.totalWoodDoors ?? fallbackCounts.woodDoors,
+      aluminumDoorsCount: project.totalAluminumDoors ?? fallbackCounts.aluminumDoors,
+      windowsCount: project.totalWindows ?? fallbackCounts.windows,
       status: project.status,
     })
-    setMapCoords({ lat: Number.isFinite(latitude) ? latitude : 0, lng: Number.isFinite(longitude) ? longitude : 0 })
-  }, [project, reset])
 
-  useEffect(() => {
-    if (!mellabenWorkItem) {
-      setWoodDoorsCount('0')
-      setAluminumDoorsCount('0')
-      setWindowsCount('0')
-      return
-    }
-
-    setWoodDoorsCount(savedWoodDoorsCount)
-    setAluminumDoorsCount(savedAluminumDoorsCount)
-    setWindowsCount(savedWindowsCount)
-    setDetailsError(null)
-    detailsMutation.reset()
-  }, [mellabenWorkItem?.id, savedWoodDoorsCount, savedAluminumDoorsCount, savedWindowsCount])
+    setMapCoords({
+      lat: Number.isFinite(latitude) ? latitude : 0,
+      lng: Number.isFinite(longitude) ? longitude : 0,
+    })
+    setCountsError(null)
+  }, [fallbackCounts.aluminumDoors, fallbackCounts.windows, fallbackCounts.woodDoors, project, reset])
 
   function handleMapChange(newLat: number, newLng: number) {
     setMapCoords({ lat: newLat, lng: newLng })
@@ -171,51 +181,22 @@ export function EditProjectPage() {
   }
 
   async function onSubmit(values: FormValues) {
-    if (!id) {
+    if (!id) return
+
+    setCountsError(null)
+
+    if (
+      values.woodDoorsCount < completedCounts.woodDoors ||
+      values.aluminumDoorsCount < completedCounts.aluminumDoors ||
+      values.windowsCount < completedCounts.windows
+    ) {
+      setCountsError('لا يمكن أن يكون العدد الكلي أقل من العدد المنجز حالياً.')
       return
     }
 
     try {
       await mutation.mutateAsync({ id, ...values })
       navigate(`/projects/${id}`)
-    } catch {
-      return
-    }
-  }
-
-  const completedCounts = useMemo(() => getCompletedCounts(mellabenWorkItem), [mellabenWorkItem])
-
-  async function handleDetailsSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setDetailsError(null)
-
-    if (!id || !mellabenWorkItem) {
-      setDetailsError('لم يتم العثور على مكان حفظ أعداد الأبواب والنوافذ لهذا المشروع.')
-      return
-    }
-
-    if (!isValidCount(woodDoorsCount) || !isValidCount(aluminumDoorsCount) || !isValidCount(windowsCount)) {
-      setDetailsError('أدخل أعداداً صحيحة أكبر أو تساوي صفر.')
-      return
-    }
-
-    const nextWoodTotal = toInteger(woodDoorsCount)
-    const nextAluminumTotal = toInteger(aluminumDoorsCount)
-    const nextWindowsTotal = toInteger(windowsCount)
-
-    if (nextWoodTotal < completedCounts.wood || nextAluminumTotal < completedCounts.aluminum || nextWindowsTotal < completedCounts.windows) {
-      setDetailsError('لا يمكن أن يكون العدد الكلي أقل من العدد المنجز حالياً.')
-      return
-    }
-
-    try {
-      await detailsMutation.mutateAsync({
-        projectId: id,
-        workItemId: mellabenWorkItem.id,
-        woodDoorsCount: nextWoodTotal,
-        aluminumDoorsCount: nextAluminumTotal,
-        windowsCount: nextWindowsTotal,
-      })
     } catch {
       return
     }
@@ -237,15 +218,14 @@ export function EditProjectPage() {
     return <ProjectDetailErrorState title="المشروع غير موجود" description="قد يكون المشروع محذوفاً أو أن صلاحيات العرض غير متاحة لهذا الحساب." />
   }
 
-  const errorMessage = mutation.error ? getProjectsErrorMessage(mutation.error) : null
-  const detailsErrorMessage = detailsError ?? (detailsMutation.error ? getProjectsErrorMessage(detailsMutation.error) : null)
+  const errorMessage = countsError ?? (mutation.error ? getProjectsErrorMessage(mutation.error) : null)
   const selectedStatus = watch('status')
 
   return (
     <section className="min-h-[calc(100vh-4rem)] bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <ProjectsPageHeader title="تعديل المشروع" description={`تحديث البيانات الأساسية والموقع الخاص بمشروع: ${project.name}`} />
+          <ProjectsPageHeader title="تعديل المشروع" description={`تحديث بيانات المشروع وتفاصيل الأبواب والنوافذ: ${project.name}`} />
           <BackButton to={`/projects/${id}`} label="العودة لتفاصيل المشروع" />
         </div>
 
@@ -257,7 +237,7 @@ export function EditProjectPage() {
           <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900">معلومات المشروع</h2>
-              <p className="mt-1 text-sm font-medium text-slate-500">عدّل البيانات الأساسية والموقع ثم احفظ التغييرات.</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">عدّل البيانات الأساسية والموقع والأعداد ثم احفظها دفعة واحدة.</p>
             </div>
             <ProjectStatusBadge status={selectedStatus} />
           </div>
@@ -292,6 +272,28 @@ export function EditProjectPage() {
           <input type="hidden" {...register('location')} />
           <input type="hidden" {...register('latitude')} />
           <input type="hidden" {...register('longitude')} />
+          <input type="hidden" {...register('status')} />
+
+          <section className="mt-7 rounded-3xl border border-[rgb(var(--color-brand-gold-rgb)/0.25)] bg-[rgb(var(--color-brand-gold-rgb)/0.05)] p-5 sm:p-6">
+            <div className="mb-5">
+              <h2 className="text-xl font-extrabold text-slate-900">أعداد الأبواب والنوافذ</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                عند الحفظ تُرسل القيم نفسها إلى تفاصيل البنود المرتبطة: أبواب الخشب إلى الأبواب والنجارة، وأبواب الألمنيوم إلى الألمنيوم والأبجورات.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="العدد الكلي لأبواب الخشب" error={errors.woodDoorsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('woodDoorsCount')} />
+              </Field>
+              <Field label="العدد الكلي لأبواب الألمنيوم" error={errors.aluminumDoorsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('aluminumDoorsCount')} />
+              </Field>
+              <Field label="العدد الكلي للنوافذ" error={errors.windowsCount?.message}>
+                <input className={inputClass} type="number" min="0" step="1" {...register('windowsCount')} />
+              </Field>
+            </div>
+          </section>
 
           {errorMessage ? (
             <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
@@ -317,108 +319,8 @@ export function EditProjectPage() {
             </button>
           </div>
         </form>
-
-        <form
-          onSubmit={handleDetailsSubmit}
-          className="rounded-3xl border border-[rgb(var(--color-brand-ink-rgb)/0.15)] bg-[var(--color-brand-ink)]/[0.035] p-5 shadow-[0_14px_40px_rgb(var(--color-brand-ink-rgb)/0.06)] sm:p-7"
-        >
-          <div className="mb-6 flex flex-col gap-3 border-b border-[rgb(var(--color-brand-ink-rgb)/0.1)] pb-5 md:flex-row md:items-start md:justify-between">
-            <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--color-brand-ink)] shadow-sm">
-                <ProjectDetailIcon name="edit" className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-900">أعداد أبواب ونوافذ المشروع</h2>
-                <p className="mt-1 text-sm font-medium text-slate-500">عدّل العدد الكلي لأبواب الخشب والألمنيوم والنوافذ الخاصة بالمشروع.</p>
-              </div>
-            </div>
-          </div>
-
-          {!mellabenWorkItem ? (
-            <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
-              لم يتم العثور على مكان حفظ أعداد الأبواب والنوافذ ضمن المشروع.
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label={`إجمالي أبواب الخشب`}>
-                <input
-                  className={detailInputClass}
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={woodDoorsCount}
-                  onChange={(event) => setWoodDoorsCount(event.target.value)}
-                  placeholder="0"
-                />
-              </Field>
-              <Field label={`إجمالي أبواب الألمنيوم`}>
-                <input
-                  className={detailInputClass}
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={aluminumDoorsCount}
-                  onChange={(event) => setAluminumDoorsCount(event.target.value)}
-                  placeholder="0"
-                />
-              </Field>
-              <Field label={`إجمالي النوافذ `}>
-                <input
-                  className={detailInputClass}
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={windowsCount}
-                  onChange={(event) => setWindowsCount(event.target.value)}
-                  placeholder="0"
-                />
-              </Field>
-            </div>
-          )}
-
-          {detailsErrorMessage ? (
-            <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
-              {detailsErrorMessage}
-            </div>
-          ) : null}
-
-          {detailsMutation.isSuccess ? (
-            <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
-              تم حفظ الأعداد بنجاح.
-            </div>
-          ) : null}
-
-          <div className="mt-6 flex flex-wrap justify-end gap-3">
-            <button
-              type="submit"
-              disabled={detailsMutation.isPending || !mellabenWorkItem}
-              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--color-brand-ink)] px-8 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] disabled:cursor-not-allowed disabled:bg-slate-400 active:scale-[0.98]"
-            >
-              {detailsMutation.isPending ? 'جاري الحفظ...' : 'حفظ الأعداد'}
-            </button>
-          </div>
-        </form>
       </div>
     </section>
-  )
-}
-
-interface TotalCountCardProps {
-  label: string
-  value: string | number | null | undefined
-  ['data-project-counts-summary']?: string
-  ['data-initial-project-counts-summary']?: string
-}
-
-export function TotalCountCard({ label, value, ...props }: TotalCountCardProps) {
-  const numericValue = Number(value)
-  const displayValue = Number.isFinite(numericValue) && numericValue >= 0 ? String(Math.trunc(numericValue)) : '0'
-
-  return (
-    <div {...props} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <p className="text-xs font-black text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-black text-slate-950">{displayValue}</p>
-    </div>
   )
 }
 

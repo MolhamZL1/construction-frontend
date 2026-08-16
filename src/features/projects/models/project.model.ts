@@ -34,6 +34,11 @@ export interface Project {
   startedAt: string | null
   completedAt: string | null
   progressPercent: number
+  totalWoodDoors: number | null
+  totalAluminumDoors: number | null
+  totalWindows: number | null
+  totalAluminum: number | null
+  totalDoors: number | null
   createdAt?: string
   updatedAt?: string
 }
@@ -145,6 +150,9 @@ export interface CreateProjectInput {
   height: number
   latitude: number
   longitude: number
+  woodDoorsCount: number
+  aluminumDoorsCount: number
+  windowsCount: number
   status?: ProjectStatus
 }
 

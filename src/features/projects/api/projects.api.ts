@@ -30,6 +30,11 @@ interface ProjectDto {
   completed_at?: string | null
   progress_percent?: number | string | null
   percent?: number | string | null
+  total_wood_doors?: number | string | null
+  total_aluminum_doors?: number | string | null
+  total_windows?: number | string | null
+  total_aluminum?: number | string | null
+  total_doors?: number | string | null
   created_at?: string
   updated_at?: string
   owner?: ProjectOwnerDto | null
@@ -164,6 +169,13 @@ function toProgressPercent(value: number | string | null | undefined) {
   return Number.isFinite(numericValue) ? numericValue : 0
 }
 
+function toNullableNumber(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === '') return null
+
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? numericValue : null
+}
+
 function mapProject(dto: ProjectDto): Project {
   return {
     id: String(dto.id),
@@ -193,6 +205,11 @@ function mapProject(dto: ProjectDto): Project {
     startedAt: dto.started_at ?? null,
     completedAt: dto.completed_at ?? null,
     progressPercent: toProgressPercent(dto.progress_percent ?? dto.percent),
+    totalWoodDoors: toNullableNumber(dto.total_wood_doors),
+    totalAluminumDoors: toNullableNumber(dto.total_aluminum_doors),
+    totalWindows: toNullableNumber(dto.total_windows),
+    totalAluminum: toNullableNumber(dto.total_aluminum),
+    totalDoors: toNullableNumber(dto.total_doors),
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   }
@@ -321,7 +338,7 @@ function mapProjectWeatherByDate(dto: ProjectWeatherByDateDto): ProjectWeatherBy
   }
 }
 
-function projectPayload(input: CreateProjectInput) {
+function projectBasePayload(input: CreateProjectInput) {
   return {
     name: input.name,
     location: input.location,
@@ -329,7 +346,20 @@ function projectPayload(input: CreateProjectInput) {
     height: input.height,
     latitude: input.latitude,
     longitude: input.longitude,
-    status: input.status ?? 'planned',
+    total_wood_doors: input.woodDoorsCount,
+    total_aluminum_doors: input.aluminumDoorsCount,
+    total_windows: input.windowsCount,
+    // نفس قيمة أبواب الألمنيوم تُستخدم لتهيئة بند الألمنيوم والأبجورات.
+    total_aluminum: input.aluminumDoorsCount,
+    // نفس قيمة أبواب الخشب تُستخدم لتهيئة بند الأبواب والنجارة.
+    total_doors: input.woodDoorsCount,
+  }
+}
+
+function updateProjectPayload(input: UpdateProjectInput) {
+  return {
+    ...projectBasePayload(input),
+    ...(input.status ? { status: input.status } : {}),
   }
 }
 
@@ -340,13 +370,13 @@ export async function listProjects(): Promise<Project[]> {
 }
 
 export async function createProject(input: CreateProjectInput): Promise<Project> {
-  const { data } = await api.post<ApiSingleResponse<ProjectDto>>('/projects', projectPayload(input))
+  const { data } = await api.post<ApiSingleResponse<ProjectDto>>('/projects', projectBasePayload(input))
 
   return mapProject(data.data)
 }
 
 export async function updateProject(input: UpdateProjectInput): Promise<Project> {
-  const { data } = await api.put<ApiSingleResponse<ProjectDto>>(`/projects/${input.id}`, projectPayload(input))
+  const { data } = await api.put<ApiSingleResponse<ProjectDto>>(`/projects/${input.id}`, updateProjectPayload(input))
 
   return mapProject(data.data)
 }
