@@ -47,7 +47,7 @@ export function ProjectsPage() {
   }
 
   return (
-    <section className="min-h-screen space-y-6 bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
+    <section className="min-h-screen space-y-5 bg-white px-3 py-5 text-right sm:space-y-6 sm:px-6 sm:py-7 lg:px-10" dir="rtl">
       <ProjectsPageHeader />
 
       {canReviewRequests ? (

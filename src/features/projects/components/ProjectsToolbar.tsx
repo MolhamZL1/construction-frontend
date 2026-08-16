@@ -42,7 +42,7 @@ export function ProjectsToolbar({
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)]">
-      <div className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-3 p-3 sm:p-5 lg:flex-row lg:items-center">
         <SearchInput
           value={search}
           onChange={onSearchChange}
@@ -51,7 +51,7 @@ export function ProjectsToolbar({
           className="h-12 flex-1 bg-white"
         />
 
-        <div className="flex gap-2 sm:min-w-[230px]">
+        <div className="flex w-full gap-2 sm:min-w-[230px] lg:w-auto">
           <select
             value={selectedStatus}
             onChange={(event) => onStatusChange(event.target.value as ProjectStatusFilter)}
@@ -69,7 +69,7 @@ export function ProjectsToolbar({
         </div>{canCreateProject ? (
           <Link
                     to="/projects/create"
-                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
+                    className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] sm:w-auto px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -81,7 +81,7 @@ export function ProjectsToolbar({
         
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 px-4 py-3 text-sm font-medium text-slate-600 sm:px-5">
+      <div className="grid grid-cols-2 gap-3 border-t border-slate-100 px-3 py-3 text-xs font-medium text-slate-600 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2 sm:px-5 sm:text-sm">
         <SummaryItem label="إجمالي المشاريع" value={stats.total} icon="total" />
         <SummaryItem label={projectStatusMeta.planned.label} value={stats.planned} dotClassName={projectStatusMeta.planned.summaryDotClassName} />
         <SummaryItem label={projectStatusMeta.ongoing.label} value={stats.ongoing} dotClassName={projectStatusMeta.ongoing.summaryDotClassName} />

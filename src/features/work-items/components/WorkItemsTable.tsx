@@ -84,7 +84,7 @@ export function WorkItemsTable({
           <span className="text-center">الإجراءات</span>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="lg:divide-y lg:divide-slate-100">
           {activeItems.map((item) => (
             <WorkItemRow
               key={item.id}
@@ -201,12 +201,12 @@ function WorkItemRow({
   }
 
   return (
-    <div className="grid gap-4 px-5 py-5 lg:grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] lg:items-center">
+    <div className="mx-3 my-3 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/45 px-4 py-4 shadow-sm sm:mx-4 sm:px-5 lg:mx-0 lg:my-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-5 lg:py-5 lg:shadow-none lg:grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] lg:items-center">
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <span className={`mt-1 h-4 w-4 rounded-full border-2 ${item.status === 'completed' ? 'border-emerald-500 bg-emerald-50' : item.status === 'ongoing' ? 'border-cyan-500 bg-cyan-50' : 'border-slate-400'}`} />
           <div className="min-w-0">
-            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block truncate text-base font-black text-slate-900 transition hover:text-[var(--color-brand-ink)]">
+            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block line-clamp-2 break-words text-base font-black text-slate-900 transition hover:text-[var(--color-brand-ink)] sm:truncate">
               {item.name}
             </Link>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
@@ -218,7 +218,8 @@ function WorkItemRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 lg:justify-center">
+      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
+        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الترتيب</span>
         <input
           type="number"
           min="1"
@@ -239,7 +240,8 @@ function WorkItemRow({
         ) : null}
       </div>
 
-      <div className="flex items-center gap-2 lg:justify-center">
+      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
+        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">المدة</span>
         <input
           type="number"
           min="1"
@@ -250,12 +252,13 @@ function WorkItemRow({
         />
       </div>
 
-      <div className="flex items-center gap-2 lg:justify-center">
+      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
+        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الجودة</span>
         <select
           value={qualityLevel}
           onChange={(event) => setQualityLevel(event.target.value as WorkItemQualityLevel)}
           disabled={!canEditInline || disabled}
-          className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
+          className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none lg:flex-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
         >
           <option value="basic">{workItemQualityLabels.basic}</option>
           <option value="good">{workItemQualityLabels.good}</option>
@@ -273,13 +276,14 @@ function WorkItemRow({
         ) : null}
       </div>
 
-      <div className="lg:text-center">
+      <div className="flex items-center gap-2 lg:block lg:text-center">
+        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الحالة</span>
         <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-black ${workItemStatusClasses[item.status] ?? 'bg-slate-100 text-slate-500'}`}>
           {normalizeStatus(item.status)}
         </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 lg:justify-center">
+      <div className="grid grid-cols-4 gap-2 border-t border-slate-200/80 pt-4 sm:flex sm:flex-wrap sm:items-center sm:border-0 sm:pt-0 lg:justify-center">
         <ActionLink to={`/projects/${projectId}/work-items/${item.id}`} icon="info" label="تفاصيل البند" />
         <ActionButton icon="add" label="إضافة تكلفة أو أجرة ورشة" onClick={() => onAddExpense(item)} disabled={disabled} tone="green" />
         <ActionLink to={`/projects/${projectId}/work-items/${item.id}/progress`} icon="reload" label="تحديث الإنجاز" disabled={!canOpenProgress} tone="progress" />
@@ -311,8 +315,8 @@ function ActionLink({ to, icon, label, disabled = false, tone = 'default' }: { t
   if (disabled) return null
 
   const className = tone === 'progress'
-    ? 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-100 bg-cyan-50 text-cyan-700 transition hover:border-cyan-200 hover:bg-cyan-100'
-    : 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]'
+    ? 'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-100 sm:h-9 sm:w-9 bg-cyan-50 text-cyan-700 transition hover:border-cyan-200 hover:bg-cyan-100'
+    : 'inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 sm:h-9 sm:w-9 text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]'
 
   return (
     <Link to={to} title={label} aria-label={label} className={className}>
@@ -338,7 +342,7 @@ function ActionButton({ icon, label, onClick, disabled = false, tone = 'slate' }
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-xl transition ${toneClasses[tone]}`}
+      className={`inline-flex h-10 w-10 items-center justify-center rounded-xl transition sm:h-9 sm:w-9 ${toneClasses[tone]}`}
     >
       <WorkItemIcon name={icon} className="h-4 w-4" />
     </button>

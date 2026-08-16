@@ -41,14 +41,14 @@ export function ProjectWorkItemsPage() {
 
   if (!projectId) {
     return (
-      <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
+      <section className="min-h-screen bg-white px-3 py-5 text-right sm:px-6 sm:py-7 lg:px-10" dir="rtl">
         <div className="mx-auto max-w-6xl rounded-3xl border border-rose-100 bg-rose-50 p-6 text-rose-700">رابط المشروع غير صحيح.</div>
       </section>
     )
   }
 
   return (
-    <section className="min-h-screen bg-white px-5 py-7 text-right sm:px-8 lg:px-10" dir="rtl">
+    <section className="min-h-screen bg-white px-3 py-5 text-right sm:px-6 sm:py-7 lg:px-10" dir="rtl">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex justify-start">
           <BackButton to={`/projects/${projectId}`} label="العودة لتفاصيل المشروع" />

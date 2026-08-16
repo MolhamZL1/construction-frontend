@@ -14,7 +14,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <article className="relative flex min-h-[265px] flex-col overflow-visible rounded-2xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgb(var(--color-brand-ink-rgb)/0.12)]">
-      <div className="flex items-start justify-between gap-3 px-5 pb-4 pt-5">
+      <div className="relative flex items-start justify-between gap-3 px-4 pb-4 pl-16 pt-5 sm:px-5 sm:pl-5">
         <ProjectActionsMenu projectId={project.id} isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} onClose={() => setIsMenuOpen(false)} />
 
         <div className="min-w-0 flex-1 pt-1">
@@ -96,11 +96,11 @@ function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectAct
   }, [isOpen, onClose])
 
   return (
-    <div ref={menuRef} className="relative shrink-0">
+    <div ref={menuRef} className="absolute left-4 top-4 z-30 shrink-0 sm:relative sm:left-auto sm:top-auto sm:z-auto">
       <button
         type="button"
         onClick={onToggle}
-        className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-50 hover:text-slate-800 sm:h-9 sm:w-9 sm:bg-transparent sm:shadow-none sm:ring-0"
         aria-label="إجراءات المشروع"
         aria-expanded={isOpen}
       >
@@ -108,7 +108,7 @@ function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectAct
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-11 z-20 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgb(var(--color-brand-ink-rgb)/0.18)]">
+        <div className="absolute left-0 top-12 z-40 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgb(var(--color-brand-ink-rgb)/0.18)] sm:top-11 sm:w-56">
           <MenuLink to={`/projects/${projectId}`} icon="eye" label="عرض التفاصيل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/edit`} icon="edit" label="تعديل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/team`} icon="users" label="فريق العمل" onClick={onClose} />

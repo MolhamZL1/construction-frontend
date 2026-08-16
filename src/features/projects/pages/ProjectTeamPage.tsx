@@ -236,7 +236,7 @@ function TeamMemberRow({
           onOpenUser(member.userId)
         }
       }}
-      className="grid cursor-pointer gap-4 px-6 py-5 transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-ink-rgb)/0.3)] md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center"
+      className="m-3 grid cursor-pointer gap-4 rounded-2xl border border-slate-200 bg-slate-50/45 px-4 py-4 transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-brand-ink-rgb)/0.3)] md:m-0 md:rounded-none md:border-0 md:bg-transparent md:px-6 md:py-5 md:grid-cols-[minmax(0,2fr)_minmax(160px,1fr)_minmax(160px,1fr)_120px] md:items-center"
       aria-label={`فتح معلومات ${member.user?.name ?? `مستخدم #${member.userId}`}`}
       title="فتح معلومات المستخدم"
     >

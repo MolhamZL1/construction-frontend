@@ -20,7 +20,7 @@ export function ProjectsGrid({ projects, isLoading, hasFilters, onClearFilters }
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
       {projects.map((project) => (
         <ProjectCard key={project.id} project={project} />
       ))}

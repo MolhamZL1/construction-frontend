@@ -33,7 +33,7 @@ export function EquipmentsGrid({ equipments, isLoading = false, onCreateMaintena
           لا توجد معدات للعرض.
         </div>
       ) : (
-        <div className="grid justify-center gap-5 sm:grid-cols-[repeat(auto-fit,268px)]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
           {equipments.map((equipment) => (
             <EquipmentCard
               key={equipment.id}
@@ -63,7 +63,7 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
   return (
     <article
       dir="rtl"
-      className="h-[300px] w-[268px] rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.08)]"
+      className="min-h-[300px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-5 sm:px-6 sm:py-6 shadow-[0_10px_28px_rgb(var(--color-brand-ink-rgb)/0.08)]"
     >
       <div className="flex items-start justify-between">
         <StatusBadge status={equipment.status} />
@@ -91,7 +91,7 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
       </dl>
 
       <div className="mt-4 border-t border-slate-100 pt-4">
-        <div className="grid grid-cols-[40px_40px_128px] gap-2" dir="ltr">
+        <div className="grid grid-cols-[40px_40px_minmax(0,1fr)] gap-2" dir="ltr">
           <button
             type="button"
             onClick={isInMaintenance ? onCloseMaintenance : onCreateMaintenance}

@@ -30,7 +30,7 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
   const canCreate = projectStatus === 'planned'
 
   return (
-    <header className="rounded-3xl border border-slate-200 bg-white p-5 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:p-6 md:p-7">
+    <header className="rounded-2xl border border-slate-200 bg-white p-4 text-right shadow-[0_12px_32px_rgb(var(--color-brand-ink-rgb)/0.07)] sm:rounded-3xl sm:p-6 md:p-7">
       <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
@@ -48,11 +48,11 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
          
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
           {canViewProgressRequests ? (
             <Link
               to={`/projects/${projectId}/work-items/pending-updates`}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.22)] bg-[var(--color-brand-gold-surface)] px-4 text-sm font-extrabold text-[var(--color-brand-ink)] transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.45)] hover:bg-[var(--color-brand-paper-hover)]"
+              className="inline-flex h-11 w-full items-center justify-center sm:w-auto gap-2 rounded-xl border border-[rgb(var(--color-brand-gold-rgb)/0.22)] bg-[var(--color-brand-gold-surface)] px-4 text-sm font-extrabold text-[var(--color-brand-ink)] transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.45)] hover:bg-[var(--color-brand-paper-hover)]"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
                 <path d="M5 5h14v14H5zM8 9h8M8 13h5" strokeLinecap="round" strokeLinejoin="round" />
@@ -62,27 +62,27 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
           ) : null}
           <Link
             to={`/projects/${projectId}/work-items/inactive`}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
+            className="inline-flex h-11 w-full items-center justify-center sm:w-auto rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
           >
             البنود غير المفعلة
           </Link>
           {canCreate ? (
             <Link
               to={`/projects/${projectId}/work-items/create`}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
+              className="inline-flex h-11 w-full items-center justify-center sm:w-auto gap-2 rounded-xl bg-[var(--color-brand-ink)] px-5 text-sm font-extrabold text-white transition hover:bg-[var(--color-brand-ink)] active:scale-[0.98]"
             >
               <span className="text-lg leading-none">+</span>
               إضافة بند عمل
             </Link>
           ) : (
-            <span title="لا يمكن إضافة أو تعديل تفاصيل بند بعد بدء المشروع." className="inline-flex h-11 cursor-not-allowed items-center justify-center rounded-xl bg-slate-100 px-5 text-sm font-extrabold text-slate-400">
+            <span title="لا يمكن إضافة أو تعديل تفاصيل بند بعد بدء المشروع." className="inline-flex h-11 w-full cursor-not-allowed items-center justify-center sm:w-auto rounded-xl bg-slate-100 px-5 text-sm font-extrabold text-slate-400">
               إضافة بند عمل
             </span>
           )}
         </div>
       </div>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard label="إجمالي البنود" value={total} />
         <StatCard label="مخطط" value={planned} tone="amber" />
         <StatCard label="قيد التنفيذ" value={ongoing} tone="cyan" />
@@ -110,7 +110,7 @@ function StatCard({ label, value, tone = 'slate' }: { label: string; value: stri
   }
 
   return (
-    <div className={`rounded-2xl px-4 py-4 ${classes[tone]}`}>
+    <div className={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${classes[tone]}`}>
       <p className="text-2xl font-black">{value}</p>
       <p className="mt-1 text-xs font-extrabold text-slate-500">{label}</p>
     </div>
