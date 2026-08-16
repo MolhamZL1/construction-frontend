@@ -45,26 +45,22 @@ export function ProjectLifecycleConfirmDialog({
   onCancel,
   onConfirm,
 }: ProjectLifecycleConfirmDialogProps) {
-  if (!action) {
-    return null
-  }
+  if (!action) return null
 
   const content = actionContent[action]
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-slate-950/50 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6"
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-slate-950/55 px-3 py-4 backdrop-blur-[3px] sm:px-5 sm:py-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="project-lifecycle-dialog-title"
       onMouseDown={(event) => {
-        if (event.currentTarget === event.target && !isSubmitting) {
-          onCancel()
-        }
+        if (event.currentTarget === event.target && !isSubmitting) onCancel()
       }}
     >
       <div
-        className="my-auto w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white text-right shadow-[0_28px_90px_rgb(var(--color-brand-ink-rgb)/0.30)] sm:rounded-3xl"
+        className="my-auto w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white text-right shadow-[0_28px_100px_rgb(0_0_0/0.35)] sm:rounded-3xl"
         dir="rtl"
         onMouseDown={(event) => event.stopPropagation()}
       >
@@ -73,7 +69,6 @@ export function ProjectLifecycleConfirmDialog({
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
               <WarningIcon />
             </span>
-
             <div className="min-w-0">
               <h2 id="project-lifecycle-dialog-title" className="text-base font-black text-slate-900 sm:text-lg">
                 {content.title}
@@ -85,13 +80,11 @@ export function ProjectLifecycleConfirmDialog({
           </div>
         </div>
 
-        <div className="max-h-[55dvh] space-y-4 overflow-y-auto px-4 py-4 sm:max-h-none sm:px-6 sm:py-5">
+        <div className="max-h-[58dvh] space-y-4 overflow-y-auto px-4 py-4 sm:max-h-none sm:px-6 sm:py-5">
           <p className="text-sm font-semibold leading-7 text-slate-600">{content.description}</p>
-
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold leading-7 text-amber-800">
             {content.warning}
           </div>
-
           {errorMessage ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold leading-6 text-rose-700">
               {errorMessage}
@@ -104,11 +97,10 @@ export function ProjectLifecycleConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="inline-flex h-11 min-w-0 items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-extrabold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
+            className="inline-flex h-11 min-w-0 items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5"
           >
             إلغاء
           </button>
-
           <button
             type="button"
             onClick={onConfirm}

@@ -202,7 +202,7 @@ function TeamMembersTable({
       ) : null}
 
       {!isLoading && members.length > 0 ? (
-        <div className="divide-y divide-slate-100">
+        <div className="space-y-3 p-3 md:space-y-0 md:p-0 md:divide-y md:divide-slate-100">
           {members.map((member) => (
             <TeamMemberRow key={member.id} member={member} isRemoving={isRemoving} onOpenUser={onOpenUser} onRemove={onRemove} />
           ))}

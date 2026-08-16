@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { WorkItem, WorkItemQualityLevel } from '../models/work-item.model'
 import {
@@ -74,7 +74,7 @@ export function WorkItemsTable({
 
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.07)]">
+      <div className="overflow-visible border-0 bg-transparent shadow-none lg:overflow-hidden lg:rounded-3xl lg:border lg:border-slate-200 lg:bg-white lg:shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.07)]">
         <div className="hidden grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] border-b border-slate-100 bg-slate-50/70 px-5 py-4 text-sm font-black text-slate-700 lg:grid">
           <span>البند</span>
           <span className="text-center">الترتيب</span>
@@ -201,12 +201,12 @@ function WorkItemRow({
   }
 
   return (
-    <div className="mx-3 my-3 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/45 px-4 py-4 shadow-sm sm:mx-4 sm:px-5 lg:mx-0 lg:my-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-5 lg:py-5 lg:shadow-none lg:grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] lg:items-center">
-      <div className="min-w-0">
+    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-5 lg:py-5 lg:shadow-none lg:grid-cols-[minmax(240px,2fr)_110px_130px_150px_130px_260px] lg:items-center lg:gap-4">
+      <div className="min-w-0 pb-1 lg:pb-0">
         <div className="flex items-start gap-3">
-          <span className={`mt-1 h-4 w-4 rounded-full border-2 ${item.status === 'completed' ? 'border-emerald-500 bg-emerald-50' : item.status === 'ongoing' ? 'border-cyan-500 bg-cyan-50' : 'border-slate-400'}`} />
-          <div className="min-w-0">
-            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block line-clamp-2 break-words text-base font-black text-slate-900 transition hover:text-[var(--color-brand-ink)] sm:truncate">
+          <span className={`mt-1 h-4 w-4 shrink-0 rounded-full border-2 ${item.status === 'completed' ? 'border-emerald-500 bg-emerald-50' : item.status === 'ongoing' ? 'border-cyan-500 bg-cyan-50' : 'border-slate-400'}`} />
+          <div className="min-w-0 flex-1">
+            <Link to={`/projects/${projectId}/work-items/${item.id}`} className="block break-words text-base font-black leading-6 text-slate-900 transition hover:text-[var(--color-brand-ink)] lg:truncate">
               {item.name}
             </Link>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
@@ -218,93 +218,85 @@ function WorkItemRow({
         </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
-        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الترتيب</span>
-        <input
-          type="number"
-          min="1"
-          value={sortOrder}
-          onChange={(event) => setSortOrder(event.target.value)}
-          disabled={!canReorder || disabled}
-          className="h-10 w-20 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
-        />
-        {hasOrderChanges && canReorder && !disabled ? (
-          <button
-            type="button"
-            onClick={saveOrder}
-            title="حفظ الترتيب"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]"
-          >
-            <WorkItemIcon name="save" className="h-4 w-4" />
-          </button>
-        ) : null}
-      </div>
+      <MobileField label="الترتيب">
+        <div className="flex min-w-0 flex-1 items-center gap-2 lg:justify-center">
+          <input
+            type="number"
+            min="1"
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value)}
+            disabled={!canReorder || disabled}
+            className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400 lg:w-20 lg:flex-none"
+          />
+          {hasOrderChanges && canReorder && !disabled ? (
+            <button type="button" onClick={saveOrder} title="حفظ الترتيب" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]">
+              <WorkItemIcon name="save" className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      </MobileField>
 
-      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
-        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">المدة</span>
+      <MobileField label="المدة">
         <input
           type="number"
           min="1"
           value={durationDays}
           onChange={(event) => setDurationDays(event.target.value)}
           disabled={!canEditInline || disabled}
-          className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
+          className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400 lg:w-24 lg:flex-none"
         />
-      </div>
+      </MobileField>
 
-      <div className="flex min-w-0 items-center gap-2 lg:justify-center">
-        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الجودة</span>
-        <select
-          value={qualityLevel}
-          onChange={(event) => setQualityLevel(event.target.value as WorkItemQualityLevel)}
-          disabled={!canEditInline || disabled}
-          className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none lg:flex-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400"
-        >
-          <option value="basic">{workItemQualityLabels.basic}</option>
-          <option value="good">{workItemQualityLabels.good}</option>
-          <option value="excellent">{workItemQualityLabels.excellent}</option>
-        </select>
-        {hasInlineChanges && canEditInline && !disabled ? (
-          <button
-            type="button"
-            onClick={saveInlineChanges}
-            title="حفظ المدة والجودة"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]"
+      <MobileField label="الجودة">
+        <div className="flex min-w-0 flex-1 items-center gap-2 lg:justify-center">
+          <select
+            value={qualityLevel}
+            onChange={(event) => setQualityLevel(event.target.value as WorkItemQualityLevel)}
+            disabled={!canEditInline || disabled}
+            className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-[var(--color-brand-gold)] disabled:bg-slate-50 disabled:text-slate-400 lg:flex-none"
           >
-            <WorkItemIcon name="save" className="h-4 w-4" />
-          </button>
-        ) : null}
+            <option value="basic">{workItemQualityLabels.basic}</option>
+            <option value="good">{workItemQualityLabels.good}</option>
+            <option value="excellent">{workItemQualityLabels.excellent}</option>
+          </select>
+          {hasInlineChanges && canEditInline && !disabled ? (
+            <button type="button" onClick={saveInlineChanges} title="حفظ المدة والجودة" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[var(--color-brand-ink)] transition hover:bg-[rgb(var(--color-brand-gold-rgb)/0.1)]">
+              <WorkItemIcon name="save" className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      </MobileField>
+
+      <MobileField label="الحالة">
+        <div className="flex min-w-0 flex-1 lg:justify-center">
+          <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-black ${workItemStatusClasses[item.status] ?? 'bg-slate-100 text-slate-500'}`}>
+            {normalizeStatus(item.status)}
+          </span>
+        </div>
+      </MobileField>
+
+      <div className="border-t border-slate-100 pt-3 lg:border-0 lg:pt-0">
+        <span className="mb-2 block text-xs font-black text-slate-500 lg:hidden">الإجراءات</span>
+        <div className="flex flex-wrap items-center gap-2 lg:justify-center">
+          <ActionLink to={`/projects/${projectId}/work-items/${item.id}`} icon="info" label="تفاصيل البند" />
+          <ActionButton icon="add" label="إضافة تكلفة أو أجرة ورشة" onClick={() => onAddExpense(item)} disabled={disabled} tone="green" />
+          <ActionLink to={`/projects/${projectId}/work-items/${item.id}/progress`} icon="reload" label="تحديث الإنجاز" disabled={!canOpenProgress} tone="progress" />
+          {item.status === 'ongoing' ? <ActionLink to={`/projects/${projectId}/work-items/${item.id}/equipment`} icon="equipment" label="معدات البند" /> : null}
+          {item.status === 'planned' ? <ActionButton icon="play" label="بدء البند" onClick={() => onStart(item)} disabled={!canStart || disabled} disabledReason={startReason} tone="cyan" /> : null}
+          {item.status === 'ongoing' ? <ActionButton icon="check" label="إنهاء البند" onClick={() => onRequestComplete(item)} disabled={disabled} tone="green" /> : null}
+          {!isStarted ? <ActionButton icon="pause" label="إلغاء التفعيل" onClick={() => onDeactivate(item)} disabled={!canDeactivate || disabled} tone="amber" /> : null}
+          {item.isCustom && item.status === 'planned' ? <ActionButton icon="delete" label="حذف البند" onClick={() => onDelete(item)} disabled={!canDelete || disabled} tone="rose" /> : null}
+        </div>
       </div>
+    </div>
+  )
+}
 
-      <div className="flex items-center gap-2 lg:block lg:text-center">
-        <span className="w-16 shrink-0 text-xs font-black text-slate-500 lg:hidden">الحالة</span>
-        <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-black ${workItemStatusClasses[item.status] ?? 'bg-slate-100 text-slate-500'}`}>
-          {normalizeStatus(item.status)}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-4 gap-2 border-t border-slate-200/80 pt-4 sm:flex sm:flex-wrap sm:items-center sm:border-0 sm:pt-0 lg:justify-center">
-        <ActionLink to={`/projects/${projectId}/work-items/${item.id}`} icon="info" label="تفاصيل البند" />
-        <ActionButton icon="add" label="إضافة تكلفة أو أجرة ورشة" onClick={() => onAddExpense(item)} disabled={disabled} tone="green" />
-        <ActionLink to={`/projects/${projectId}/work-items/${item.id}/progress`} icon="reload" label="تحديث الإنجاز" disabled={!canOpenProgress} tone="progress" />
-        {item.status === 'ongoing' ? <ActionLink to={`/projects/${projectId}/work-items/${item.id}/equipment`} icon="equipment" label="معدات البند" /> : null}
-
-        {item.status === 'planned' ? (
-          <ActionButton icon="play" label="بدء البند" onClick={() => onStart(item)} disabled={!canStart || disabled} disabledReason={startReason} tone="cyan" />
-        ) : null}
-
-        {item.status === 'ongoing' ? (
-          <ActionButton icon="check" label="إنهاء البند" onClick={() => onRequestComplete(item)} disabled={disabled} tone="green" />
-        ) : null}
-
-        {!isStarted ? (
-          <ActionButton icon="pause" label="إلغاء التفعيل" onClick={() => onDeactivate(item)} disabled={!canDeactivate || disabled} tone="amber" />
-        ) : null}
-
-        {item.isCustom && item.status === 'planned' ? (
-          <ActionButton icon="delete" label="حذف البند" onClick={() => onDelete(item)} disabled={!canDelete || disabled} tone="rose" />
-        ) : null}
-      </div>
+function MobileField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 pt-3 lg:flex lg:border-0 lg:pt-0 lg:justify-center">
+      <span className="text-xs font-black text-slate-500 lg:hidden">{label}</span>
+      {children}
     </div>
   )
 }

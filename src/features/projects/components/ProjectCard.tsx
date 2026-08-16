@@ -72,43 +72,38 @@ function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectAct
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!isOpen) {
-      return
-    }
+    if (!isOpen) return
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target
-
-      if (!(target instanceof Node)) {
-        return
-      }
-
-      if (!menuRef.current?.contains(target)) {
-        onClose()
-      }
+      if (target instanceof Node && !menuRef.current?.contains(target)) onClose()
     }
 
     document.addEventListener('pointerdown', handlePointerDown)
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-    }
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [isOpen, onClose])
 
   return (
-    <div ref={menuRef} className="absolute left-4 top-4 z-30 shrink-0 sm:relative sm:left-auto sm:top-auto sm:z-auto">
+    <div
+      ref={menuRef}
+      className="absolute left-3 top-3 z-40 shrink-0 sm:relative sm:left-auto sm:top-auto sm:z-auto"
+    >
       <button
         type="button"
         onClick={onToggle}
-        className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-50 hover:text-slate-800 sm:h-9 sm:w-9 sm:bg-transparent sm:shadow-none sm:ring-0"
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)] sm:h-9 sm:w-9 sm:bg-transparent sm:shadow-none sm:ring-0"
         aria-label="إجراءات المشروع"
         aria-expanded={isOpen}
+        aria-haspopup="menu"
       >
         <Icon name="dots" className="h-5 w-5" />
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-12 z-40 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_18px_40px_rgb(var(--color-brand-ink-rgb)/0.18)] sm:top-11 sm:w-56">
+        <div
+          className="absolute left-0 top-12 z-[120] w-[min(14rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_20px_55px_rgb(var(--color-brand-ink-rgb)/0.22)] sm:top-11 sm:w-56"
+          role="menu"
+        >
           <MenuLink to={`/projects/${projectId}`} icon="eye" label="عرض التفاصيل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/edit`} icon="edit" label="تعديل" onClick={onClose} />
           <MenuLink to={`/projects/${projectId}/team`} icon="users" label="فريق العمل" onClick={onClose} />

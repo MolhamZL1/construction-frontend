@@ -120,7 +120,7 @@ function EquipmentCard({ equipment, isDeleting, onDelete, onCreateMaintenance, o
 
           <Link
             to={`/equipments/${equipment.id}`}
-            className="inline-flex h-9 w-32 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)]"
+            className="inline-flex h-9 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-ink)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-ink)]"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />

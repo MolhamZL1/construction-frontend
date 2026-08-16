@@ -49,7 +49,7 @@ export function ProjectWorkItemsPage() {
 
   return (
     <section className="min-h-screen bg-white px-3 py-5 text-right sm:px-6 sm:py-7 lg:px-10" dir="rtl">
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
         <div className="flex justify-start">
           <BackButton to={`/projects/${projectId}`} label="العودة لتفاصيل المشروع" />
         </div>
