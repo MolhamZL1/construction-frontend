@@ -328,7 +328,20 @@ export function WorkItemProgressSection({ projectId, item, projectStatus }: Work
 
   function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
     setValidationError('')
-    setSelectedImagesCount(getImages(event.currentTarget).length)
+    const images = getImages(event.currentTarget)
+
+    if (mustMatchPhotos && images.length > requiredPhotos) {
+      event.currentTarget.value = ''
+      setSelectedImagesCount(0)
+      setValidationError(
+        requiredPhotos > 0
+          ? `الحد الأقصى لهذا التحديث هو ${requiredPhotos} صورة. اختر عدداً لا يتجاوز المطلوب.`
+          : 'حدد مقدار الإنجاز أولاً قبل رفع الصور.',
+      )
+      return
+    }
+
+    setSelectedImagesCount(images.length)
   }
 
   function closeReviewDialog() {

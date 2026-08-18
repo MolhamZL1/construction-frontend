@@ -31,11 +31,6 @@ export function CustomerSatisfactionChart({ data, isLoading, isError }: Customer
   const average = Math.max(0, Math.min(5, data?.averageRating ?? 0))
   const reviews = data?.reviews ?? []
   const total = data?.totalReviews ?? reviews.length
-  const distribution = [5, 4, 3, 2, 1].map((rating) => ({
-    rating,
-    count: reviews.filter((review) => Math.round(review.rating) === rating).length,
-  }))
-  const maxCount = Math.max(1, ...distribution.map((item) => item.count))
   const circlePercent = (average / 5) * 100
   const topProjects = (data?.ranking ?? []).slice(0, 3)
 
@@ -65,7 +60,7 @@ export function CustomerSatisfactionChart({ data, isLoading, isError }: Customer
           <p className="mt-2 text-sm font-semibold text-slate-500">يتم تحديث المخطط تلقائياً بعد وصول تقييمات المشاريع.</p>
         </div>
       ) : (
-        <div className="grid gap-6 px-5 py-6 lg:grid-cols-[240px_minmax(0,1fr)_260px]">
+        <div className="grid gap-5 px-5 py-6 md:grid-cols-[220px_minmax(0,1fr)] md:items-stretch">
           <div className="flex flex-col items-center justify-center rounded-3xl bg-slate-50 px-4 py-5 text-center">
             <div
               className="relative flex h-36 w-36 items-center justify-center rounded-full"
@@ -88,35 +83,8 @@ export function CustomerSatisfactionChart({ data, isLoading, isError }: Customer
             </div>
           </div>
 
-          <div className="min-w-0">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-black text-slate-800">توزيع التقييمات</h3>
-              <span className="text-xs font-bold text-slate-400">عدد المشاريع</span>
-            </div>
-            <div className="space-y-4">
-              {distribution.map((item) => {
-                const width = item.count === 0 ? 0 : Math.max(8, (item.count / maxCount) * 100)
-
-                return (
-                  <div key={item.rating} className="grid grid-cols-[46px_minmax(0,1fr)_28px] items-center gap-3">
-                    <span className="flex items-center gap-1 text-xs font-black text-slate-600" dir="ltr">
-                      {item.rating}
-                      <DashboardIcon name="star" className="h-3.5 w-3.5 text-amber-400" />
-                    </span>
-                    <span className="h-3 overflow-hidden rounded-full bg-slate-100" dir="ltr">
-                      <span
-                        className="block h-full rounded-full bg-[var(--color-brand-ink)] transition-all duration-500"
-                        style={{ width: `${width}%` }}
-                      />
-                    </span>
-                    <span className="text-center text-xs font-black text-slate-500">{item.count}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
           <div className="rounded-3xl border border-slate-100 bg-slate-50/70 px-4 py-4">
+            
             <h3 className="text-sm font-black text-slate-800">الأعلى تقييماً</h3>
             <div className="mt-4 space-y-3">
               {topProjects.map((review, index) => (
@@ -135,6 +103,7 @@ export function CustomerSatisfactionChart({ data, isLoading, isError }: Customer
                 </div>
               ))}
             </div>
+          
           </div>
         </div>
       )}
@@ -152,7 +121,7 @@ function CustomerSatisfactionSkeleton() {
           <div className="h-3 w-64 rounded bg-slate-100" />
         </div>
       </div>
-      <div className="grid gap-6 px-5 py-6 lg:grid-cols-[240px_minmax(0,1fr)_260px]">
+      <div className="grid gap-6 px-5 py-6 md:grid-cols-[220px_minmax(0,1fr)]">
         <div className="mx-auto h-36 w-36 rounded-full bg-slate-200" />
         <div className="space-y-5">
           {[1, 2, 3, 4, 5].map((item) => <div key={item} className="h-3 rounded-full bg-slate-100" />)}

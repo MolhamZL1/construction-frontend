@@ -5,6 +5,7 @@ import { BackButton, LoadingState } from '@/components/ui'
 import { useAuthStore } from '@/stores/authStore'
 
 import { WorkItemDurationExtensionsInlineSection } from '../components/duration-extensions/WorkItemDurationExtensionsInlineSection'
+import { AdminReviewedProgressRequests } from '../components/progress/AdminReviewedProgressRequests'
 import { WorkItemCommentsSection } from '../components/WorkItemCommentsSection'
 import { WorkItemFinishedSpacesSection } from '../components/WorkItemFinishedSpacesSection'
 import { WorkItemSpecCard } from '../components/WorkItemSpecCard'
@@ -20,6 +21,7 @@ export function WorkItemDetailsPage() {
   const { id, workItemId } = useParams<{ id: string; workItemId: string }>()
   const role = useAuthStore((state) => state.user?.role)
   const canViewEngineerTools = isEngineerRole(role)
+  const isCompanyAdmin = role === 'company_admin'
   const projectId = id ?? ''
   const itemsQuery = useWorkItems(projectId)
   const item = useMemo(() => (itemsQuery.data ?? []).find((candidate) => candidate.id === workItemId), [itemsQuery.data, workItemId])
@@ -61,6 +63,10 @@ export function WorkItemDetailsPage() {
 
         <WorkItemSpecCard item={item} />
 
+
+        {isCompanyAdmin ? (
+          <AdminReviewedProgressRequests projectId={projectId} workItemId={item.id} />
+        ) : null}
         {canViewEngineerTools ? (
           <>
             <WorkItemDurationExtensionsInlineSection projectId={projectId} workItemId={item.id} workItemName={item.name} />

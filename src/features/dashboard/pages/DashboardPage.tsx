@@ -38,28 +38,38 @@ export function DashboardPage() {
           </div>
         ) : null}
 
-        <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(330px,0.55fr)]">
-          <OngoingProjectsTable
-            projects={ongoingProjectsQuery.data ?? []}
-            isLoading={ongoingProjectsQuery.isLoading}
-            isError={ongoingProjectsQuery.isError}
-            onRetry={() => ongoingProjectsQuery.refetch()}
-          />
-          <OnTimeDeliveryChart
-            data={deliveryPerformanceQuery.data}
-            isLoading={deliveryPerformanceQuery.isLoading}
-            isError={deliveryPerformanceQuery.isError}
-            onRetry={() => deliveryPerformanceQuery.refetch()}
-          />
+        <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(330px,0.72fr)]" dir="ltr">
+          <div className="min-w-0" dir="rtl">
+            <CustomerSatisfactionChart
+              data={satisfactionQuery.data}
+              isLoading={satisfactionQuery.isLoading}
+              isError={satisfactionQuery.isError}
+            />
+          </div>
+
+          <div className="min-w-0" dir="rtl">
+            <OnTimeDeliveryChart
+              data={deliveryPerformanceQuery.data}
+              isLoading={deliveryPerformanceQuery.isLoading}
+              isError={deliveryPerformanceQuery.isError}
+              onRetry={() => deliveryPerformanceQuery.refetch()}
+            />
+          </div>
         </div>
 
-        <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(370px,0.62fr)_minmax(0,1.38fr)]">
-          <DashboardAiInspectionPanel />
-          <CustomerSatisfactionChart
-            data={satisfactionQuery.data}
-            isLoading={satisfactionQuery.isLoading}
-            isError={satisfactionQuery.isError}
-          />
+        <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1.38fr)_minmax(370px,0.62fr)]" dir="ltr">
+          <div className="min-w-0" dir="rtl">
+            <OngoingProjectsTable
+              projects={ongoingProjectsQuery.data ?? []}
+              isLoading={ongoingProjectsQuery.isLoading}
+              isError={ongoingProjectsQuery.isError}
+              onRetry={() => ongoingProjectsQuery.refetch()}
+            />
+          </div>
+
+          <div className="min-w-0" dir="rtl">
+            <DashboardAiInspectionPanel />
+          </div>
         </div>
       </div>
 

@@ -30,7 +30,7 @@ export function useWorkItemProgressRequests(
 ) {
   const userRole = useAuthStore((state) => state.user?.role)
   const canAccessProgressRequests =
-    userRole === 'project_manager' || userRole === 'engineer'
+    userRole === 'company_admin' || userRole === 'project_manager' || userRole === 'engineer'
   const queryEnabled = Boolean(
     enabled && canAccessProgressRequests && projectId && workItemId,
   )
