@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Project } from '../models/project.model'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
 import { clampProgressPercent, formatMeasurement, formatProjectDate } from '../utils/projects-formatters'
@@ -8,12 +9,13 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const progressPercent = clampProgressPercent(project.progressPercent)
 
   return (
     <article className="relative flex min-h-[265px] flex-col overflow-visible rounded-2xl border border-slate-200 bg-white text-right shadow-[0_10px_30px_rgb(var(--color-brand-ink-rgb)/0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgb(var(--color-brand-ink-rgb)/0.12)]">
       <div className="relative flex items-start justify-between gap-3 px-4 pb-4 pl-16 pt-5 sm:px-5 sm:pl-5">
-        <ProjectActionsMenu projectId={project.id} />
+        <ProjectActionsMenu projectId={project.id} isOpen={isMenuOpen} onToggle={() => setIsMenuOpen((value) => !value)} onClose={() => setIsMenuOpen(false)} />
 
         <div className="min-w-0 flex-1 pt-1">
           <Link to={`/projects/${project.id}`} className="block text-lg font-extrabold leading-8 text-slate-900 transition hover:text-[var(--color-brand-ink)]">
@@ -61,30 +63,71 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
 interface ProjectActionsMenuProps {
   projectId: string
+  isOpen: boolean
+  onToggle: () => void
+  onClose: () => void
 }
 
-function ProjectActionsMenu({ projectId }: ProjectActionsMenuProps) {
-  const navigate = useNavigate()
+function ProjectActionsMenu({ projectId, isOpen, onToggle, onClose }: ProjectActionsMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Node && !menuRef.current?.contains(target)) onClose()
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [isOpen, onClose])
 
   return (
-    <select
-      value=""
-      onChange={(event) => {
-        const to = event.target.value
-        if (to) navigate(to)
-      }}
-      aria-label="إجراءات المشروع"
-      className="absolute left-3 top-3 z-40 h-10 w-10 shrink-0 cursor-pointer appearance-none rounded-xl border-0 bg-white text-center text-base font-black leading-none text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-ink)] sm:relative sm:left-auto sm:top-auto sm:z-auto sm:h-9 sm:w-9 sm:bg-transparent sm:shadow-none sm:ring-0"
+    <div
+      ref={menuRef}
+      className="absolute left-3 top-3 z-40 shrink-0 sm:relative sm:left-auto sm:top-auto sm:z-auto"
     >
-      <option value="" disabled hidden>
-        ⋯
-      </option>
-      <option value={`/projects/${projectId}`}>عرض التفاصيل</option>
-      <option value={`/projects/${projectId}/edit`}>تعديل</option>
-      <option value={`/projects/${projectId}/team`}>فريق العمل</option>
-      <option value={`/projects/${projectId}/spaces`}>الفراغات</option>
-      <option value={`/projects/${projectId}/work-items`}>بنود العمل</option>
-    </select>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)] sm:h-9 sm:w-9 sm:bg-transparent sm:shadow-none sm:ring-0"
+        aria-label="إجراءات المشروع"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+      >
+        <Icon name="dots" className="h-5 w-5" />
+      </button>
+
+      {isOpen ? (
+        <div
+          className="absolute left-0 top-12 z-[120] w-[min(14rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 shadow-[0_20px_55px_rgb(var(--color-brand-ink-rgb)/0.22)] sm:top-11 sm:w-56"
+          role="menu"
+        >
+          <MenuLink to={`/projects/${projectId}`} icon="eye" label="عرض التفاصيل" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/edit`} icon="edit" label="تعديل" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/team`} icon="users" label="فريق العمل" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/spaces`} icon="home" label="الفراغات" onClick={onClose} />
+          <MenuLink to={`/projects/${projectId}/work-items`} icon="checklist" label="بنود العمل" onClick={onClose} />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+interface MenuLinkProps {
+  to: string
+  icon: IconName
+  label: string
+  onClick: () => void
+}
+
+function MenuLink({ to, icon, label, onClick }: MenuLinkProps) {
+  return (
+    <Link to={to} onClick={onClick} className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50 hover:text-[var(--color-brand-ink)]">
+      <Icon name={icon} className="h-4 w-4" />
+      {label}
+    </Link>
   )
 }
 
@@ -122,9 +165,29 @@ function MetricItem({ icon, label, value }: MetricItemProps) {
   )
 }
 
-type IconName = 'area' | 'calendar' | 'height' | 'location' | 'progress' | 'trash'
+type IconName =
+  | 'area'
+  | 'calendar'
+  | 'checklist'
+  | 'dots'
+  | 'edit'
+  | 'eye'
+  | 'height'
+  | 'home'
+  | 'location'
+  | 'progress'
+  | 'trash'
+  | 'users'
 
 function Icon({ name, className }: { name: IconName; className?: string }) {
+  if (name === 'dots') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 5.5h.01M12 12h.01M12 18.5h.01" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (name === 'location') {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -163,6 +226,47 @@ function Icon({ name, className }: { name: IconName; className?: string }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M5 5h14v15H5zM8 3v4M16 3v4M5 9h14" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'eye') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </svg>
+    )
+  }
+
+  if (name === 'edit') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'users') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM3.5 20a5.5 5.5 0 0 1 11 0M17 9a3 3 0 1 0 0-6M16 14a4.5 4.5 0 0 1 4.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'home') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 11.5 12 4l8 7.5V20h-5v-5H9v5H4z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  if (name === 'checklist') {
+    return (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M9 7h10M9 12h10M9 17h10M4.5 7l1 1 2-2M4.5 12l1 1 2-2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
