@@ -223,9 +223,8 @@ export async function uploadDocumentVersion(input: UploadDocumentVersionInput): 
   return mapDocumentDetails(data.data.document)
 }
 
-export async function downloadDocumentVersion(version: Pick<ProjectDocumentVersion, 'id' | 'versionNo' | 'filePath' | 'downloadUrl'>) {
-  const downloadPath = version.downloadUrl ?? `/documents/versions/${version.id}/download`
-  const response = await api.get<Blob>(downloadPath, {
+export async function downloadDocumentVersion(version: Pick<ProjectDocumentVersion, 'id' | 'versionNo' | 'filePath'>) {
+  const response = await api.get<Blob>(`/documents/versions/${version.id}/download`, {
     responseType: 'blob',
   })
 
