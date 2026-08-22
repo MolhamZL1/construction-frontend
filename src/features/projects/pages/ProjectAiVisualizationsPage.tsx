@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { LoadingState } from '@/components/ui'
 import { type ProjectImage } from '../api/project-images.api'
@@ -508,7 +509,7 @@ function CreateVisualizationDialog({
     })
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm" dir="rtl">
       <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-2xl ring-1 ring-slate-200">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -628,7 +629,8 @@ function CreateVisualizationDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -674,7 +676,7 @@ function ReferencePreviewStrip({ previews, onRemove, onClear }: { previews: File
 function ImagePreviewDialog({ preview, onClose }: { preview: PreviewState | null; onClose: () => void }) {
   if (!preview) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm" dir="rtl">
       <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[1.5rem] bg-white shadow-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
@@ -699,7 +701,8 @@ function ImagePreviewDialog({ preview, onClose }: { preview: PreviewState | null
           <img src={preview.url} alt={preview.title} className="mx-auto max-h-[76vh] rounded-2xl object-contain" />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

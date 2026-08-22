@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { WorkItemIcon } from './WorkItemIcon'
 
 interface ConfirmDialogProps {
@@ -28,7 +29,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4" dir="rtl">
       <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-2xl">
         <h2 className="text-xl font-black text-slate-900">{title}</h2>
@@ -64,6 +65,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

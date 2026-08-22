@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 
 import { LoadingState, SearchInput } from '@/components/ui'
@@ -134,7 +135,7 @@ export function ProjectOwnerDialog({
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm"
       role="dialog"
@@ -323,7 +324,8 @@ export function ProjectOwnerDialog({
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

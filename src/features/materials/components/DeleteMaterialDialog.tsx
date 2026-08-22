@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+
 import type { Material } from '../models/material.model'
 import { MaterialIcon } from './MaterialIcon'
 
@@ -12,7 +14,7 @@ interface DeleteMaterialDialogProps {
 export function DeleteMaterialDialog({ material, isDeleting, errorMessage, onClose, onConfirm }: DeleteMaterialDialogProps) {
   if (!material) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4" dir="rtl">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-2xl">
         <div className="flex items-start gap-4">
@@ -48,6 +50,7 @@ export function DeleteMaterialDialog({ material, isDeleting, errorMessage, onClo
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

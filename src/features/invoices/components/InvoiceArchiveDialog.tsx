@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+
 import { InvoiceIcon } from './InvoiceIcon'
 
 interface InvoiceArchiveDialogProps {
@@ -12,7 +14,7 @@ interface InvoiceArchiveDialogProps {
 export function InvoiceArchiveDialog({ open, invoiceNumber, isSubmitting, errorMessage, onCancel, onConfirm }: InvoiceArchiveDialogProps) {
   if (!open) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/35 px-4" dir="rtl">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-right shadow-2xl">
         <div className="flex items-start gap-4">
@@ -50,6 +52,7 @@ export function InvoiceArchiveDialog({ open, invoiceNumber, isSubmitting, errorM
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

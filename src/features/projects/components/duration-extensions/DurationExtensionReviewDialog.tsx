@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import type { DurationExtensionRequest } from '../../models/duration-extension.model'
 
@@ -33,7 +34,7 @@ export function DurationExtensionReviewDialog({
     ? 'اكتب سبب الرفض حتى يظهر للمساعد بشكل واضح.'
     : 'سيتم قبول طلب تمديد مدة البند وتحديث حالة الطلب.'
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6" dir="rtl">
       <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white text-right shadow-2xl">
         <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
@@ -104,6 +105,7 @@ export function DurationExtensionReviewDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

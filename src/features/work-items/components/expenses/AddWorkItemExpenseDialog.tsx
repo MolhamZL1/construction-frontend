@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { createPortal } from 'react-dom'
 
 import { getWorkItemExpensesErrorMessage } from '../../api/work-item-expenses.api'
 import { useCreateWorkItemExpense } from '../../hooks/useWorkItemExpenses'
@@ -90,7 +91,7 @@ export function AddWorkItemExpenseDialog({
     }
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center p-4" dir="rtl">
       <button
         type="button"
@@ -202,6 +203,7 @@ export function AddWorkItemExpenseDialog({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { createPortal } from 'react-dom'
 import { z } from 'zod'
 import { useSearchParams } from 'react-router-dom'
 import { CreateEquipmentForm } from '../components/CreateEquipmentForm'
@@ -133,7 +134,7 @@ interface MaintenanceDialogProps {
 }
 
 function MaintenanceDialog({ equipment, onClose }: MaintenanceDialogProps) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
       <div className="w-full max-w-2xl rounded-2xl bg-white p-5 text-right shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -152,7 +153,8 @@ function MaintenanceDialog({ equipment, onClose }: MaintenanceDialogProps) {
 
         <CreateMaintenanceForm equipmentId={equipment.id} equipmentName={equipment.name} onCreated={onClose} />
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -191,7 +193,7 @@ function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogPr
 
   const errorMessage = closeMaintenanceMutation.error ? getEquipmentsErrorMessage(closeMaintenanceMutation.error) : null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4 py-6" role="dialog" aria-modal="true">
       <div className="w-full max-w-xl rounded-2xl bg-white p-5 text-right shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -239,6 +241,7 @@ function CloseMaintenanceDialog({ equipment, onClose }: CloseMaintenanceDialogPr
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

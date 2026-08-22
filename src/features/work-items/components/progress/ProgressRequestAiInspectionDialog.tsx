@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { createPortal } from 'react-dom'
 
 import { inspectProgressRequest, type AiInspectionResult, type AiInspectionType } from '@/features/tools/api/ai-inspection.api'
 import { AiInspectionResultCard } from '@/features/tools/components/AiInspectionResultCard'
@@ -81,7 +82,7 @@ export function ProgressRequestAiInspectionDialog({ request, isOpen, onClose }: 
 
   if (!isOpen || !request) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm" dir="rtl">
       <section className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white text-right shadow-[0_28px_100px_rgb(var(--color-brand-ink-deep-rgb)/0.32)]">
         <header className="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-l from-[rgb(var(--color-brand-gold-rgb)/0.14)] via-white to-white px-5 py-4 sm:px-6">
@@ -201,7 +202,8 @@ export function ProgressRequestAiInspectionDialog({ request, isOpen, onClose }: 
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Navigate, useParams } from 'react-router-dom'
 
 import { BackButton, LoadingState } from '@/components/ui'
@@ -323,7 +324,7 @@ function CreateDurationExtensionDialog({
     await onSubmit({ requestedDays: Math.round(days), reason: reason.trim() })
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/45 px-4 py-6" dir="rtl">
       <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white text-right shadow-2xl">
         <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
@@ -398,7 +399,8 @@ function CreateDurationExtensionDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
