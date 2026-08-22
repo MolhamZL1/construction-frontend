@@ -60,12 +60,12 @@ export function WorkItemsPageHeader({ projectId, projectStatus, search, onSearch
               طلبات تحديث الإنجاز
             </Link>
           ) : null}
-          <Link
+       {canCreate?  <Link
             to={`/projects/${projectId}/work-items/inactive`}
             className="inline-flex h-11 w-full items-center justify-center sm:w-auto rounded-xl border border-slate-200 bg-white px-4 text-sm font-extrabold text-slate-600 transition hover:border-[rgb(var(--color-brand-gold-rgb)/0.3)] hover:text-[var(--color-brand-ink)]"
           >
             البنود غير المفعلة
-          </Link>
+          </Link>:null}
           {canCreate ? (
             <Link
               to={`/projects/${projectId}/work-items/create`}
