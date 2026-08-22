@@ -53,8 +53,7 @@ export function CreateDocumentVersionPage() {
         hideTitleFields
         customNameLabel="اسم الإصدار"
         customNamePlaceholder="مثال: تقرير-التربة-v2"
-        customNameHelpText="سيُرسل اسم الإصدار إلى API ضمن الحقل custom_name."
-        isSubmitting={uploadVersionMutation.isPending}
+      isSubmitting={uploadVersionMutation.isPending}
         errorMessage={uploadVersionMutation.isError ? getDocumentsErrorMessage(uploadVersionMutation.error) : null}
         onSubmit={(values) => {
           uploadVersionMutation.mutate(

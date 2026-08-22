@@ -18,7 +18,6 @@ interface DocumentUploadFormProps {
   hideCustomNameField?: boolean
   customNameLabel?: string
   customNamePlaceholder?: string
-  customNameHelpText?: string
   titleLabel?: string
   titlePlaceholder?: string
   isSubmitting?: boolean
@@ -37,7 +36,6 @@ export function DocumentUploadForm({
   hideCustomNameField = false,
   customNameLabel = 'اسم الملف داخل النظام',
   customNamePlaceholder = 'مثال: contract-v1',
-  customNameHelpText = 'سيُرسل هذا الحقل باسم custom_name حسب API.',
   titleLabel = 'عنوان الملف',
   titlePlaceholder = 'مثال: عقد المشروع',
   isSubmitting = false,
