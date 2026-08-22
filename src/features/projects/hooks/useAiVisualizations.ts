@@ -1,4 +1,4 @@
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addAiVisualizationComment,
   createAiVisualization,
@@ -14,12 +14,11 @@ import { listProjectImages, type ProjectImage } from '../api/project-images.api'
 export const aiVisualizationKeys = {
   all: ['ai-visualizations'] as const,
   projectImages: (projectId: string) => ['project-images', projectId] as const,
-  visualizations: (projectImageId: string) => ['ai-visualizations', 'image', projectImageId] as const,
+visualizations: (projectId: string) => ['ai-visualizations', 'project', projectId] as const,
   comments: (visualizationId: string) => ['ai-visualization-comments', visualizationId] as const,
 }
-
 export interface ProjectAiVisualization extends AiVisualization {
-  sourceImage: ProjectImage
+  sourceImage?: ProjectImage
 }
 
 export function useProjectImages(projectId?: string) {
@@ -29,36 +28,26 @@ export function useProjectImages(projectId?: string) {
     enabled: Boolean(projectId),
   })
 }
-
-export function useProjectAiVisualizations(projectImages: ProjectImage[]) {
-  const queries = useQueries({
-    queries: projectImages.map((image) => ({
-      queryKey: aiVisualizationKeys.visualizations(image.id),
-      queryFn: () => listAiVisualizations(image.id),
-      enabled: Boolean(image.id),
-      staleTime: 20_000,
-    })),
+export function useProjectAiVisualizations(projectId: string) {
+  const query = useQuery({
+    queryKey: aiVisualizationKeys.visualizations(projectId),
+    queryFn: () => listAiVisualizations(projectId),
+    enabled: Boolean(projectId),
+    staleTime: 20_000,
   })
 
-  const data = projectImages
-    .flatMap((image, index) => {
-      const visualizations = queries[index]?.data ?? []
-      return visualizations.map((visualization): ProjectAiVisualization => ({
-        ...visualization,
-        sourceImage: image,
-      }))
-    })
-    .sort((first, second) => new Date(second.createdAt ?? 0).getTime() - new Date(first.createdAt ?? 0).getTime())
+  const data = [...(query.data ?? [])].sort(
+    (first, second) => new Date(second.createdAt ?? 0).getTime() - new Date(first.createdAt ?? 0).getTime()
+  )
 
   return {
     data,
-    isLoading: queries.some((query) => query.isLoading),
-    isFetching: queries.some((query) => query.isFetching),
-    isError: queries.some((query) => query.isError),
-    error: queries.find((query) => query.error)?.error ?? null,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    isError: query.isError,
+    error: query.error ?? null,
   }
 }
-
 export function useCreateAiVisualization() {
   const queryClient = useQueryClient()
 
@@ -76,9 +65,9 @@ export function useDeleteAiVisualization() {
 
   return useMutation({
     mutationFn: (visualizationId: string) => deleteAiVisualization(visualizationId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.all })
-    },
+  onSuccess: () => {
+  void queryClient.invalidateQueries({ queryKey: aiVisualizationKeys.all })
+},
   })
 }
 

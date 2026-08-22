@@ -52,7 +52,7 @@ export function ProjectAiVisualizationsPage() {
   const summaryQuery = useProjectSummary(projectId)
   const imagesQuery = useProjectImages(projectId)
   const projectImages = imagesQuery.data ?? []
-  const visualizationsQuery = useProjectAiVisualizations(projectImages)
+const visualizationsQuery = useProjectAiVisualizations(projectId)
   const createMutation = useCreateAiVisualization()
   const deleteVisualizationMutation = useDeleteAiVisualization()
 
@@ -327,8 +327,9 @@ function VisualizationCard({
       </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-3 py-2">
-        <span className="truncate text-xs font-black text-slate-700">{visualization.sourceImage.name}</span>
-        <span className="shrink-0 text-[11px] font-bold text-slate-400">{formatDate(visualization.createdAt)}</span>
+<span className="truncate text-xs font-black text-slate-700">
+  {visualization.sourceImage?.name ?? 'صورة المشروع'}
+</span>        <span className="shrink-0 text-[11px] font-bold text-slate-400">{formatDate(visualization.createdAt)}</span>
       </div>
 
       {commentsOpen ? <CommentsPanel visualizationId={visualization.id} /> : null}

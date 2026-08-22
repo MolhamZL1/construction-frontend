@@ -141,8 +141,8 @@ export async function createAiVisualization(input: CreateAiVisualizationInput): 
   return mapVisualization(data.data)
 }
 
-export async function listAiVisualizations(projectImageId: string): Promise<AiVisualization[]> {
-  const { data } = await api.get<ApiEnvelope<AiVisualizationDto[]>>(`/project-images/${projectImageId}/visualizations`, {
+export async function listAiVisualizations(projectId: string): Promise<AiVisualization[]> {
+  const { data } = await api.get<ApiEnvelope<AiVisualizationDto[]>>(`/project-images/${projectId}/visualizations`, {
     headers: { Accept: 'application/json' },
   })
 
