@@ -47,8 +47,7 @@ export function MaterialForm({ mode, initialMaterial, unitOptions, isSubmitting,
         </span>
         <div>
           <h2 className="text-xl font-black text-slate-950">بيانات المادة</h2>
-          <p className="mt-1 text-xs font-bold text-slate-400">اسم المادة ووحدة القياس حسب وحدات API</p>
-        </div>
+      </div>
       </div>
 
       <div className="grid gap-5">

@@ -105,7 +105,6 @@ export function DocumentUploadForm({
             disabled={isSubmitting}
             dir="ltr"
           />
-          <span className="block text-xs font-semibold text-slate-400">{customNameHelpText}</span>
         </label>
       ) : null}
 
