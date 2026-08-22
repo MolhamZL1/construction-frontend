@@ -100,8 +100,8 @@ export function OnTimeDeliveryChart({
 
           {(data?.totalDeliveredProjects ?? 0) > 0 ? (
             <p className="mt-3 max-w-xs text-center text-xs font-bold leading-6 text-slate-500">
-              تم تسليم <strong className="text-slate-800">{data?.onTimeProjects ?? 0}</strong> مشروعاً في موعده من أصل{' '}
-              <strong className="text-slate-800">{data?.totalDeliveredProjects ?? 0}</strong> مشروعاً مكتملًا.
+              تم تسليم <strong className="text-slate-800">{data?.onTimeProjects ?? 0}</strong> مشروع في موعده من أصل{' '}
+              <strong className="text-slate-800">{data?.totalDeliveredProjects ?? 0}</strong> مشروع مكتمل.
             </p>
           ) : (
             <p className="mt-3 max-w-xs text-center text-xs font-bold leading-6 text-slate-500">
